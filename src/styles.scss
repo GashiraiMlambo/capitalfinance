@@ -1,1 +1,579 @@
-/* You can add global styles to this file, and also import other style files */
+/* Google Fonts: Outfit and Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+// Colors & Styling Variables
+:root, .light-theme {
+  --primary: #0F0CE8;
+  --primary-hover: #0705A3;
+  --primary-rgb: 15, 12, 232;
+  --primary-light: rgba(15, 12, 232, 0.06);
+  --primary-gradient: linear-gradient(135deg, #0F0CE8 0%, #3B38FF 100%);
+  --primary-glow: rgba(15, 12, 232, 0.2);
+
+  --bg-base: #F4F6FA;
+  --bg-surface: #FFFFFF;
+  --bg-sidebar: #090757;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --bg-sidebar-active: #0F0CE8;
+
+  --text-main: #0F172A;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
+
+  --success: #10B981;
+  --success-light: rgba(16, 185, 129, 0.1);
+  --warning: #F59E0B;
+  --warning-light: rgba(245, 158, 11, 0.1);
+  --danger: #EF4444;
+  --danger-light: rgba(239, 68, 68, 0.1);
+  --info: #0EA5E9;
+  --info-light: rgba(14, 165, 233, 0.1);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-primary: 0 4px 14px 0 rgba(15, 12, 232, 0.3);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+.dark-theme {
+  --primary: #524FFF;
+  --primary-hover: #3B38FF;
+  --primary-rgb: 82, 79, 255;
+  --primary-light: rgba(82, 79, 255, 0.12);
+  --primary-gradient: linear-gradient(135deg, #524FFF 0%, #7674FF 100%);
+  --primary-glow: rgba(82, 79, 255, 0.35);
+
+  --bg-base: #0B0F19;
+  --bg-surface: #151D30;
+  --bg-sidebar: #090B11;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --bg-sidebar-active: #524FFF;
+
+  --text-main: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-inverse: #0B0F19;
+
+  --border: #242F47;
+  --border-light: #1A2438;
+
+  --success: #34D399;
+  --success-light: rgba(52, 211, 153, 0.15);
+  --warning: #FBBF24;
+  --warning-light: rgba(251, 191, 36, 0.15);
+  --danger: #F87171;
+  --danger-light: rgba(248, 113, 113, 0.15);
+  --info: #38BDF8;
+  --info-light: rgba(56, 189, 248, 0.15);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-primary: 0 4px 14px 0 rgba(82, 79, 255, 0.4);
+}
+
+// Reset & Core Layout Styles
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-main);
+  background-color: var(--bg-base);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+// Typography Helper Classes
+.text-gradient {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// UI Buttons
+.btn-primary {
+  background: var(--primary-gradient);
+  color: #FFF;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px 0 rgba(var(--primary-rgb), 0.4);
+    opacity: 0.95;
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s, border-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: var(--border-light);
+    border-color: var(--text-muted);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+  transition: transform 0.2s, opacity 0.2s;
+
+  &:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+  }
+}
+
+// Banking Cards Design System
+.card-banking {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border);
+  }
+
+  &.card-gradient-primary {
+    background: var(--primary-gradient);
+    color: var(--text-inverse);
+    border: none;
+    box-shadow: var(--shadow-primary);
+    
+    h1, h2, h3, h4, h5, h6, span, p, label, .text-muted {
+      color: white !important;
+    }
+  }
+}
+
+// Enterprise Banking Tables
+.table-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-enterprise {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th {
+    background: var(--border-light);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-main);
+    font-size: 13.5px;
+    vertical-align: middle;
+  }
+
+  tr:hover td {
+    background: var(--primary-light);
+  }
+}
+
+// Badges & Chips
+.chip-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  &.status-approved, &.status-active, &.status-paid, &.status-connected {
+    background: var(--success-light);
+    color: var(--success);
+  }
+
+  &.status-pending, &.status-repaying, &.status-restructured, &.status-degraded {
+    background: var(--warning-light);
+    color: var(--warning);
+  }
+
+  &.status-rejected, &.status-closed, &.status-overdue, &.status-disconnected {
+    background: var(--danger-light);
+    color: var(--danger);
+  }
+
+  &.status-disbursed, &.status-info {
+    background: var(--info-light);
+    color: var(--info);
+  }
+}
+
+// Steppers (Registration Wizard)
+.stepper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 16px;
+  
+  .step-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--border-light);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .step-label {
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    &.step-active {
+      .step-circle {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: var(--primary);
+      }
+      .step-label {
+        color: var(--primary);
+        font-weight: 600;
+      }
+    }
+
+    &.step-completed {
+      .step-circle {
+        background: var(--success);
+        color: white;
+      }
+      .step-label {
+        color: var(--success);
+      }
+    }
+  }
+
+  .step-connector {
+    flex-grow: 1;
+    height: 2px;
+    background: var(--border-light);
+    margin: 0 16px;
+
+    &.active {
+      background: var(--primary);
+    }
+  }
+}
+
+// Form Design
+.form-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .form-control {
+    width: 100%;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+
+    &:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    &::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    &:disabled {
+      background: var(--border-light);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  .error-message {
+    color: var(--danger);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+// Navigation Tabs
+.tabs-banking {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+
+  .tab-item {
+    padding: 10px 16px;
+    color: var(--text-muted);
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+
+    &:hover {
+      color: var(--primary);
+    }
+
+    &.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+  }
+}
+
+// Global Grid utilities
+.grid-container {
+  display: grid;
+  gap: 20px;
+
+  &.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  &.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  &.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  @media (max-width: 1024px) {
+    &.cols-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    &.cols-2, &.cols-3, &.cols-4 { grid-template-columns: 1fr; }
+  }
+}
+
+// Modals/Drawers Overlay Backdrop
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 24px;
+}
+
+.drawer-content {
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1010;
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.anim-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  
+  lucide-icon, svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    color: var(--border);
+  }
+}
+
+// Global Backdrop Blur and Focus when a modal or drawer is active
+body:has(.modal-overlay) {
+  .portal-sidebar,
+  .portal-header,
+  .breadcrumb-container {
+    filter: blur(3px);
+    pointer-events: none;
+    transition: filter 0.3s ease;
+  }
+}
+
+.dashboard-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.loans-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.customers-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.savings-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.collections-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.guarantors-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.collateral-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.users-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.accounting-wrapper:has(.modal-overlay) > *:not(.modal-overlay),
+.workflows-wrapper:has(.modal-overlay) > *:not(.modal-overlay) {
+  filter: blur(3px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
