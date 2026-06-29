@@ -28,17 +28,17 @@ interface MenuItem {
       <aside class="portal-sidebar">
         <div class="sidebar-brand">
           <div class="brand-logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#brand-grad)" />
-              <path d="M10 22V10L16 16L22 10V22" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-              <defs>
-                <linearGradient id="brand-grad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#3B38FF" />
-                  <stop offset="1" stop-color="#0F0CE8" />
-                </linearGradient>
-              </defs>
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Left/Top Arc -->
+              <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <!-- Right/Bottom Arc -->
+              <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <!-- Zig-zag chart line -->
+              <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+              <!-- Arrow head -->
+              <path d="M 70 32 H 88 V 50" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <span class="brand-name" *ngIf="!isSidebarCollapsed()">Capital Finance</span>
+            <span class="brand-name" *ngIf="!isSidebarCollapsed()">Central Capital Finance</span>
           </div>
           <button class="btn-sidebar-toggle" (click)="toggleSidebar()">
             <svg *ngIf="!isSidebarCollapsed()" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
@@ -206,7 +206,7 @@ interface MenuItem {
         <!-- MAIN BREADCRUMB & CONTENT -->
         <main class="content-wrapper">
           <div class="breadcrumb-container">
-            <span class="parent">Capital Finance</span>
+            <span class="parent">Central Capital Finance</span>
             <span class="sep">/</span>
             <span class="current">{{ activePageTitle() }}</span>
           </div>

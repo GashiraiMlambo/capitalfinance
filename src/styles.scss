@@ -3,18 +3,18 @@
 
 // Colors & Styling Variables
 :root, .light-theme {
-  --primary: #0F0CE8;
-  --primary-hover: #0705A3;
-  --primary-rgb: 15, 12, 232;
-  --primary-light: rgba(15, 12, 232, 0.06);
-  --primary-gradient: linear-gradient(135deg, #0F0CE8 0%, #3B38FF 100%);
-  --primary-glow: rgba(15, 12, 232, 0.2);
+  --primary: #0A2540;
+  --primary-hover: #051321;
+  --primary-rgb: 10, 37, 64;
+  --primary-light: rgba(10, 37, 64, 0.06);
+  --primary-gradient: linear-gradient(135deg, #0A2540 0%, #173B60 100%);
+  --primary-glow: rgba(10, 37, 64, 0.2);
 
   --bg-base: #F4F6FA;
   --bg-surface: #FFFFFF;
-  --bg-sidebar: #090757;
+  --bg-sidebar: #0A2540;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.08);
-  --bg-sidebar-active: #0F0CE8;
+  --bg-sidebar-active: #173B60;
 
   --text-main: #0F172A;
   --text-muted: #64748B;
@@ -35,7 +35,7 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-  --shadow-primary: 0 4px 14px 0 rgba(15, 12, 232, 0.3);
+  --shadow-primary: 0 4px 14px 0 rgba(10, 37, 64, 0.3);
 
   --radius-sm: 6px;
   --radius-md: 12px;

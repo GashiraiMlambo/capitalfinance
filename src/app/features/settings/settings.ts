@@ -159,7 +159,7 @@ export class SettingsComponent {
   activeTab = signal<'general' | 'interest' | 'audit'>('general');
 
   // Profile
-  instName = 'Capital Finance Microfinance';
+  instName = 'Central Capital Finance';
   instCurrency = 'USD';
   instLang = 'en';
 

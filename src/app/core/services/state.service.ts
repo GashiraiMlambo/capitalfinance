@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+                                                                                                                                                                                                                                                                                                                                                            import { Injectable, signal, computed } from '@angular/core';
 
 // Interfaces for our banking system
 export interface Customer {
@@ -228,7 +228,7 @@ export class StateService {
   currentUser = signal<User | null>({
     id: 'USR-001',
     name: 'Sarah Jenkins',
-    email: 's.jenkins@capitalfinance.com',
+    email: 's.jenkins@ccfinance.co.zw',
     role: 'Admin',
     branchId: 'BR-101',
     active: true,
@@ -519,10 +519,10 @@ export class StateService {
   ]);
 
   users = signal<User[]>([
-    { id: 'USR-001', name: 'Sarah Jenkins', email: 's.jenkins@capitalfinance.com', role: 'Admin', branchId: 'BR-101', active: true, avatar: 'assets/avatars/admin.png' },
-    { id: 'USR-002', name: 'Daniel Boateng', email: 'd.boateng@capitalfinance.com', role: 'Manager', branchId: 'BR-102', active: true, avatar: 'assets/avatars/manager.png' },
-    { id: 'USR-003', name: 'Markus Vance', email: 'm.vance@capitalfinance.com', role: 'CreditOfficer', branchId: 'BR-101', active: true, avatar: 'assets/avatars/officer.png' },
-    { id: 'USR-004', name: 'Alice Smith', email: 'a.smith@capitalfinance.com', role: 'CollectionOfficer', branchId: 'BR-101', active: true, avatar: 'assets/avatars/collector.png' }
+    { id: 'USR-001', name: 'Sarah Jenkins', email: 's.jenkins@ccfinance.co.zw', role: 'Admin', branchId: 'BR-101', active: true, avatar: 'assets/avatars/admin.png' },
+    { id: 'USR-002', name: 'Daniel Boateng', email: 'd.boateng@ccfinance.co.zw', role: 'Manager', branchId: 'BR-102', active: true, avatar: 'assets/avatars/manager.png' },
+    { id: 'USR-003', name: 'Markus Vance', email: 'm.vance@ccfinance.co.zw', role: 'CreditOfficer', branchId: 'BR-101', active: true, avatar: 'assets/avatars/officer.png' },
+    { id: 'USR-004', name: 'Alice Smith', email: 'a.smith@ccfinance.co.zw', role: 'CollectionOfficer', branchId: 'BR-101', active: true, avatar: 'assets/avatars/collector.png' }
   ]);
 
   workflowApprovals = signal<WorkflowApproval[]>([
@@ -607,8 +607,8 @@ export class StateService {
   ]);
 
   systemSettings = signal({
-    institutionName: 'Capital Finance',
-    tagline: 'Trust, Security & Professional Banking Innovation',
+    institutionName: 'Central Capital Finance',
+    tagline: 'Transacting made convenient',
     baseCurrency: 'USD ($)',
     interestComputation: 'Declining Balance',
     defaultPenaltyRate: 15,

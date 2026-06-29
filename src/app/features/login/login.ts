@@ -15,18 +15,24 @@ type AuthScreen = 'splash' | 'login' | 'forgot' | 'reset' | 'otp' | 'two-factor'
       <!-- SPLASH SCREEN -->
       <div class="splash-screen" *ngIf="currentScreen() === 'splash'">
         <div class="splash-content">
-          <svg class="splash-logo" width="80" height="80" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#splash-grad)" />
-            <path d="M10 22V10L16 16L22 10V22" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg class="splash-logo" width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Left/Top Arc -->
+            <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="url(#splash-grad)" stroke-width="8" stroke-linecap="round" />
+            <!-- Right/Bottom Arc -->
+            <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="url(#splash-grad)" stroke-width="8" stroke-linecap="round" />
+            <!-- Zig-zag chart line -->
+            <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="url(#splash-grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- Arrow head -->
+            <path d="M 70 32 H 88 V 50" stroke="url(#splash-grad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
             <defs>
-              <linearGradient id="splash-grad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#3B38FF" />
-                <stop offset="1" stop-color="#0F0CE8" />
+              <linearGradient id="splash-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A2540" />
+                <stop offset="1" stop-color="#173B60" />
               </linearGradient>
             </defs>
           </svg>
-          <h1 class="splash-title">Capital Finance</h1>
-          <p class="splash-tagline">Trust. Security. Innovation.</p>
+          <h1 class="splash-title">Central Capital Finance</h1>
+          <p class="splash-tagline">Transacting made convenient</p>
           <div class="splash-loader">
             <div class="loader-bar"></div>
           </div>
@@ -39,11 +45,17 @@ type AuthScreen = 'splash' | 'login' | 'forgot' | 'reset' | 'otp' | 'two-factor'
         <!-- LEFT BRAND PANEL -->
         <div class="brand-panel">
           <div class="brand-header">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="2" width="28" height="28" rx="8" fill="white" fill-opacity="0.1" />
-              <path d="M10 22V10L16 16L22 10V22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Left/Top Arc -->
+              <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <!-- Right/Bottom Arc -->
+              <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <!-- Zig-zag chart line -->
+              <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+              <!-- Arrow head -->
+              <path d="M 70 32 H 88 V 50" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <span class="brand-name">Capital Finance</span>
+            <span class="brand-name">Central Capital Finance</span>
           </div>
 
           <div class="brand-body">
@@ -65,7 +77,7 @@ type AuthScreen = 'splash' | 'login' | 'forgot' | 'reset' | 'otp' | 'two-factor'
           </div>
 
           <div class="brand-footer">
-            <span>© 2026 Capital Finance. All rights reserved.</span>
+            <span>© 2026 Central Capital Finance. All rights reserved.</span>
           </div>
         </div>
 
@@ -79,7 +91,7 @@ type AuthScreen = 'splash' | 'login' | 'forgot' | 'reset' | 'otp' | 'two-factor'
             <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
               <div class="form-group">
                 <label>Institutional Email</label>
-                <input type="email" class="form-control" formControlName="email" placeholder="e.g. s.jenkins@capitalfinance.com" />
+                <input type="email" class="form-control" formControlName="email" placeholder="e.g. s.jenkins@ccfinance.co.zw" />
                 <div class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
                   Please enter a valid institutional email
                 </div>
@@ -115,7 +127,7 @@ type AuthScreen = 'splash' | 'login' | 'forgot' | 'reset' | 'otp' | 'two-factor'
             <form [formGroup]="forgotForm" (ngSubmit)="onForgot()">
               <div class="form-group">
                 <label>Institutional Email</label>
-                <input type="email" class="form-control" formControlName="email" placeholder="e.g. s.jenkins@capitalfinance.com" />
+                <input type="email" class="form-control" formControlName="email" placeholder="e.g. s.jenkins@ccfinance.co.zw" />
               </div>
 
               <div class="btn-group">
@@ -466,7 +478,7 @@ export class LoginComponent implements OnInit {
 
     // Initialize Forms
     this.loginForm = this.fb.group({
-      email: ['s.jenkins@capitalfinance.com', [Validators.required, Validators.email]],
+      email: ['s.jenkins@ccfinance.co.zw', [Validators.required, Validators.email]],
       password: ['admin123', [Validators.required, Validators.minLength(4)]]
     });
 
