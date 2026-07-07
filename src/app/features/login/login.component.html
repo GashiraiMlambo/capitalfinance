@@ -1,0 +1,139 @@
+<div class="auth-wrapper">
+      <div class="auth-card">
+        <!-- BRAND BANNER -->
+        <div class="brand-panel">
+          <div class="brand-header">
+            <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="white" stroke-width="8" stroke-linecap="round" />
+              <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M 70 32 H 88 V 50" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="brand-name">Central Capital Finance</span>
+          </div>
+          <div class="brand-body">
+            <h2 class="promo-title">Bureau de Change & Remittance</h2>
+            <p class="promo-text">
+              Institutional staff terminal for processing secure foreign exchange buy/sell orders, local and international remittances, real-time KYC validation, and RBZ compliance submissions.
+            </p>
+            <div class="network-badge" [class.offline]="!isOnline()">
+              <span class="dot"></span>
+              <span>{{ isOnline() ? 'Systems Online' : 'Offline Mode (Local Draft Persistence Active)' }}</span>
+            </div>
+          </div>
+          <div class="brand-footer">
+            <span>© 2026 Central Capital Finance. Version 1.0</span>
+          </div>
+        </div>
+
+        <!-- AUTH FORM PANEL -->
+        <div class="form-panel">
+          <div class="form-container" *ngIf="!showOtp()">
+            <div class="form-header">
+              <h2 class="form-title">Staff Terminal Access</h2>
+              <p class="form-subtitle">Enter your institutional credentials to authenticate</p>
+            </div>
+
+            <!-- Interactive Quick Login (Helpful for test runs) -->
+            <div class="quick-login-box">
+              <label class="quick-label">Select Persona for Quick Login:</label>
+              <div class="quick-roles-grid">
+                <button type="button" class="btn-role" *ngFor="let u of stateService.users()" (click)="quickSelectUser(u)">
+                  {{ u.role.split(' ')[0] }}
+                </button>
+              </div>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+              <div class="form-group">
+                <label>Institutional Email / Username</label>
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  formControlName="email" 
+                  placeholder="name@ccfinance.co.zw"
+                  autofocus
+                />
+                <div class="error-message" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+                  Enter a valid email
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Password</label>
+                <div class="password-input-wrapper">
+                  <input 
+                    [type]="showPassword() ? 'text' : 'password'" 
+                    class="form-control" 
+                    formControlName="password" 
+                    placeholder="••••••••" 
+                  />
+                  <button type="button" class="toggle-password-btn" (click)="togglePasswordVisibility()">
+                    <span>{{ showPassword() ? 'Hide' : 'Show' }}</span>
+                  </button>
+                </div>
+                <div class="error-message" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                  Password is required
+                </div>
+              </div>
+
+              <div class="form-options">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="rememberDevice" />
+                  <span>Remember this device (suppresses 2FA for 30 days)</span>
+                </label>
+              </div>
+
+              <div class="error-message general-error" *ngIf="errorMsg()">
+                {{ errorMsg() }}
+              </div>
+
+              <button type="submit" class="btn-primary w-full" [disabled]="loginForm.invalid">
+                Verify Credentials
+              </button>
+
+              <div class="forgot-link-wrapper">
+                <a routerLink="/auth/forgot-password" class="forgot-link">Forgot Password / OTP Reset?</a>
+              </div>
+            </form>
+          </div>
+
+          <!-- CONDITIONAL 2FA OTP SCREEN -->
+          <div class="form-container" *ngIf="showOtp()">
+            <div class="form-header">
+              <div class="otp-shield-icon">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <h2 class="form-title">Enter 2FA Code</h2>
+              <p class="form-subtitle">We've sent a 6-digit verification code to your registered device</p>
+            </div>
+
+            <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+              <div class="form-group">
+                <label>6-Digit OTP Code</label>
+                <input 
+                  type="text" 
+                  class="form-control otp-input" 
+                  formControlName="code" 
+                  placeholder="000000" 
+                  maxlength="6"
+                  autofocus
+                />
+                <div class="error-message" *ngIf="otpForm.get('code')?.touched && otpForm.get('code')?.invalid">
+                  Enter exactly 6 digits
+                </div>
+              </div>
+
+              <div class="error-message general-error" *ngIf="otpErrorMsg()">
+                {{ otpErrorMsg() }}
+              </div>
+
+              <div class="btn-group">
+                <button type="button" class="btn-secondary" (click)="cancelOtp()">Back</button>
+                <button type="submit" class="btn-primary" [disabled]="otpForm.invalid">Authenticate</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>

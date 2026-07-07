@@ -1,0 +1,172 @@
+<div class="receipt-container anim-fade-in" *ngIf="transaction()">
+      <div class="receipt-card" id="printable-receipt">
+        <!-- BRANDING HEADER -->
+        <div class="receipt-header">
+          <div class="logo">
+            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="#0A2540" stroke-width="8" stroke-linecap="round" />
+              <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="#0A2540" stroke-width="8" stroke-linecap="round" />
+              <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="#0A2540" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3>Central Capital Finance</h3>
+          <p class="subtitle">Official Bureau de Change & Remittance Voucher</p>
+          <div class="bar-code">||||| | |||| ||| |||| | ||||| |</div>
+        </div>
+
+        <div class="divider-dashed"></div>
+
+        <!-- TRANSACTION METADATA -->
+        <div class="meta-section">
+          <div class="meta-row">
+            <span class="label">Voucher Reference:</span>
+            <span class="value font-mono"><strong>{{ transaction()?.id }}</strong></span>
+          </div>
+          <div class="meta-row">
+            <span class="label">Date / Time:</span>
+            <span class="value">{{ transaction()?.timestamp | date:'medium' }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="label">Operation Office:</span>
+            <span class="value">Harare CBD (BR-101)</span>
+          </div>
+          <div class="meta-row">
+            <span class="label">Teller Terminal:</span>
+            <span class="value">USR-001 (John Doe)</span>
+          </div>
+          <div class="meta-row">
+            <span class="label">Status:</span>
+            <span class="chip-status" [class.status-approved]="transaction()?.status === 'Completed'" [class.status-pending]="transaction()?.status === 'Pending'" [class.status-rejected]="transaction()?.status === 'Failed'">
+              {{ transaction()?.status }}
+            </span>
+          </div>
+        </div>
+
+        <div class="divider-dashed"></div>
+
+        <!-- TRANSACTION PARAMETERS -->
+        <div class="details-section">
+          <h4 class="section-title">Order Breakdown</h4>
+          
+          <!-- Case A: Currency Exchange Details -->
+          <div *ngIf="transaction()?.type === 'Exchange'">
+            <div class="detail-row">
+              <span class="label">Exchange Type:</span>
+              <span class="value">Currency Exchange ({{ transaction()?.direction }})</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Currency Pair:</span>
+              <span class="value">{{ transaction()?.currencyPair }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Principal Amount:</span>
+              <span class="value">\${{ transaction()?.amount | number:'1.2-2' }} USD</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Executed Exchange Rate:</span>
+              <span class="value">{{ transaction()?.rate | number:'1.2-2' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Broker Service Fee:</span>
+              <span class="value">{{ transaction()?.fee | number:'1.2-2' }} ZWG</span>
+            </div>
+            <div class="divider-thin"></div>
+            <div class="detail-row payout-row">
+              <span class="label">Net Settlement Payout:</span>
+              <span class="value text-gradient font-lg">{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Payout Method:</span>
+              <span class="value">{{ transaction()?.payoutMethod }}</span>
+            </div>
+          </div>
+
+          <!-- Case B: Remittance Details -->
+          <div *ngIf="transaction()?.type === 'Remittance'">
+            <div class="detail-row">
+              <span class="label">Remittance Class:</span>
+              <span class="value">{{ transaction()?.direction }} Remittance</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Sender Profile:</span>
+              <span class="value">{{ transaction()?.customerName }} (ID: {{ transaction()?.customerId }})</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Recipient Name:</span>
+              <span class="value">{{ transaction()?.recipientName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Recipient Contact:</span>
+              <span class="value">{{ transaction()?.recipientPhone }}</span>
+            </div>
+            <div class="detail-row" *ngIf="transaction()?.recipientAccount">
+              <span class="label">Wallet / Bank Account:</span>
+              <span class="value font-mono">{{ transaction()?.recipientAccount }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Principal Send (USD):</span>
+              <span class="value">\${{ transaction()?.amount | number:'1.2-2' }} USD</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Remittance Fee Charged:</span>
+              <span class="value">\${{ transaction()?.fee | number:'1.2-2' }} USD</span>
+            </div>
+            <div class="divider-thin"></div>
+            <div class="detail-row payout-row">
+              <span class="label">Total Collected (ZWG Equiv):</span>
+              <span class="value text-gradient font-lg">{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Payout Channel:</span>
+              <span class="value">{{ transaction()?.payoutMethod }}</span>
+            </div>
+            
+            <!-- Remittance PIN code -->
+            <div class="pin-card-wrapper" *ngIf="transaction()?.payoutPin">
+              <div class="pin-header">REMITTANCE CLAIM PIN (SECURE)</div>
+              <div class="pin-value-container">
+                <span class="pin-code">{{ transaction()?.payoutPin }}</span>
+                <button type="button" class="btn-copy" (click)="copyPin(transaction()?.payoutPin || '')">
+                  {{ copied() ? 'Copied!' : 'Copy' }}
+                </button>
+              </div>
+              <p class="pin-disclaimer">Share this PIN only with the designated recipient. Verification required at claim terminal.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-dashed"></div>
+
+        <!-- COMPLIANCE SIGNATURES -->
+        <div class="signatures-section">
+          <div class="sig-box">
+            <div class="sig-line"></div>
+            <span>Customer Signature</span>
+          </div>
+          <div class="sig-box">
+            <div class="sig-line-stamp">CCF HARARE TERMINAL 01 APPROVED</div>
+            <span>Teller Signature / Stamp</span>
+          </div>
+        </div>
+
+        <div class="receipt-footer">
+          <p>Thank you for banking with Central Capital Finance.</p>
+          <p>Regulated by the Reserve Bank of Zimbabwe (RBZ).</p>
+        </div>
+      </div>
+
+      <!-- RECEIPT BUTTON ACTIONS -->
+      <div class="receipt-actions no-print">
+        <button class="btn-secondary" (click)="printReceipt()">Print Receipt Voucher</button>
+        <button class="btn-primary" (click)="closeVoucher()">Done & Return</button>
+        
+        <!-- Manager / Admin Reversal Action -->
+        <button 
+          *ngIf="canReverseTransaction()" 
+          class="btn-danger" 
+          (click)="reverseTransaction()"
+        >
+          Reverse / Cancel Transaction
+        </button>
+      </div>
+    </div>

@@ -1,0 +1,166 @@
+.rate-management-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .split-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-pane, .right-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .table-container {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+
+      .table-header-bar {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .active-rates-tag {
+          font-size: 11px;
+          background: var(--primary-light);
+          color: var(--primary);
+          padding: 4px 10px;
+          border-radius: 9999px;
+          font-weight: 700;
+        }
+      }
+    }
+
+    .spread-tag {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .status-indicator {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      
+      &.live { background: var(--success-light); color: var(--success); }
+      &.pending { background: var(--warning-light); color: var(--warning); }
+    }
+
+    .proposals-queue-section {
+      padding: 20px;
+      border-top: 1px solid var(--border-light);
+      
+      h4 { margin-bottom: 14px; }
+    }
+
+    .proposals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .proposal-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      .prop-details {
+        h5 { margin: 0; font-size: 13.5px; }
+        .prop-rates { margin: 4px 0; font-size: 13px; }
+        .prop-meta { margin: 0; font-size: 11.5px; color: var(--text-muted); }
+      }
+
+      .prop-actions {
+        display: flex;
+        gap: 8px;
+        
+        button {
+          border: none;
+          padding: 6px 12px;
+          border-radius: var(--radius-sm);
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-verify-approve { background: var(--success); color: white; }
+        .btn-verify-reject { background: var(--danger); color: white; }
+      }
+
+      .prop-waiting {
+        .waiting-tag {
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--warning);
+          background: var(--warning-light);
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+      }
+    }
+
+    .propose-card {
+      h4 { margin-bottom: 8px; }
+      .text-sm { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .w-full {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .explain-card {
+      h4 { margin-bottom: 8px; }
+      .text-sm { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+      
+      .info-badges {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 12px;
+        
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          border-bottom: 1px dashed var(--border);
+          padding-bottom: 4px;
+          
+          span:first-child { color: var(--text-muted); }
+          span:last-child { font-weight: 600; }
+        }
+      }
+    }

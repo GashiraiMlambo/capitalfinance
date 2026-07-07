@@ -1,0 +1,200 @@
+.review-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .override-alert-banner {
+      background: var(--warning-light);
+      border: 1px solid var(--warning);
+      color: var(--text-main);
+      padding: 16px 20px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+
+      &.danger {
+        background: var(--danger-light);
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+
+      h4 { margin: 0; font-size: 16px; }
+      p { margin: 4px 0 0 0; font-size: 13px; opacity: 0.9; }
+    }
+
+    .split-columns {
+      display: grid;
+      grid-template-columns: 1.5fr 1.2fr;
+      gap: 20px;
+
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .left-pane, .right-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .left-pane {
+      padding: 24px;
+      
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 14px;
+        margin-bottom: 20px;
+        
+        h3 { margin: 0; }
+        .ref-no { font-size: 12.5px; color: var(--text-muted); font-family: monospace; }
+      }
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        &.full-width {
+          grid-column: span 2;
+          @media (max-width: 600px) {
+            grid-column: span 1;
+          }
+        }
+
+        .label {
+          font-size: 12px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+
+        .val {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-main);
+        }
+
+        .cust-link {
+          color: var(--primary);
+          text-decoration: none;
+          &:hover { text-decoration: underline; }
+        }
+
+        .font-lg { font-size: 18px; }
+      }
+    }
+
+    .vetting-card {
+      h4 { margin-bottom: 16px; }
+    }
+
+    .flag-details-box {
+      background: var(--bg-base);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border-left: 4px solid var(--warning);
+      margin-bottom: 20px;
+
+      .flag-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--warning);
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .flag-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0;
+      }
+    }
+
+    :host-context(.dark-theme) .flag-details-box {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .checklists {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+
+      .chk-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-muted);
+
+        .chk-dot {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: var(--success-light);
+          color: var(--success);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 700;
+        }
+
+        &.alert {
+          color: var(--danger);
+          font-weight: 600;
+          .chk-dot {
+            background: var(--danger-light);
+            color: var(--danger);
+          }
+        }
+      }
+    }
+
+    .actions-card {
+      h4 { margin-bottom: 8px; }
+      .text-sm { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 18px; }
+      
+      .read-only-notice {
+        margin-top: 14px;
+        padding: 12px;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 12.5px;
+        border-radius: var(--radius-md);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        line-height: 1.4;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        
+        button {
+          flex: 1;
+          justify-content: center;
+          padding: 12px;
+        }
+      }
+    }

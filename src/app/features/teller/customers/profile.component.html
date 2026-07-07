@@ -1,0 +1,218 @@
+<div class="customer-profile-container anim-fade-in" *ngIf="customer()">
+      
+      <!-- TOP STATUS ACTIONS BAR -->
+      <div class="profile-header-actions card-banking">
+        <div class="customer-brief">
+          <div class="avatar-circle">
+            {{ customer()?.name?.[0] }}
+          </div>
+          <div class="brief-info">
+            <h2>{{ customer()?.name }}</h2>
+            <p class="meta">Registered on {{ customer()?.registeredAt | date:'mediumDate' }} | System ID: {{ customer()?.id }}</p>
+          </div>
+        </div>
+
+        <div class="actions-group">
+          <!-- Compliance Flags -->
+          <button 
+            *ngIf="canFlagCustomer() && customer()?.kycStatus !== 'Flagged'" 
+            class="btn-danger" 
+            (click)="flagCustomer()"
+          >
+            Flag Profile (AML)
+          </button>
+          
+          <button 
+            *ngIf="canUnflagCustomer() && customer()?.kycStatus === 'Flagged'" 
+            class="btn-success" 
+            (click)="unflagCustomer()"
+          >
+            Clear AML Flag
+          </button>
+
+          <button class="btn-primary" (click)="toggleKycModal()">
+            Update KYC Docs
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <!-- LEFT: KYC SPECS & DOC VERIFICATION -->
+        <div class="left-col">
+          <div class="card-banking kyc-details-card">
+            <div class="card-header">
+              <h4>Regulatory KYC Registry</h4>
+              <span class="kyc-badge" [class]="customer()?.kycStatus?.toLowerCase() || ''">
+                {{ customer()?.kycStatus }}
+              </span>
+            </div>
+            
+            <div class="kyc-fields">
+              <div class="field-row">
+                <span class="label">Nationality:</span>
+                <span class="val">{{ customer()?.nationality }}</span>
+              </div>
+              <div class="field-row">
+                <span class="label">Passport / National ID:</span>
+                <span class="val font-mono">{{ customer()?.nationalId }}</span>
+              </div>
+              <div class="field-row">
+                <span class="label">Date of Birth:</span>
+                <span class="val">{{ customer()?.dob | date:'mediumDate' }}</span>
+              </div>
+              <div class="field-row">
+                <span class="label">Phone Contact:</span>
+                <span class="val">{{ customer()?.phone }}</span>
+              </div>
+              <div class="field-row" *ngIf="customer()?.email">
+                <span class="label">Email Address:</span>
+                <span class="val">{{ customer()?.email }}</span>
+              </div>
+              <div class="field-row">
+                <span class="label">Residential Address:</span>
+                <span class="val">{{ customer()?.address }}</span>
+              </div>
+              <div class="field-row">
+                <span class="label">Occupation:</span>
+                <span class="val">{{ customer()?.occupation }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uploaded Documents Checklist -->
+          <div class="card-banking documents-card">
+            <h4>Uploaded Document Scans</h4>
+            <div class="doc-list">
+              <div class="doc-item" *ngFor="let doc of customer()?.documents">
+                <div class="doc-meta">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <div class="doc-title-wrapper">
+                    <span class="doc-title"><strong>{{ doc.type }}</strong></span>
+                    <span class="doc-link font-mono">{{ doc.url }}</span>
+                  </div>
+                </div>
+                
+                <div class="doc-verify-actions">
+                  <span class="status-chip" [class]="doc.status.toLowerCase()">{{ doc.status }}</span>
+                  <!-- Manager/Compliance Verification Controls -->
+                  <div class="controls-group" *ngIf="canVerifyDocs() && doc.status === 'Pending'">
+                    <button type="button" class="btn-verify-approve" (click)="verifyDocument(doc.type, 'Verified')">Approve</button>
+                    <button type="button" class="btn-verify-reject" (click)="verifyDocument(doc.type, 'Rejected')">Reject</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROLE RESTRICTED COMPLIANCE NOTES -->
+          <div class="card-banking compliance-notes-card">
+            <h4>Compliance & Audit Notes</h4>
+            <div class="notes-body" *ngIf="hasComplianceAccess()">
+              <p class="notes-text" *ngIf="customer()?.notes">{{ customer()?.notes }}</p>
+              <p class="empty-notes" *ngIf="!customer()?.notes">No compliance alerts recorded for this customer.</p>
+              
+              <div class="notes-editor" *ngIf="canFlagCustomer()">
+                <textarea 
+                  class="form-control" 
+                  rows="3" 
+                  placeholder="Append compliance or screening note..." 
+                  [(ngModel)]="newComplianceNote"
+                ></textarea>
+                <button type="button" class="btn-secondary" (click)="appendComplianceNote()">Save Compliance Note</button>
+              </div>
+            </div>
+            <div class="restricted-warning" *ngIf="!hasComplianceAccess()">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span>Access Restricted: Compliance screening logs are only visible to Branch Managers, Compliance Officers, and Admins.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: TRANSACTION HISTORY & HISTORY TIMELINE -->
+        <div class="right-col">
+          <!-- Timeline History -->
+          <div class="card-banking timeline-card">
+            <h4>Profile Timeline & Audit Logs</h4>
+            <div class="timeline-tree">
+              <div class="timeline-node" *ngFor="let t of customer()?.timeline">
+                <div class="node-icon">
+                  <span class="icon-span">📍</span>
+                </div>
+                <div class="node-content">
+                  <span class="node-date">{{ t.date }}</span>
+                  <p class="node-title"><strong>{{ t.title }}</strong></p>
+                  <p class="node-desc">{{ t.desc }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transactions ledger for this user -->
+          <div class="card-banking customer-txns-card">
+            <h4>Customer Transaction History</h4>
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Voucher</th>
+                  <th>Type</th>
+                  <th>Equiv</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let txn of customerTxns()">
+                  <td class="font-mono">{{ txn.id }}</td>
+                  <td>{{ txn.type }} ({{ txn.currencyPair }})</td>
+                  <td>\${{ txn.amount | number:'1.2-2' }}</td>
+                  <td>
+                    <span class="chip-status" [class.status-approved]="txn.status === 'Completed'" [class.status-pending]="txn.status === 'Pending'" [class.status-rejected]="txn.status === 'Failed'">
+                      {{ txn.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <a [routerLink]="'/teller/transaction/' + txn.id + '/receipt'" class="btn-action-view">Receipt</a>
+                  </td>
+                </tr>
+                <tr *ngIf="customerTxns().length === 0">
+                  <td colspan="5" class="no-records">No transaction logs available for this customer.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- KYC UPDATE MODAL DIALOG -->
+      <div class="modal-overlay" *ngIf="showKycModal()">
+        <div class="modal-dialog">
+          <div class="modal-header">
+            <h3>Update KYC Information</h3>
+            <button class="btn-close" (click)="toggleKycModal()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control" [(ngModel)]="modalPhone" />
+            </div>
+            <div class="form-group">
+              <label>Residential Address</label>
+              <input type="text" class="form-control" [(ngModel)]="modalAddress" />
+            </div>
+            <div class="form-group">
+              <label>Occupation</label>
+              <input type="text" class="form-control" [(ngModel)]="modalOccupation" />
+            </div>
+            <div class="form-group">
+              <label>Upload Document Scan File Name</label>
+              <input type="text" class="form-control" [(ngModel)]="modalDocName" placeholder="e.g. utility_bill_july.pdf" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" (click)="toggleKycModal()">Cancel</button>
+            <button class="btn-primary" (click)="saveKycUpdate()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+    </div>

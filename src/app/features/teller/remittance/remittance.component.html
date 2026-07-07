@@ -1,0 +1,267 @@
+<div class="remittance-container anim-fade-in">
+      <!-- OFFLINE STATUS BANNER -->
+      <div class="offline-banner" *ngIf="!isOnline()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636a9 9 0 010 12.728m0-12.728l-1.414 1.414m1.414-1.414a9 9 0 00-12.728 0M6.343 17.657l1.414-1.414m-1.414 1.414a9 9 0 010-12.728M3.636 18.364a9 9 0 0012.728 0M12 12v.01"/></svg>
+        <span>Running Offline Mode. Remittance orders will be stored in your local queue and synchronized when connection is restored.</span>
+      </div>
+
+      <div class="split-layout">
+        <!-- REMITTANCE FORM PANEL -->
+        <div class="form-panel card-banking">
+          <div class="panel-header">
+            <h3>New Remittance Transfer</h3>
+            <span class="subtext">Configure local cash dispatch or international outbounds</span>
+          </div>
+
+          <form [formGroup]="remitForm" (ngSubmit)="submitRemittance()">
+            <!-- 1. Sender KYC Search -->
+            <div class="section-group">
+              <div class="section-title">
+                <span class="step-num">1</span>
+                <h5>Sender Information</h5>
+              </div>
+
+              <div class="form-group search-lookup">
+                <label>Search Registered Sender</label>
+                <div class="lookup-input-wrapper">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Type sender's name or national ID..." 
+                    [(ngModel)]="searchQuery" 
+                    [ngModelOptions]="{standalone: true}"
+                    (input)="showLookupDropdown.set(true)"
+                  />
+                  <div class="lookup-dropdown" *ngIf="showLookupDropdown() && filteredCustomers().length > 0">
+                    <button 
+                      type="button" 
+                      class="dropdown-item" 
+                      *ngFor="let c of filteredCustomers()"
+                      (click)="selectSender(c)"
+                    >
+                      <div class="cust-row-info">
+                        <span class="name">{{ c.name }}</span>
+                        <span class="passport">{{ c.nationalId }} ({{ c.nationality }})</span>
+                      </div>
+                      <span class="kyc-badge" [class]="c.kycStatus.toLowerCase()">
+                        {{ c.kycStatus }}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Selected Sender Card -->
+                <div class="selected-customer-card" *ngIf="selectedSender()">
+                  <div class="cust-card-main">
+                    <div class="cust-brief">
+                      <p class="name">{{ selectedSender()?.name }}</p>
+                      <p class="meta">{{ selectedSender()?.nationalId }} | {{ selectedSender()?.phone }}</p>
+                      <p class="address">{{ selectedSender()?.address }}</p>
+                    </div>
+                    <span class="kyc-badge" [class]="selectedSender()?.kycStatus?.toLowerCase() || ''">
+                      KYC: {{ selectedSender()?.kycStatus }}
+                    </span>
+                  </div>
+
+                  <!-- KYC Blocking Warning -->
+                  <div class="kyc-blocking-alert" *ngIf="isKycBlocked()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span><strong>KYC Check Blocked:</strong> Cannot process remittance for flagged/expired profiles.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Recipient Details -->
+            <div class="section-group" [class.disabled]="isKycBlocked() || !selectedSender()">
+              <div class="section-title">
+                <span class="step-num">2</span>
+                <h5>Recipient Details & Vetting</h5>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Recipient Full Name</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="recipientName" 
+                    placeholder="Enter recipient's full legal name" 
+                    (input)="runAmlVetting()"
+                  />
+                  <!-- AML Alert Banner -->
+                  <div class="aml-flag-banner" *ngIf="amlFlagged()">
+                    <span class="aml-tag">AML FLAG</span>
+                    <span>Recipient name matches a regulatory watchlist. Transaction will be marked **Pending** for Compliance review.</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Recipient Phone Number</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="recipientPhone" 
+                    placeholder="+263 77 000 0000" 
+                  />
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Remittance Route Type</label>
+                  <select class="form-control" formControlName="direction" (change)="updateCalculator()">
+                    <option value="Local">Local (Domestic Remittance within Zimbabwe)</option>
+                    <option value="International">International (Outbound Regional Corridor)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Payout Settlement Mode</label>
+                  <select class="form-control" formControlName="payoutMethod" (change)="updateCalculator()">
+                    <option value="Cash Pickup">Cash Pickup (USD Agent Counter)</option>
+                    <option value="Mobile Wallet">Mobile Money Wallet (EcoCash/M-Pesa)</option>
+                    <option value="Bank Deposit">Bank Account Transfer</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group" *ngIf="remitForm.value.payoutMethod !== 'Cash Pickup'">
+                <label>Recipient Wallet / Account Number</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="recipientAccount" 
+                  placeholder="Enter wallet mobile number or bank account number" 
+                />
+                <div class="error-message" *ngIf="remitForm.get('recipientAccount')?.touched && remitForm.get('recipientAccount')?.invalid">
+                  Account details are required for mobile/bank settlement.
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Amounts & Settlement -->
+            <div class="section-group" [class.disabled]="isKycBlocked() || !selectedSender()">
+              <div class="section-title">
+                <span class="step-num">3</span>
+                <h5>Transfer Calculation</h5>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Principal Transfer Amount (USD)</label>
+                  <div class="input-addon-group">
+                    <span class="addon-symbol">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      formControlName="amount" 
+                      placeholder="0.00" 
+                      (input)="updateCalculator()"
+                    />
+                  </div>
+                  <!-- Over-limit warning -->
+                  <div class="limit-warn-box" *ngIf="showLimitWarning()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Transaction exceeds Teller daily limit ($5,000). Submission will route to Branch Manager for override.</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Total Charged Amount (ZWG Equivalent)</label>
+                  <div class="calculated-payout-box text-gradient">
+                    {{ chargedLocalAmount() | number:'1.2-2' }} ZWG
+                    <span class="rate-breakdown">Principal: \${{ remitForm.value.amount || 0 }} | Fee: \${{ remitFee() }} | Rate: {{ usdToZwgRate() }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Source of Funds</label>
+                  <select class="form-control" formControlName="sourceOfFunds">
+                    <option value="Salary">Salary / Savings</option>
+                    <option value="Business Income">Trade / Retail Income</option>
+                    <option value="Gift">Allowance / Family Assistance</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Purpose of Remittance</label>
+                  <select class="form-control" formControlName="purpose">
+                    <option value="Family Support">Family Maintenance & Support</option>
+                    <option value="Education">School Tuition Fees</option>
+                    <option value="Medical">Medical Bills / Health Costs</option>
+                    <option value="Trade">Commercial Invoice Settlement</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="form-actions">
+              <button 
+                type="button" 
+                class="btn-secondary" 
+                (click)="saveLocalDraft()" 
+                [disabled]="!selectedSender()"
+              >
+                Save Draft
+              </button>
+              <button 
+                type="submit" 
+                class="btn-primary" 
+                [disabled]="remitForm.invalid || isKycBlocked() || !selectedSender()"
+              >
+                Submit Remittance
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT PANEL: OFFLINE QUEUE & COMPLIANCE SUMMARY -->
+        <div class="sidebar-info-panel">
+          <!-- Offline Queue -->
+          <div class="card-banking drafts-card">
+            <div class="card-header">
+              <h4>Local Remittance Drafts</h4>
+              <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+            </div>
+            <div class="drafts-list" *ngIf="localDrafts().length > 0">
+              <div class="draft-item" *ngFor="let d of localDrafts()">
+                <div class="draft-brief">
+                  <p class="cust-name"><strong>To: {{ d.recipientName }}</strong></p>
+                  <p class="details">Sender: {{ d.senderName }} | \${{ d.amount }} ({{ d.direction }})</p>
+                </div>
+                <div class="draft-actions">
+                  <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>
+                  <button type="button" class="btn-action-delete" (click)="deleteDraft(d.id)">×</button>
+                </div>
+              </div>
+            </div>
+            <p class="empty-text" *ngIf="localDrafts().length === 0">No cached remittance files.</p>
+          </div>
+
+          <!-- Quick Compliance Summary -->
+          <div class="card-banking compliance-brief-card">
+            <h4>remitAML™ Screening Specs</h4>
+            <p class="text-sm">Central Capital Finance enforces automatic vetting checks against UN sanctions lists, OFAC directories, and domestic watchlists for all outbound remittances.</p>
+            <div class="spec-list">
+              <div class="spec-row">
+                <span class="spec-label">Single Teller Limit:</span>
+                <span class="spec-val">$5,000.00 USD</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Recipient Match Rule:</span>
+                <span class="spec-val">Soundex String Vetting</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Corridors Enabled:</span>
+                <span class="spec-val">SADC, West Africa, EU</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

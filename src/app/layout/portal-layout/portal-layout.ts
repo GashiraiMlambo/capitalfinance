@@ -2,7 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StateService } from '../../core/services/state.service';
+import { StateService, User } from '../../core/services/state.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { TranslationService, Language } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -29,13 +29,9 @@ interface MenuItem {
         <div class="sidebar-brand">
           <div class="brand-logo">
             <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Left/Top Arc -->
               <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="white" stroke-width="8" stroke-linecap="round" />
-              <!-- Right/Bottom Arc -->
               <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="white" stroke-width="8" stroke-linecap="round" />
-              <!-- Zig-zag chart line -->
               <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-              <!-- Arrow head -->
               <path d="M 70 32 H 88 V 50" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <span class="brand-name" *ngIf="!isSidebarCollapsed()">Central Capital Finance</span>
@@ -86,6 +82,7 @@ interface MenuItem {
           </div>
         </nav>
 
+        <!-- Sidebar Footer -->
         <div class="sidebar-footer" *ngIf="!isSidebarCollapsed()">
           <div class="user-brief">
             <div class="user-avatar-placeholder">
@@ -103,21 +100,35 @@ interface MenuItem {
       <div class="portal-main">
         <!-- TOP NAVIGATION -->
         <header class="portal-header">
-          <!-- Global Search -->
+          <!-- Left: Page Title / Search -->
           <div class="header-left">
-            <div class="global-search-wrapper">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              <input 
-                type="text" 
-                placeholder="Search customers, loans, transactions..." 
-                [(ngModel)]="globalSearchQuery"
-                (keyup.enter)="triggerGlobalSearch()"
-              />
+            <div class="platform-indicator-badge">
+              <span class="indicator-dot"></span>
+              <span>Bureau de Change & Remittance</span>
             </div>
           </div>
 
-          <!-- Quick Actions & Switches -->
+          <!-- Right Actions -->
           <div class="header-right">
+            <!-- ROLE QUICK SWITCHER (WOW Feature for Interactive Testing) -->
+            <div class="dropdown-wrapper">
+              <button class="role-switcher-btn" (click)="toggleRoleDropdown()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.684 10.742l4.8 2.4A1 1 0 0015 12.257V5.743a1 1 0 00-.516-.884l-4.8-2.4a1 1 0 00-.968 0l-4.8 2.4A1 1 0 003.5 5.743v6.514a1 1 0 00.516.884l4.8 2.4a1 1 0 00.968 0z"/></svg>
+                <span>Role: {{ stateService.currentUser()?.role }}</span>
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              
+              <div class="header-dropdown role-dropdown" *ngIf="showRoleDropdown()">
+                <div class="dropdown-header">Interactive Testing Roles</div>
+                <button class="dropdown-item" *ngFor="let u of stateService.users()" (click)="selectRole(u)">
+                  <div class="role-desc">
+                    <p class="role-name">{{ u.name }}</p>
+                    <p class="role-title">{{ u.role }}</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             <!-- Language Switcher -->
             <div class="dropdown-wrapper">
               <button class="header-action-btn" (click)="toggleLanguageDropdown()">
@@ -136,16 +147,14 @@ interface MenuItem {
 
             <!-- Theme Toggle -->
             <button class="header-action-btn" (click)="themeService.toggleTheme()" title="Toggle Theme">
-              <!-- Sun Icon -->
               <svg *ngIf="themeService.isDarkMode()" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-              <!-- Moon Icon -->
               <svg *ngIf="!themeService.isDarkMode()" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
             </button>
 
-            <!-- Tasks / Workflows Count -->
-            <button class="header-action-btn" (click)="navigateTo('/portal/workflows')" title="Pending Tasks">
+            <!-- Pending Review Count (Manager & Compliance Only) -->
+            <button class="header-action-btn" *ngIf="isManagerOrCompliance()" (click)="navigateToReview()" title="Pending Overrides">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-              <span class="btn-badge badge-warning" *ngIf="pendingWorkflowsCount() > 0">{{ pendingWorkflowsCount() }}</span>
+              <span class="btn-badge badge-warning" *ngIf="pendingReviewsCount() > 0">{{ pendingReviewsCount() }}</span>
             </button>
 
             <!-- Notifications Center -->
@@ -157,8 +166,8 @@ interface MenuItem {
 
               <div class="header-dropdown notification-dropdown" *ngIf="showNotificationsDropdown()">
                 <div class="dropdown-header">
-                  <span>Notifications</span>
-                  <button class="btn-text-action" (click)="markAllNotificationsRead()">Mark all as read</button>
+                  <span>Notifications Center</span>
+                  <button class="btn-text-action" (click)="markAllNotificationsRead()">Mark read</button>
                 </div>
                 <div class="dropdown-body">
                   <div class="notification-item" *ngFor="let note of stateService.notifications()" [class.unread]="!note.read">
@@ -188,11 +197,6 @@ interface MenuItem {
                   <p class="name">{{ stateService.currentUser()?.name }}</p>
                   <p class="email">{{ stateService.currentUser()?.email }}</p>
                 </div>
-                <div class="divider"></div>
-                <button class="dropdown-item" (click)="navigateTo('/portal/settings')">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="mr-2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  Institution Settings
-                </button>
                 <div class="divider"></div>
                 <button class="dropdown-item text-danger" (click)="logout()">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="mr-2"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -225,7 +229,6 @@ interface MenuItem {
       background-color: var(--bg-base);
     }
 
-    // Sidebar Styles
     .portal-sidebar {
       width: 260px;
       background-color: var(--bg-sidebar);
@@ -370,7 +373,7 @@ interface MenuItem {
           color: white;
           background-color: var(--bg-sidebar-active);
           font-weight: 500;
-          box-shadow: 0 4px 12px rgba(15, 12, 232, 0.25);
+          box-shadow: 0 4px 12px rgba(10, 37, 64, 0.25);
           .nav-item-icon { color: white; }
         }
       }
@@ -414,7 +417,6 @@ interface MenuItem {
       }
     }
 
-    // Portal Main Panel
     .portal-main {
       flex-grow: 1;
       display: flex;
@@ -423,7 +425,6 @@ interface MenuItem {
       overflow: hidden;
     }
 
-    // Top Navigation Header
     .portal-header {
       height: 70px;
       background-color: var(--bg-surface);
@@ -434,42 +435,69 @@ interface MenuItem {
       padding: 0 24px;
       flex-shrink: 0;
       transition: background-color 0.3s, border-color 0.3s;
+    }
 
-      .global-search-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-        width: 320px;
+    .platform-indicator-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 13px;
 
-        svg {
-          position: absolute;
-          left: 12px;
-          color: var(--text-muted);
-        }
-
-        input {
-          width: 100%;
-          background: var(--bg-base);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-md);
-          padding: 8px 12px 8px 38px;
-          color: var(--text-main);
-          font-size: 13.5px;
-          outline: none;
-          transition: border-color 0.2s, background-color 0.2s;
-
-          &:focus {
-            border-color: var(--primary);
-            background: var(--bg-surface);
-          }
-        }
+      .indicator-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--success);
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
       }
+    }
 
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
+    .role-switcher-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.2s;
+
+      &:hover {
+        background: var(--border-light);
       }
+    }
+
+    .role-dropdown {
+      width: 250px;
+      max-height: 350px;
+      overflow-y: auto;
+      
+      .role-desc {
+        text-align: left;
+        .role-name { font-weight: 600; font-size: 13px; margin: 0; }
+        .role-title { font-size: 11.5px; color: var(--text-muted); margin: 0; }
+      }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .header-action-btn {
@@ -542,7 +570,6 @@ interface MenuItem {
       }
     }
 
-    // Dropdowns
     .dropdown-wrapper {
       position: relative;
     }
@@ -567,17 +594,6 @@ interface MenuItem {
         display: flex;
         justify-content: space-between;
         align-items: center;
-
-        .btn-text-action {
-          background: none;
-          border: none;
-          color: var(--primary);
-          font-size: 11px;
-          cursor: pointer;
-          font-weight: 500;
-          
-          &:hover { text-decoration: underline; }
-        }
       }
 
       .dropdown-item {
@@ -638,9 +654,9 @@ interface MenuItem {
           margin-top: 6px;
           flex-shrink: 0;
           
-          &.loan { background: var(--info); }
-          &.system { background: var(--danger); }
-          &.risk { background: var(--warning); }
+          &.rate { background: var(--info); }
+          &.override { background: var(--warning); }
+          &.compliance { background: var(--danger); }
         }
 
         .content {
@@ -662,7 +678,6 @@ interface MenuItem {
       }
     }
 
-    // Main Content layout
     .content-wrapper {
       flex-grow: 1;
       padding: 24px;
@@ -705,48 +720,46 @@ export class PortalLayoutComponent {
   translationService = inject(TranslationService);
   private router = inject(Router);
 
-  // Global search input
-  globalSearchQuery = '';
-
   // Dropdown states
   showLanguageDropdown = signal(false);
   showNotificationsDropdown = signal(false);
   showProfileDropdown = signal(false);
+  showRoleDropdown = signal(false);
 
   categories = [
-    { id: 'core', label: 'Core Banking' },
-    { id: 'operations', label: 'Operations' },
-    { id: 'management', label: 'Portfolio Management' },
-    { id: 'system', label: 'System & Security' }
+    { id: 'core', label: 'Core Bureau' },
+    { id: 'operations', label: 'Operations & Management' },
+    { id: 'system', label: 'System & Ledger' }
   ];
 
   menuItems: MenuItem[] = [
-    { title: 'Dashboard', translateKey: 'nav.dashboard', path: '/portal/dashboard', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
-    { title: 'Customers', translateKey: 'nav.customers', path: '/portal/customers', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>' },
-    { title: 'Loans', translateKey: 'nav.loans', path: '/portal/loans', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
-    { title: 'Savings', translateKey: 'nav.savings', path: '/portal/savings', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>' },
-    
-    { title: 'Wallet', translateKey: 'nav.wallet', path: '/portal/wallet', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 10h.01M16 10h.01M20 10h.01"/></svg>' },
-    { title: 'Collections', translateKey: 'nav.collections', path: '/portal/collections', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' },
-    { title: 'Guarantors', translateKey: 'nav.guarantors', path: '/portal/guarantors', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>' },
-    { title: 'Collateral', translateKey: 'nav.collateral', path: '/portal/collateral', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
-    
-    { title: 'Accounting', translateKey: 'nav.accounting', path: '/portal/accounting', category: 'management', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>' },
-    { title: 'Reports', translateKey: 'nav.reports', path: '/portal/reports', category: 'management', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>' },
-    { title: 'Branches', translateKey: 'nav.branches', path: '/portal/branches', category: 'management', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M3 10h18M5 6h14a2 2 0 012 2v13H3V8a2 2 0 012-2z"/></svg>' },
-    { title: 'Risk Management', translateKey: 'nav.risk', path: '/portal/risk', category: 'management', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>' },
+    // Teller / Branch Manager
+    { title: 'Dashboard', translateKey: 'nav.dashboard', path: '/teller/dashboard', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
+    { title: 'Currency Exchange', translateKey: 'nav.exchange', path: '/teller/exchange/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
+    { title: 'New Remittance', translateKey: 'nav.remittance', path: '/teller/remittance/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>' },
+    { title: 'Customer Onboarding', translateKey: 'nav.onboarding', path: '/onboarding/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>' },
 
-    { title: 'Workflow Engine', translateKey: 'nav.workflows', path: '/portal/workflows', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>' },
-    { title: 'Notifications', translateKey: 'nav.notifications', path: '/portal/notifications', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>' },
-    { title: 'Users & Roles', translateKey: 'nav.users', path: '/portal/users', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a5 5 0 00-5 5v3a1 1 0 001 1h8a1 1 0 001-1V7a5 5 0 00-5-5zM4 22a8 8 0 0116 0H4z"/></svg>' },
-    { title: 'Integrations', translateKey: 'nav.integrations', path: '/portal/integrations', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>' },
-    { title: 'Institution Settings', translateKey: 'nav.settings', path: '/portal/settings', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>' }
+    // Branch Manager
+    { title: 'Manager Dashboard', translateKey: 'nav.manager_dash', path: '/branch/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>' },
+    { title: 'Rate Management', translateKey: 'nav.rates', path: '/branch/rates', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>' },
+
+    // Compliance
+    { title: 'Compliance Dashboard', translateKey: 'nav.compliance_dash', path: '/compliance/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>' },
+    { title: 'RBZ Reporting & EOD', translateKey: 'nav.rbz', path: '/compliance/rbz-reporting', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>' },
+
+    // Admin
+    { title: 'User Management', translateKey: 'nav.users', path: '/admin/users', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>' },
+    { title: 'Audit Log', translateKey: 'nav.audit', path: '/admin/audit-log', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' },
+
+    // Customer
+    { title: 'Portal Home', translateKey: 'nav.portal_home', path: '/portal/home', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>' },
+    { title: 'My Transactions', translateKey: 'nav.portal_txns', path: '/portal/transactions', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' }
   ];
 
-  activePageTitle = signal<string>('Dashboard');
+  activePageTitle = signal<string>('Teller Dashboard');
 
-  pendingWorkflowsCount = computed(() => {
-    return this.stateService.workflowApprovals().filter(w => w.status === 'Pending').length;
+  pendingReviewsCount = computed(() => {
+    return this.stateService.transactions().filter(t => t.status === 'Pending').length;
   });
 
   unreadNotificationsCount = computed(() => {
@@ -764,10 +777,7 @@ export class PortalLayoutComponent {
         } else {
           this.activePageTitle.set('Portal');
         }
-        // Close dropdowns
-        this.showLanguageDropdown.set(false);
-        this.showNotificationsDropdown.set(false);
-        this.showProfileDropdown.set(false);
+        this.closeAllDropdowns();
       });
   }
 
@@ -781,7 +791,28 @@ export class PortalLayoutComponent {
 
   getFilteredItemsByCategory(categoryId: string): MenuItem[] {
     const term = this.menuSearchTerm().toLowerCase().trim();
-    const items = this.menuItems.filter(item => item.category === categoryId);
+    const userRole = this.stateService.currentUser()?.role || 'System Admin';
+
+    // RBAC Filter: which items can this role view?
+    const allowedPaths: string[] = [];
+    if (userRole === 'System Admin') {
+      allowedPaths.push('/admin/users', '/admin/audit-log', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/branch/dashboard', '/branch/rates', '/compliance/dashboard', '/compliance/rbz-reporting', '/portal/home', '/portal/transactions');
+    } else if (userRole === 'Teller') {
+      allowedPaths.push('/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new');
+    } else if (userRole === 'Branch Manager') {
+      allowedPaths.push('/branch/dashboard', '/branch/rates', '/onboarding/new', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new');
+    } else if (userRole === 'Compliance Officer') {
+      allowedPaths.push('/compliance/dashboard', '/compliance/rbz-reporting', '/branch/dashboard');
+    } else if (userRole === 'Field Agent') {
+      allowedPaths.push('/onboarding/new', '/teller/remittance/new');
+    } else if (userRole === 'Customer (Self-Service)') {
+      allowedPaths.push('/portal/home', '/portal/transactions');
+    }
+
+    const items = this.menuItems.filter(item => 
+      item.category === categoryId && allowedPaths.includes(item.path)
+    );
+
     if (!term) return items;
     return items.filter(item => 
       item.title.toLowerCase().includes(term) || 
@@ -789,23 +820,74 @@ export class PortalLayoutComponent {
     );
   }
 
-  // Dropdown controls
+  isManagerOrCompliance(): boolean {
+    const role = this.stateService.currentUser()?.role;
+    return role === 'Branch Manager' || role === 'Compliance Officer' || role === 'System Admin';
+  }
+
+  navigateToReview() {
+    const pendingTxn = this.stateService.transactions().find(t => t.status === 'Pending');
+    if (pendingTxn) {
+      this.router.navigate([`/branch/transactions/${pendingTxn.id}/review`]);
+    } else {
+      this.router.navigate(['/branch/dashboard']);
+    }
+  }
+
   toggleLanguageDropdown() {
-    this.showLanguageDropdown.update(val => !val);
+    this.showLanguageDropdown.update(v => !v);
     this.showNotificationsDropdown.set(false);
     this.showProfileDropdown.set(false);
+    this.showRoleDropdown.set(false);
   }
 
   toggleNotifications() {
-    this.showNotificationsDropdown.update(val => !val);
+    this.showNotificationsDropdown.update(v => !v);
     this.showLanguageDropdown.set(false);
     this.showProfileDropdown.set(false);
+    this.showRoleDropdown.set(false);
   }
 
   toggleProfileDropdown() {
-    this.showProfileDropdown.update(val => !val);
+    this.showProfileDropdown.update(v => !v);
     this.showLanguageDropdown.set(false);
     this.showNotificationsDropdown.set(false);
+    this.showRoleDropdown.set(false);
+  }
+
+  toggleRoleDropdown() {
+    this.showRoleDropdown.update(v => !v);
+    this.showLanguageDropdown.set(false);
+    this.showNotificationsDropdown.set(false);
+    this.showProfileDropdown.set(false);
+  }
+
+  selectRole(user: User) {
+    this.stateService.currentUser.set(user);
+    this.stateService.addAuditLog(`Switched role to: ${user.role} (${user.name})`);
+    this.closeAllDropdowns();
+
+    // Redirect to default screen
+    switch (user.role) {
+      case 'Teller':
+        this.router.navigate(['/teller/dashboard']);
+        break;
+      case 'Branch Manager':
+        this.router.navigate(['/branch/dashboard']);
+        break;
+      case 'Compliance Officer':
+        this.router.navigate(['/compliance/dashboard']);
+        break;
+      case 'System Admin':
+        this.router.navigate(['/admin/users']);
+        break;
+      case 'Field Agent':
+        this.router.navigate(['/onboarding/new']);
+        break;
+      case 'Customer (Self-Service)':
+        this.router.navigate(['/portal/home']);
+        break;
+    }
   }
 
   setLang(lang: Language) {
@@ -814,24 +896,18 @@ export class PortalLayoutComponent {
   }
 
   markAllNotificationsRead() {
-    this.stateService.notifications.update(prev => 
-      prev.map(n => ({ ...n, read: true }))
-    );
+    this.stateService.notifications.update(prev => prev.map(n => ({ ...n, read: true })));
   }
 
-  navigateTo(path: string) {
-    this.router.navigate([path]);
-  }
-
-  triggerGlobalSearch() {
-    if (!this.globalSearchQuery.trim()) return;
-    // Redirect to customer search results, or pass query to target modules
-    this.router.navigate(['/portal/customers'], { queryParams: { q: this.globalSearchQuery } });
-    this.globalSearchQuery = '';
+  closeAllDropdowns() {
+    this.showLanguageDropdown.set(false);
+    this.showNotificationsDropdown.set(false);
+    this.showProfileDropdown.set(false);
+    this.showRoleDropdown.set(false);
   }
 
   logout() {
     this.stateService.currentUser.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/auth/login']);
   }
 }

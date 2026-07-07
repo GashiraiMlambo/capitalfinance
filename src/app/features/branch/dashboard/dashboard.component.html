@@ -1,0 +1,143 @@
+<div class="branch-dashboard-container anim-fade-in">
+      
+      <!-- LIQUIDITY ALERT STRIP -->
+      <div class="liquidity-alerts" *ngIf="lowLiquidityCurrencies().length > 0">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <strong>Low Liquidity Warning:</strong> Branch cash position for 
+          <span class="warning-currency" *ngFor="let c of lowLiquidityCurrencies()">
+            {{ c.currency }} (\${{ c.balance | number }})
+          </span>
+          is below defined safety thresholds. Initiate vault transfer.
+        </div>
+      </div>
+
+      <!-- MAIN BRANCK KPI CARDS -->
+      <div class="kpi-grid">
+        <div class="card-banking card-gradient-primary">
+          <h3>Branch Exchange Volume</h3>
+          <p class="kpi-num">\${{ branchTotalVolumeUsd() | number:'1.2-2' }} USD</p>
+          <span class="kpi-sub">Today's aggregate transaction weight</span>
+        </div>
+
+        <div class="card-banking card-gradient-success">
+          <h3>Net Spread Profit</h3>
+          <p class="kpi-num">{{ branchTotalProfitZwg() | number:'1.2-2' }} ZWG</p>
+          <span class="kpi-sub">Calculated fee & rate spread margins</span>
+        </div>
+
+        <div class="card-banking card-gradient-warning" [routerLink]="hasPendingReviews() ? '/branch/dashboard' : null" style="cursor: pointer;">
+          <h3>Awaiting Overrides</h3>
+          <p class="kpi-num">{{ pendingOverrideCount() }}</p>
+          <span class="kpi-sub">Flagged orders requiring manager verification</span>
+        </div>
+
+        <div class="card-banking card-gradient-info">
+          <h3>Active Tellers</h3>
+          <p class="kpi-num">{{ activeTellersCount() }}</p>
+          <span class="kpi-sub">Terminals reporting open sessions</span>
+        </div>
+      </div>
+
+      <div class="split-columns">
+        <!-- LEFT: FLAGGED TRANSACTIONS QUEUE -->
+        <div class="left-pane table-container">
+          <div class="table-header-bar">
+            <h4>Flagged Verification Queue</h4>
+            <span class="badge-pending" *ngIf="pendingOverrideCount() > 0">{{ pendingOverrideCount() }} Action Required</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Voucher</th>
+                  <th>Teller</th>
+                  <th>Customer</th>
+                  <th>Amount (USD)</th>
+                  <th>Flag Reason</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of pendingTransactions()">
+                  <td class="font-mono"><strong>{{ t.id }}</strong></td>
+                  <td>John Doe</td>
+                  <td>{{ t.customerName }}</td>
+                  <td>\${{ t.amount | number:'1.2-2' }}</td>
+                  <td>
+                    <span class="badge-reason" [class.sanctions]="t.flagReason === 'Sanctions hit'">
+                      {{ t.flagReason }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-action-review" (click)="reviewOverride(t.id)">
+                      {{ isReadOnly() ? 'Inspect' : 'Review & Approve' }}
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="pendingTransactions().length === 0">
+                  <td colspan="6" class="no-records">
+                    No transactions currently pending manager review.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT: TELLER PERFORMANCE & LIQUIDITY -->
+        <div class="right-pane">
+          <!-- Teller Performance Drawer -->
+          <div class="card-banking tellers-card">
+            <h4>Teller Terminal Monitoring</h4>
+            <div class="teller-performance-list">
+              <div class="teller-perf-row" *ngFor="let t of tellersList()">
+                <div class="teller-brief">
+                  <div class="avatar-sm">{{ t.name[0] }}</div>
+                  <div class="teller-meta">
+                    <strong>{{ t.name }}</strong>
+                    <span class="subtext">Term: {{ t.id }} | Branch: {{ t.branchId }}</span>
+                  </div>
+                </div>
+                <div class="teller-stats">
+                  <div class="stat">
+                    <span class="label">Count</span>
+                    <span class="value">{{ getTellerTxnCount(t.id) }}</span>
+                  </div>
+                  <div class="stat text-right">
+                    <span class="label">Vol (USD)</span>
+                    <span class="value">\${{ getTellerTxnVolume(t.id) | number }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Currency Drawer Position -->
+          <div class="card-banking liquidity-card">
+            <h4>Vault & Drawer Balances</h4>
+            <div class="liquidity-bar-list">
+              <div class="liquidity-bar-item" *ngFor="let l of stateService.branchLiquidity()">
+                <div class="bar-meta">
+                  <span><strong>{{ l.currency }}</strong></span>
+                  <span>\${{ l.balance | number }} / \${{ l.reserved + l.balance | number }}</span>
+                </div>
+                <div class="bar-track">
+                  <div 
+                    class="bar-fill" 
+                    [style.width.%]="getLiquidityPercentage(l.balance, l.threshold)"
+                    [class.low-liq]="l.balance < l.threshold"
+                  ></div>
+                </div>
+                <div class="bar-labels">
+                  <span class="threshold">Min safety: \${{ l.threshold | number }}</span>
+                  <span class="status-alert" *ngIf="l.balance < l.threshold">LOW LIQUIDITY</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>

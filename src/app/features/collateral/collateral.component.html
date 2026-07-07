@@ -1,0 +1,104 @@
+<div class="collateral-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Collateral Valuations & Asset Registries</h2>
+        <button class="btn-primary" (click)="showRegisterModal.set(true)">Register Collateral</button>
+      </div>
+
+      <!-- Collateral List Table -->
+      <div class="table-container mt-4">
+        <table class="table-enterprise">
+          <thead>
+            <tr>
+              <th>Asset Code</th>
+              <th>Asset Category</th>
+              <th>Description</th>
+              <th>Estimated Market Value</th>
+              <th>Valued By</th>
+              <th>Verification Date</th>
+              <th>Insurance Status</th>
+              <th>Lien Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let col of stateService.collaterals()">
+              <td><strong>{{ col.id }}</strong></td>
+              <td>
+                <span class="chip-status status-info">{{ col.type }}</span>
+              </td>
+              <td>{{ col.description }}</td>
+              <td><strong>$ {{ col.marketValue | number:'1.2-2' }}</strong></td>
+              <td>{{ col.valuedBy }}</td>
+              <td>{{ col.valuationDate | date:'mediumDate' }}</td>
+              <td>
+                <span class="chip-status" [class]="col.isInsured ? 'status-approved' : 'status-rejected'">
+                  {{ col.isInsured ? 'Insured' : 'Uninsured' }}
+                </span>
+              </td>
+              <td>
+                <span class="chip-status" [class]="col.lienRegistered ? 'status-approved' : 'status-pending'">
+                  {{ col.lienRegistered ? 'Registered' : 'None' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- REGISTER COLLATERAL MODAL -->
+      <div class="modal-overlay" *ngIf="showRegisterModal()" (click)="showRegisterModal.set(false)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h3>Register New Collateral Asset</h3>
+          <p class="section-desc">Add asset records used to guarantee credit extensions.</p>
+
+          <form (submit)="submitCollateral(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Asset Category *</label>
+              <select class="form-control" [(ngModel)]="cType" name="ctype" required>
+                <option value="Vehicle">Vehicle (Car/Truck)</option>
+                <option value="Real Estate">Real Estate (Land/Building)</option>
+                <option value="Precious Metals">Precious Metals (Gold/Silver)</option>
+                <option value="Business Inventory">Business Stock / Inventory</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Asset Description *</label>
+              <textarea class="form-control" rows="2" [(ngModel)]="cDescription" name="cdesc" required placeholder="e.g. Toyota Hilux 2018 Registration Plate XYZ-123"></textarea>
+            </div>
+
+            <div class="grid-container cols-2">
+              <div class="form-group">
+                <label>Market Value ($) *</label>
+                <input type="number" class="form-control" [(ngModel)]="cValue" name="cval" required />
+              </div>
+              <div class="form-group">
+                <label>Valued By *</label>
+                <input type="text" class="form-control" [(ngModel)]="cValuer" name="cvaler" required />
+              </div>
+            </div>
+
+            <div class="grid-container cols-2 font-medium">
+              <div class="form-group mb-0">
+                <div class="toggle-group mt-2">
+                  <input type="checkbox" [(ngModel)]="cInsured" name="cins" id="cins" />
+                  <label for="cins">Asset is Insured</label>
+                </div>
+              </div>
+              <div class="form-group mb-0">
+                <div class="toggle-group mt-2">
+                  <input type="checkbox" [(ngModel)]="cLien" name="clien" id="clien" />
+                  <label for="clien">Register Lien / Legal Title</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-group mt-4">
+              <button type="button" class="btn-secondary" (click)="showRegisterModal.set(false)">Cancel</button>
+              <button type="submit" class="btn-primary" [disabled]="!cType || !cDescription || cValue <= 0 || !cValuer">
+                Save Asset Record
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>

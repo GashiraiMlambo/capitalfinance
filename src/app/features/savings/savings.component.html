@@ -1,0 +1,245 @@
+<div class="savings-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Savings & Share Capital Management</h2>
+        <div class="tabs-banking">
+          <div class="tab-item" [class.active]="activeTab() === 'accounts'" (click)="activeTab.set('accounts')">Savings Portfolio</div>
+          <div class="tab-item" [class.active]="activeTab() === 'open'" (click)="activeTab.set('open')">Open Savings Account</div>
+          <div class="tab-item" [class.active]="activeTab() === 'shares'" (click)="activeTab.set('shares')">Share Capital Market</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: SAVINGS ACCOUNTS DIRECTORY -->
+      <div class="tab-content" *ngIf="activeTab() === 'accounts'">
+        <div class="directory-filter-bar card-banking">
+          <div class="search-box">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search by client or account number..." [(ngModel)]="searchQuery" />
+          </div>
+          <div class="filters">
+            <select class="form-control" [(ngModel)]="filterType">
+              <option value="ALL">All Products</option>
+              <option value="Voluntary Savings">Voluntary Savings</option>
+              <option value="Fixed Deposit">Fixed Deposit</option>
+              <option value="Group Savings">Group Savings</option>
+              <option value="Share Capital">Share Capital</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Account No</th>
+                  <th>Client</th>
+                  <th>Product Type</th>
+                  <th>Interest Rate</th>
+                  <th>Current Balance</th>
+                  <th>Locked Until</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let acc of filteredAccounts()" (click)="selectAccount(acc)">
+                  <td><strong>{{ acc.accountNumber }}</strong></td>
+                  <td>{{ acc.customerName }}</td>
+                  <td>{{ acc.productType }}</td>
+                  <td>{{ acc.interestRate }}%</td>
+                  <td><strong class="text-success">$ {{ acc.balance | number:'1.2-2' }}</strong></td>
+                  <td>{{ acc.lockedUntil ? (acc.lockedUntil | date:'mediumDate') : 'N/A' }}</td>
+                  <td>
+                    <span class="chip-status" [class]="'status-' + acc.status.toLowerCase()">
+                      {{ acc.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-secondary" (click)="selectAccount(acc); $event.stopPropagation()">
+                      Deposit / Withdraw
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: OPEN SAVINGS ACCOUNT FORM -->
+      <div class="tab-content" *ngIf="activeTab() === 'open'">
+        <div class="card-banking max-w-600">
+          <h3>Open Institutional Account</h3>
+          <p class="section-desc">Create a new ledger-backed savings or deposit product for a verified member.</p>
+          
+          <form [formGroup]="openForm" (ngSubmit)="submitOpenSavings()">
+            <div class="form-group">
+              <label>Select Customer *</label>
+              <select class="form-control" formControlName="customerId">
+                <option value="">Choose Client</option>
+                <option *ngFor="let c of stateService.customers()" [value]="c.id">{{ c.name }} ({{ c.id }})</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Savings Product *</label>
+              <select class="form-control" formControlName="productType" (change)="onProductChange()">
+                <option value="Voluntary Savings">Voluntary Savings (3% Interest, No lock-in)</option>
+                <option value="Fixed Deposit">Fixed Deposit (8% Interest, 6-Month Lock)</option>
+                <option value="Group Savings">Group Savings (4% Interest, Group-collateralized)</option>
+                <option value="Share Capital">Cooperative Share Capital (Dividend Eligible)</option>
+              </select>
+            </div>
+
+            <div class="grid-container cols-2">
+              <div class="form-group">
+                <label>Opening Deposit Amount ($) *</label>
+                <input type="number" class="form-control" formControlName="initialDeposit" />
+              </div>
+              <div class="form-group">
+                <label>Interest Rate (%) *</label>
+                <input type="number" class="form-control" formControlName="interestRate" readonly />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-full" [disabled]="openForm.invalid">
+              Establish Savings Account
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: SHARE CAPITAL MARKET -->
+      <div class="tab-content" *ngIf="activeTab() === 'shares'">
+        <div class="grid-container cols-2">
+          <!-- Buy/Sell shares -->
+          <div class="card-banking">
+            <h3>Buy or Sell Share Capital</h3>
+            <p class="section-desc">Cooperative members can purchase share capital certificates which yield dividends. Current valuation is fixed at <strong>$ 10.00 / Share</strong>.</p>
+            
+            <form [formGroup]="sharesForm" (ngSubmit)="executeSharesTrade()">
+              <div class="form-group">
+                <label>Customer Account *</label>
+                <select class="form-control" formControlName="customerId">
+                  <option value="">Select Member</option>
+                  <option *ngFor="let c of stateService.customers()" [value]="c.id">{{ c.name }} ({{ c.id }})</option>
+                </select>
+              </div>
+
+              <div class="grid-container cols-2">
+                <div class="form-group">
+                  <label>Trade Action *</label>
+                  <select class="form-control" formControlName="action">
+                    <option value="BUY">Buy Shares (Capital Increase)</option>
+                    <option value="SELL">Sell Shares (Liquidate)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Number of Shares *</label>
+                  <input type="number" class="form-control" formControlName="sharesQuantity" (input)="updateSharesValuation()" />
+                </div>
+              </div>
+
+              <div class="valuation-indicator" *ngIf="sharesTotalCost() > 0">
+                Estimated Settlement Value: <strong>$ {{ sharesTotalCost() | number:'1.2-2' }}</strong>
+              </div>
+
+              <button type="submit" class="btn-primary w-full mt-2" [disabled]="sharesForm.invalid">
+                Execute Trade Settlement
+              </button>
+            </form>
+          </div>
+
+          <!-- Dividend distributions history -->
+          <div class="card-banking">
+            <h3>Cooperative Dividend Distribution Registry</h3>
+            <p class="section-desc">Audit history of profit dividend distributions declared by the credit committee.</p>
+            
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Declaration Date</th>
+                    <th>Rate Per Share</th>
+                    <th>Total Disbursed</th>
+                    <th>Authorizer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Jan 15, 2026</td>
+                    <td>$ 0.45</td>
+                    <td>$ 22,500.00</td>
+                    <td>Credit Board</td>
+                  </tr>
+                  <tr>
+                    <td>Jul 10, 2025</td>
+                    <td>$ 0.38</td>
+                    <td>$ 19,000.00</td>
+                    <td>Credit Board</td>
+                  </tr>
+                  <tr>
+                    <td>Jan 12, 2025</td>
+                    <td>$ 0.40</td>
+                    <td>$ 20,000.00</td>
+                    <td>General Assembly</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPOSIT / WITHDRAWAL DRAWER -->
+      <div class="modal-overlay" *ngIf="selectedAccount()" (click)="closeAccountDetails()">
+        <div class="drawer-content" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h3>Savings Ledger Control</h3>
+            <button class="btn-close" (click)="closeAccountDetails()">&times;</button>
+          </div>
+
+          <div class="drawer-body" *ngIf="selectedAccount() as acc">
+            <div class="customer-banner">
+              <div class="avatar-placeholder">{{ acc.customerName[0] }}</div>
+              <div class="meta">
+                <h4>{{ acc.customerName }}</h4>
+                <span>{{ acc.accountNumber }} • {{ acc.productType }}</span>
+              </div>
+            </div>
+
+            <div class="current-bal-widget">
+              <span class="lbl">Ledger Balance</span>
+              <span class="val">$ {{ acc.balance | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="drawer-section border-box">
+              <h5>Post Savings Transaction</h5>
+              <div class="grid-container cols-2 mt-2">
+                <div class="form-group">
+                  <label>Transaction Type</label>
+                  <select class="form-control" [(ngModel)]="transType">
+                    <option value="DEPOSIT">Deposit Funds</option>
+                    <option value="WITHDRAW" [disabled]="acc.status === 'Locked'">Withdraw Funds</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Amount ($)</label>
+                  <input type="number" class="form-control" placeholder="0.00" [(ngModel)]="transAmount" />
+                </div>
+              </div>
+              
+              <button class="btn-primary w-full mt-2" (click)="postSavingsTransaction()">
+                Confirm Ledger Entry
+              </button>
+            </div>
+
+            <!-- Lock status warning -->
+            <div class="warning-alert mt-4" *ngIf="acc.status === 'Locked'">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <span>This account is LOCKED for deposits until {{ acc.lockedUntil | date:'mediumDate' }}. Withdrawals are prohibited.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

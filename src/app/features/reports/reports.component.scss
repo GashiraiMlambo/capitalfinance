@@ -1,0 +1,73 @@
+.reports-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+    }
+
+    .report-selector-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 30px 24px;
+      
+      .icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        
+        &.info { background: var(--primary-light); color: var(--primary); }
+        &.success { background: var(--success-light); color: var(--success); }
+        &.warning { background: var(--warning-light); color: var(--warning); }
+      }
+
+      h4 { font-size: 16px; margin-bottom: 10px; }
+      .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; flex-grow: 1; }
+    }
+
+    .btn-group-v {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      button { width: 100%; justify-content: center; }
+    }
+
+    .toast-download-mock {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 16px 20px;
+      z-index: 2000;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      
+      .toast-body {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 13.5px;
+      }
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+      color: var(--primary);
+    }

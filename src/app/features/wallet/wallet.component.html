@@ -1,0 +1,258 @@
+<div class="wallet-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Deposits & Core Settlements</h2>
+        <div class="tabs-banking">
+          <div class="tab-item" [class.active]="activeTab() === 'deposit'" (click)="activeTab.set('deposit')">Record Cash Deposit</div>
+          <div class="tab-item" [class.active]="activeTab() === 'withdraw'" (click)="activeTab.set('withdraw')">Record Cash Withdrawal</div>
+          <div class="tab-item" [class.active]="activeTab() === 'transactions'" (click)="activeTab.set('transactions')">All Transactions</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: RECORD CASH DEPOSIT -->
+      <div class="tab-content" *ngIf="activeTab() === 'deposit'">
+        <div class="grid-container cols-2">
+          <!-- Deposit form -->
+          <div class="card-banking">
+            <h3>Record Customer Deposit</h3>
+            <p class="section-desc">Record deposits for onboarded and verified customers. Ledgers are automatically debited and credited in real-time.</p>
+
+            <div class="alert-success-banking p-3 mb-3 anim-fade-in" *ngIf="successDepositMsg()">
+              {{ successDepositMsg() }}
+            </div>
+
+            <form [formGroup]="depositForm" (ngSubmit)="executeDeposit()">
+              <div class="form-group">
+                <label>Select Customer *</label>
+                <select class="form-control" formControlName="customerId" (change)="onDepositCustomerChange()">
+                  <option value="">Choose Customer</option>
+                  <option *ngFor="let c of stateService.customers()" [value]="c.id">
+                    {{ c.name }} (ID: {{ c.id }} - KYC: {{ c.kycStatus }})
+                  </option>
+                </select>
+                
+                <!-- KYC Check Alerts -->
+                <div class="kyc-indicator-warning mt-2" *ngIf="selectedKycStatus() && selectedKycStatus() !== 'Approved'">
+                  <span class="chip-status status-rejected">⚠️ KYC: {{ selectedKycStatus() }}</span>
+                  <small class="text-danger ml-2 font-semibold">
+                    Deposits locked. Customer must be verified by the Risk team.
+                  </small>
+                </div>
+                <div class="kyc-indicator-success mt-2" *ngIf="selectedKycStatus() === 'Approved'">
+                  <span class="chip-status status-approved">✓ KYC: Approved</span>
+                  <small class="text-success ml-2 font-medium">Customer is verified and eligible to deposit funds.</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Deposit Payment Method *</label>
+                <select class="form-control" formControlName="method">
+                  <option value="Cash">Cash (Teller Counter Counterparty)</option>
+                  <option value="EcoCash">EcoCash Mobile Money</option>
+                  <option value="M-Pesa">M-Pesa Wallet Transfer</option>
+                  <option value="Bank Transfer">RTGS Bank Wire Transfer</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Deposit Amount ($) *</label>
+                <input type="number" class="form-control" formControlName="amount" />
+                <div class="error-message" *ngIf="depositForm.get('amount')?.touched && depositForm.get('amount')?.invalid">
+                  Enter a valid deposit amount
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Deposit Remarks / Source details</label>
+                <input type="text" class="form-control" formControlName="remarks" placeholder="e.g. Initial member savings deposit" />
+              </div>
+
+              <button type="submit" class="btn-primary w-full" [disabled]="depositForm.invalid || selectedKycStatus() !== 'Approved'">
+                Process Cash Deposit
+              </button>
+            </form>
+          </div>
+
+          <!-- Deposit history / receipt preview -->
+          <div class="card-banking">
+            <h3>Recent Deposits Session Audit</h3>
+            <p class="section-desc">Real-time ledger audit trail of recent teller deposits.</p>
+            
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let txn of recentDeposits()">
+                    <td>{{ txn.timestamp | date:'short' }}</td>
+                    <td>{{ txn.customerName }}</td>
+                    <td><strong class="text-success">$ {{ txn.amount | number:'1.2-2' }}</strong></td>
+                    <td><span class="chip-status status-info">{{ txn.method }}</span></td>
+                    <td><span class="chip-status status-approved">Ledgered</span></td>
+                  </tr>
+                  <tr *ngIf="recentDeposits().length === 0">
+                    <td colspan="5" class="text-center text-muted py-4">No deposits recorded in this session yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: RECORD CASH WITHDRAWAL -->
+      <div class="tab-content" *ngIf="activeTab() === 'withdraw'">
+        <div class="grid-container cols-2">
+          <!-- Withdrawal form -->
+          <div class="card-banking">
+            <h3>Record Customer Withdrawal</h3>
+            <p class="section-desc">Record cash payouts or wallet withdrawals. System automatically checks customer's available balance and KYC status.</p>
+
+            <div class="alert-success-banking p-3 mb-3 anim-fade-in" *ngIf="successWithdrawMsg()">
+              {{ successWithdrawMsg() }}
+            </div>
+
+            <form [formGroup]="withdrawForm" (ngSubmit)="executeWithdraw()">
+              <div class="form-group">
+                <label>Select Customer *</label>
+                <select class="form-control" formControlName="customerId" (change)="onWithdrawCustomerChange()">
+                  <option value="">Choose Customer</option>
+                  <option *ngFor="let c of stateService.customers()" [value]="c.id">
+                    {{ c.name }} (ID: {{ c.id }} - Wallet Bal: $ {{ c.walletBalance | number:'1.2-2' }})
+                  </option>
+                </select>
+                
+                <!-- KYC Check Alerts -->
+                <div class="kyc-indicator-warning mt-2" *ngIf="selectedWithdrawKycStatus() && selectedWithdrawKycStatus() !== 'Approved'">
+                  <span class="chip-status status-rejected">⚠️ KYC: {{ selectedWithdrawKycStatus() }}</span>
+                  <small class="text-danger ml-2 font-semibold">
+                    Withdrawals locked. Customer must be verified by the Risk team.
+                  </small>
+                </div>
+                <div class="kyc-indicator-success mt-2" *ngIf="selectedWithdrawKycStatus() === 'Approved'">
+                  <span class="chip-status status-approved">✓ KYC: Approved</span>
+                  <small class="text-success ml-2 font-medium">Customer is verified and eligible to withdraw funds.</small>
+                </div>
+                <div class="balance-indicator mt-1" *ngIf="selectedWithdrawKycStatus() === 'Approved'">
+                  <small class="text-info font-semibold">Available Wallet Balance: $ {{ selectedWithdrawBalance() | number:'1.2-2' }}</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Withdrawal Method *</label>
+                <select class="form-control" formControlName="method">
+                  <option value="Cash">Cash (Teller Counter Payout)</option>
+                  <option value="EcoCash">EcoCash Mobile money payout</option>
+                  <option value="M-Pesa">M-Pesa Mobile money payout</option>
+                  <option value="Bank Transfer">RTGS Bank Wire transfer</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Withdrawal Amount ($) *</label>
+                <input type="number" class="form-control" formControlName="amount" />
+                <div class="error-message" *ngIf="withdrawForm.get('amount')?.touched && (withdrawForm.get('amount')?.invalid || withdrawForm.get('amount')?.value > selectedWithdrawBalance())">
+                  Enter a valid amount within available balance ($ {{ selectedWithdrawBalance() | number:'1.2-2' }})
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Withdrawal Remarks / Destination details</label>
+                <input type="text" class="form-control" formControlName="remarks" placeholder="e.g. Personal cash withdrawal" />
+              </div>
+
+              <button type="submit" class="btn-primary w-full" [disabled]="withdrawForm.invalid || selectedWithdrawKycStatus() !== 'Approved' || withdrawForm.get('amount')?.value > selectedWithdrawBalance()">
+                Process Cash Withdrawal
+              </button>
+            </form>
+          </div>
+
+          <!-- Withdrawal history -->
+          <div class="card-banking">
+            <h3>Recent Withdrawals Session Audit</h3>
+            <p class="section-desc">Real-time ledger audit trail of recent payouts.</p>
+            
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let txn of recentWithdrawals()">
+                    <td>{{ txn.timestamp | date:'short' }}</td>
+                    <td>{{ txn.customerName }}</td>
+                    <td><strong class="text-danger">$ {{ txn.amount | number:'1.2-2' }}</strong></td>
+                    <td><span class="chip-status status-info">{{ txn.method }}</span></td>
+                    <td><span class="chip-status status-approved">Ledgered</span></td>
+                  </tr>
+                  <tr *ngIf="recentWithdrawals().length === 0">
+                    <td colspan="5" class="text-center text-muted py-4">No withdrawals recorded in this session yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: TRANSACTIONS LIST -->
+      <div class="tab-content" *ngIf="activeTab() === 'transactions'">
+        <div class="table-container">
+          <table class="table-enterprise">
+            <thead>
+              <tr>
+                <th>Txn ID</th>
+                <th>Source Customer</th>
+                <th>Destination</th>
+                <th>Amount</th>
+                <th>Timestamp</th>
+                <th>Remarks</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Show mock transaction histories -->
+              <tr>
+                <td><strong>TXN-4902</strong></td>
+                <td>Jenny Jenkins</td>
+                <td>Simon Jenkins</td>
+                <td><strong class="text-success">$ 150.00</strong></td>
+                <td>Jun 29, 2026 10:15 AM</td>
+                <td>Repayment share</td>
+                <td><span class="chip-status status-approved">Completed</span></td>
+              </tr>
+              <tr>
+                <td><strong>TXN-4901</strong></td>
+                <td>Simon Jenkins</td>
+                <td>M-Pesa Gateway</td>
+                <td><strong class="text-danger">$ 400.00</strong></td>
+                <td>Jun 28, 2026 04:30 PM</td>
+                <td>Wallet cashout payout</td>
+                <td><span class="chip-status status-approved">Completed</span></td>
+              </tr>
+              <tr>
+                <td><strong>TXN-4899</strong></td>
+                <td>Jenny Jenkins</td>
+                <td>Ecocash Settlement</td>
+                <td><strong class="text-success">$ 850.00</strong></td>
+                <td>Jun 27, 2026 09:00 AM</td>
+                <td>Wallet deposit cashin</td>
+                <td><span class="chip-status status-approved">Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>

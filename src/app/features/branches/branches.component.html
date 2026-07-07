@@ -1,0 +1,28 @@
+<div class="branches-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Institutional Branch Offices & Positions</h2>
+      </div>
+
+      <div class="grid-container cols-3 mt-4">
+        <div class="card-banking branch-card" *ngFor="let br of stateService.branches()">
+          <div class="header">
+            <h4>{{ br.name }}</h4>
+            <span class="code">Code: {{ br.id }}</span>
+          </div>
+
+          <p class="manager text-muted">Branch Manager: <strong>{{ br.managerName }}</strong></p>
+          <div class="divider"></div>
+
+          <div class="branch-stats">
+            <div class="stat">
+              <span class="label">Vault Cash Reserves</span>
+              <span class="value">$ {{ br.cashPosition | number:'1.2-2' }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Active Employees</span>
+              <span class="value">{{ br.employeeCount }} staff</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

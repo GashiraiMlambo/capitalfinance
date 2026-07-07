@@ -1,0 +1,144 @@
+<div class="review-container anim-fade-in" *ngIf="transaction()">
+      <!-- TOP WARNING ALERT -->
+      <div class="override-alert-banner" [class.danger]="transaction()?.flagReason === 'Sanctions hit'">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="banner-content">
+          <h4>{{ transaction()?.flagReason === 'Sanctions hit' ? 'Security Watchlist Alert' : 'Operational Limit Override Requested' }}</h4>
+          <p>This transaction has been auto-flagged and halted by the compliance engine. Verification notes are required to resolve.</p>
+        </div>
+      </div>
+
+      <div class="split-columns">
+        <!-- LEFT COLUMN: TRANSACTION SPECS -->
+        <div class="left-pane card-banking">
+          <div class="panel-header">
+            <h3>Transaction Specification</h3>
+            <span class="ref-no">Reference: {{ transaction()?.id }}</span>
+          </div>
+
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="label">Initiator Teller:</span>
+              <span class="val">John Doe (Terminal USR-001)</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Date / Time Initiated:</span>
+              <span class="val">{{ transaction()?.timestamp | date:'medium' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Customer Name / ID:</span>
+              <span class="val">
+                <a [routerLink]="'/teller/customers/' + transaction()?.customerId" class="cust-link">
+                  {{ transaction()?.customerName }} ({{ transaction()?.customerId }})
+                </a>
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Transaction Class:</span>
+              <span class="val">{{ transaction()?.type }} ({{ transaction()?.direction }})</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Settlement Amount:</span>
+              <span class="val font-lg"><strong>\${{ transaction()?.amount | number:'1.2-2' }} USD</strong></span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Payout Equivalence:</span>
+              <span class="val font-lg"><strong>{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</strong></span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Conversion Rate Applied:</span>
+              <span class="val">{{ transaction()?.rate }} ZWG per USD</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Calculated Commission:</span>
+              <span class="val">{{ transaction()?.fee | number:'1.2-2' }} ZWG</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Funds Sourcing:</span>
+              <span class="val">{{ transaction()?.sourceOfFunds }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Transaction Purpose:</span>
+              <span class="val">{{ transaction()?.purpose }}</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="label">Payout settlement mode:</span>
+              <span class="val">{{ transaction()?.payoutMethod }} {{ transaction()?.recipientAccount ? '(' + transaction()?.recipientAccount + ')' : '' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: VETTING BREAKDOWN & OVERRIDE ACTIONS -->
+        <div class="right-pane">
+          <!-- Vetting matches summary -->
+          <div class="card-banking vetting-card">
+            <h4>Compliance Engine Vetting Logs</h4>
+            <div class="flag-details-box">
+              <div class="flag-header">
+                <span class="flag-icon">⚡</span>
+                <strong>Trigger: {{ transaction()?.flagReason }}</strong>
+              </div>
+              <p class="flag-desc">{{ transaction()?.vettingResult }}</p>
+            </div>
+
+            <!-- Screening checklists -->
+            <div class="checklists">
+              <div class="chk-item checked">
+                <span class="chk-dot">✓</span>
+                <span>Customer KYC profile has active registry verification</span>
+              </div>
+              <div class="chk-item" [class.alert]="transaction()?.flagReason === 'Sanctions hit'">
+                <span class="chk-dot">✓</span>
+                <span>OFAC / Interpol PEP watchlist query run complete</span>
+              </div>
+              <div class="chk-item" [class.alert]="transaction()?.flagReason === 'Exceeds daily KYC limit'">
+                <span class="chk-dot">✓</span>
+                <span>Branch liquidity allocation threshold verified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Override actions panel -->
+          <div class="card-banking actions-card">
+            <h4>Override Determination</h4>
+            <p class="text-sm">Input detailed resolution notes. Notes will be appended to the transaction voucher and logged in the system audit database.</p>
+            
+            <div class="form-group">
+              <label>Override Review Notes <span class="text-danger">*</span></label>
+              <textarea 
+                class="form-control" 
+                rows="4" 
+                placeholder="Specify justification details for approving/rejecting this transaction override..."
+                [(ngModel)]="reviewNotes"
+                [disabled]="isReadOnly()"
+              ></textarea>
+            </div>
+
+            <!-- Read Only message for Compliance Officer on branch manager limits if needed -->
+            <div class="read-only-notice" *ngIf="isReadOnly()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Viewing in **Read-Only Mode** as Compliance Auditor. Override authority is restricted to Branch Managers.</span>
+            </div>
+
+            <div class="btn-group" *ngIf="!isReadOnly()">
+              <button 
+                type="button" 
+                class="btn-danger" 
+                [disabled]="!reviewNotes.trim()"
+                (click)="rejectOverride()"
+              >
+                Reject Transaction
+              </button>
+              <button 
+                type="button" 
+                class="btn-success" 
+                [disabled]="!reviewNotes.trim()"
+                (click)="approveOverride()"
+              >
+                Approve & Release
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

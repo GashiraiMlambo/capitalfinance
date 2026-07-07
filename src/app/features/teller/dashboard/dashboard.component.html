@@ -1,0 +1,201 @@
+<div class="teller-dashboard-container anim-fade-in">
+      
+      <!-- TOP STATUS ALERT BANNER (If Rate Changed or limit warnings exist) -->
+      <div class="alert-strip" *ngIf="tickerAlert()">
+        <span class="pulse-dot"></span>
+        <span><strong>Exchange Rate Update:</strong> The Reserve Bank Middle Office has adjusted the ZWG spread. Ticker refreshed.</span>
+        <button class="btn-close" (click)="tickerAlert.set(false)">×</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- LEFT COLUMN: SESSION STATS & QUICK ACTIONS & RATES -->
+        <div class="left-column">
+          <!-- Session Summary Card -->
+          <div class="card-banking card-gradient-primary session-card">
+            <div class="card-header">
+              <h3>Active Teller Session</h3>
+              <span class="badge-online">Active</span>
+            </div>
+            <div class="session-details">
+              <div class="detail-row">
+                <span class="label">Teller Name:</span>
+                <span class="value">{{ stateService.currentUser()?.name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Branch Office:</span>
+                <span class="value">{{ sessionStats().branchName }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Session Start:</span>
+                <span class="value">{{ sessionStats().sessionStart | date:'shortTime' }}</span>
+              </div>
+            </div>
+            <div class="session-kpis">
+              <div class="kpi-box">
+                <p class="kpi-num">{{ sessionStats().txnTodayCount }}</p>
+                <p class="kpi-label">Transactions Today</p>
+              </div>
+              <div class="kpi-box">
+                <p class="kpi-num">\${{ sessionStats().txnTodayValueUsd | number:'1.2-2' }}</p>
+                <p class="kpi-label">Exchanged (USD Eq)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Bar -->
+          <div class="card-banking actions-card">
+            <h4>Quick Operations</h4>
+            <div class="actions-grid">
+              <button class="btn-primary" routerLink="/teller/exchange/new">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                <span>New Exchange</span>
+              </button>
+              <button class="btn-primary" routerLink="/teller/remittance/new">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                <span>New Remittance</span>
+              </button>
+              <button class="btn-secondary" routerLink="/onboarding/new">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Onboard Customer</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Rate Ticker -->
+          <div class="card-banking rates-card">
+            <div class="rates-header">
+              <h4>Live Exchange Rates (ZWG)</h4>
+              <span class="refresh-indicator" [class.pulsing]="isRefreshingRates()">
+                {{ isRefreshingRates() ? 'Syncing...' : 'Updated 1m ago' }}
+              </span>
+            </div>
+            <div class="rates-list">
+              <div class="rate-row" *ngFor="let r of stateService.rates()" [class.highlight]="isRefreshingRates()">
+                <div class="pair-name">
+                  <strong>{{ r.pair }}</strong>
+                </div>
+                <div class="rates-val-group">
+                  <div class="rate-val">
+                    <span class="label">BUY</span>
+                    <span class="value text-gradient">{{ r.buyRate | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="rate-val">
+                    <span class="label">SELL</span>
+                    <span class="value">{{ r.sellRate | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-manual-sync" (click)="manualSyncRates()">Force Rates Refreshed</button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: TRANSACTION TABLE & SEARCH -->
+        <div class="right-column">
+          <!-- Search & Filter Controls -->
+          <div class="card-banking filter-card">
+            <div class="filter-inputs">
+              <div class="search-box">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Search by customer name or ID..." 
+                  [(ngModel)]="searchQuery" 
+                />
+              </div>
+              <div class="selectors">
+                <select class="form-control" [(ngModel)]="filterType">
+                  <option value="ALL">All Types</option>
+                  <option value="Exchange">Exchange Only</option>
+                  <option value="Remittance">Remittance Only</option>
+                </select>
+                <select class="form-control" [(ngModel)]="filterStatus">
+                  <option value="ALL">All Statuses</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending Review</option>
+                  <option value="Failed">Failed / Rejected</option>
+                </select>
+                <label class="scope-toggle" *ngIf="canToggleScope()">
+                  <input type="checkbox" [(ngModel)]="showAllBranchTxns" />
+                  <span>Show All Tellers</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Today's Transactions Table -->
+          <div class="table-container">
+            <div class="table-header-bar">
+              <h4>Today's Activity Ledger</h4>
+              <span class="txn-count">{{ filteredTransactions().length }} Records Found</span>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Pair / Method</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of paginatedTransactions()">
+                    <td>{{ t.timestamp | date:'HH:mm' }}</td>
+                    <td>
+                      <div class="cust-info">
+                        <strong>{{ t.customerName }}</strong>
+                        <span class="subtext">ID: {{ t.customerId }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge-type" [class.exchange]="t.type === 'Exchange'" [class.remit]="t.type === 'Remittance'">
+                        {{ t.type }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="method-info">
+                        <span>{{ t.type === 'Exchange' ? t.currencyPair : t.direction }}</span>
+                        <span class="subtext">{{ t.payoutMethod }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="amount-info">
+                        <strong class="text-gradient">\${{ t.amount | number:'1.2-2' }}</strong>
+                        <span class="subtext">{{ t.amountLocal | number:'1.2-2' }} ZWG</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="chip-status" [class.status-approved]="t.status === 'Completed'" [class.status-pending]="t.status === 'Pending'" [class.status-rejected]="t.status === 'Failed'">
+                        {{ t.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <button class="btn-action-view" (click)="viewReceipt(t.id)">Receipt</button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="filteredTransactions().length === 0">
+                    <td colspan="7" class="no-records">
+                      <div class="empty-state">
+                        <p>No transactions match the selected filters for today.</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="table-pagination-footer" *ngIf="filteredTransactions().length > pageSize">
+              <button [disabled]="currentPage() === 1" (click)="prevPage()" class="btn-page">Previous</button>
+              <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+              <button [disabled]="currentPage() === totalPages()" (click)="nextPage()" class="btn-page">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

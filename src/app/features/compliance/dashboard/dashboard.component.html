@@ -1,0 +1,127 @@
+<div class="compliance-dashboard-container anim-fade-in">
+      
+      <!-- COMPLIANCE ALERTS STATUS BAR -->
+      <div class="compliance-alerts-strip" *ngIf="flaggedTxnsCount() > 0">
+        <span class="warning-icon">🚨</span>
+        <span><strong>High Risk Alerts:</strong> There are currently <strong>{{ flaggedTxnsCount() }}</strong> pending transactions flagged for potential Sanctions Match screening. Immediate audit recommended.</span>
+      </div>
+
+      <!-- KPI WIDGETS -->
+      <div class="kpi-grid">
+        <div class="card-banking card-gradient-danger">
+          <h3>Suspicious Flags</h3>
+          <p class="kpi-num">{{ flaggedTxnsCount() }}</p>
+          <span class="kpi-sub">Outbounds matching compliance filters</span>
+        </div>
+
+        <div class="card-banking card-gradient-warning">
+          <h3>Flagged Customers</h3>
+          <p class="kpi-num">{{ flaggedCustomersCount() }}</p>
+          <span class="kpi-sub">Accounts blocked under AML regulations</span>
+        </div>
+
+        <div class="card-banking card-gradient-primary">
+          <h3>Audited Logs Today</h3>
+          <p class="kpi-num">{{ stateService.auditLogs().length }}</p>
+          <span class="kpi-sub">System trace files written</span>
+        </div>
+
+        <div class="card-banking card-gradient-success">
+          <h3>Vetting Gateway</h3>
+          <p class="kpi-num">99.8%</p>
+          <span class="kpi-sub">LexisNexis screening uptime</span>
+        </div>
+      </div>
+
+      <div class="split-layout">
+        <!-- LEFT: SUSPICIOUS FLAGS LEDGER -->
+        <div class="left-pane table-container">
+          <div class="table-header-bar">
+            <h4>AML Screening Review Queue</h4>
+            <span class="badge-danger" *ngIf="flaggedTxnsCount() > 0">Requires Audit Verification</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Voucher</th>
+                  <th>Customer (Sender)</th>
+                  <th>Recipient Name</th>
+                  <th>Amount</th>
+                  <th>Screener Vetting Result</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of complianceFlags()">
+                  <td class="font-mono"><strong>{{ t.id }}</strong></td>
+                  <td>
+                    <div class="cust-info">
+                      <a [routerLink]="'/teller/customers/' + t.customerId" class="cust-link">
+                        {{ t.customerName }}
+                      </a>
+                      <span class="subtext">ID: {{ t.customerId }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cust-info">
+                      <strong>{{ t.recipientName }}</strong>
+                      <span class="subtext">{{ t.recipientPhone }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <strong class="text-danger">\${{ t.amount | number:'1.2-2' }} USD</strong>
+                  </td>
+                  <td>
+                    <p class="vetting-text">{{ t.vettingResult }}</p>
+                  </td>
+                  <td>
+                    <button class="btn-action-verify" (click)="auditFlag(t.id)">Audit</button>
+                  </td>
+                </tr>
+                <tr *ngIf="complianceFlags().length === 0">
+                  <td colspan="6" class="no-records">
+                    No transactions currently flagged for sanctions matches.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT: API INTEGRATION TRACKER -->
+        <div class="right-pane">
+          <div class="card-banking integration-card">
+            <div class="integration-header">
+              <h4>System Integration Monitors</h4>
+              <button type="button" class="btn-ping" [class.loading]="isPinging()" (click)="pingIntegrations()">
+                {{ isPinging() ? 'Pinging APIs...' : 'Ping Connections' }}
+              </button>
+            </div>
+
+            <div class="integrations-list">
+              <div class="int-row" *ngFor="let item of integrations()">
+                <div class="int-meta">
+                  <span class="int-dot" [class]="item.status"></span>
+                  <div class="int-details">
+                    <strong>{{ item.name }}</strong>
+                    <span class="subtext">Last pinged {{ item.lastSync }}</span>
+                  </div>
+                </div>
+                <div class="int-stats">
+                  <span class="latency" [class.high-lat]="item.latencyMs > 180">{{ item.latencyMs }}ms</span>
+                  <span class="status-label" [class]="item.status">{{ item.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-banking policy-card">
+            <h4>Compliance Guidelines</h4>
+            <p class="text-sm">Under Section 35 of the Zimbabwe Money Laundering & Proceeds of Crime Act, all cash exchange orders exceeding $5,000 USD or matches on international sanction lists must undergo formal Compliance Officer audit clearance.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>

@@ -1,0 +1,47 @@
+.integrations-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-actions-header {
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 10px;
+  h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+}
+
+.integration-card {
+  display: flex;
+  flex-direction: column;
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  
+  .desc { font-size: 12.5px; margin-bottom: 12px; }
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 12px 0;
+}
+
+.connection-stats {
+  display: flex;
+  justify-content: space-between;
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+    
+    .label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+    .value { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  }
+}
+
+.w-full { width: 100%; justify-content: center; }
+.mt-4 { margin-top: 16px; }

@@ -1,0 +1,352 @@
+.customers-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+      .tabs-banking { margin-bottom: 0; border: none; }
+    }
+
+    .directory-filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 320px;
+
+        svg { position: absolute; left: 12px; color: var(--text-muted); }
+        input {
+          width: 100%;
+          background: var(--bg-base);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 8px 12px 8px 38px;
+          outline: none;
+          color: var(--text-main);
+          
+          &:focus { border-color: var(--primary); }
+        }
+      }
+
+      .filters {
+        display: flex;
+        gap: 12px;
+        select {
+          min-width: 180px;
+        }
+      }
+    }
+
+    // Table profiles
+    .customer-profile-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .circle-placeholder {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 12px;
+      }
+    }
+
+    .contact-cell {
+      display: flex;
+      flex-direction: column;
+      .email { font-size: 11px; color: var(--text-muted); }
+    }
+
+    .text-center { text-align: center; }
+
+    // Stepper Wizard Card
+    .stepper-card {
+      padding: 30px;
+    }
+
+    .autosave-ticker {
+      font-size: 12px;
+      color: var(--success);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: blink 1s infinite alternate;
+      }
+    }
+
+    @keyframes blink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    .wizard-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      border-top: 1px solid var(--border-light);
+      padding-top: 16px;
+    }
+
+    // KYC Upload styles
+    .upload-dropzone {
+      border: 2px dashed var(--border);
+      background: var(--bg-base);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.2s;
+
+      svg { color: var(--text-muted); margin-bottom: 12px; }
+
+      &:hover {
+        border-color: var(--primary);
+      }
+
+      .hidden-file-input {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
+
+    .uploaded-files-list {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-base);
+        padding: 8px 16px;
+        border-radius: var(--radius-md);
+
+        .file-name {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .file-size { font-size: 12px; color: var(--text-muted); }
+      }
+    }
+
+    // Review grid
+    .review-grid {
+      background: var(--bg-base);
+      padding: 20px;
+      border-radius: var(--radius-md);
+      margin-top: 16px;
+
+      div {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+        padding: 8px 0;
+        span { color: var(--text-muted); }
+      }
+
+      .full-width {
+        grid-column: span 2;
+        @media (max-width: 768px) { grid-column: span 1; }
+      }
+    }
+
+    .uploaded-files-review {
+      margin-top: 20px;
+      h5 { margin-bottom: 8px; }
+      ul { padding-left: 20px; font-size: 13.5px; }
+    }
+
+    // Drawer internal details
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+
+      .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-muted);
+        &:hover { color: var(--text-main); }
+      }
+    }
+
+    .customer-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+
+      .avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+      }
+
+      .meta {
+        h4 { font-size: 16px; }
+        span { font-size: 12px; color: var(--text-muted); }
+      }
+    }
+
+    .financial-widgets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+
+      .widget {
+        padding: 10px;
+        border-radius: var(--radius-md);
+        display: flex;
+        flex-direction: column;
+        
+        .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+        .value { font-size: 13px; font-weight: 700; }
+        
+        &.bg-light { background: var(--bg-base); }
+      }
+    }
+
+    .profile-details-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13.5px;
+
+      .lbl { font-weight: 600; color: var(--text-muted); width: 100px; display: inline-block; }
+    }
+
+    .kyc-docs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .doc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: var(--bg-base);
+        border-radius: var(--radius-md);
+
+        .doc-info { display: flex; align-items: center; gap: 8px; }
+      }
+    }
+
+    .notes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .add-note-box {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        textarea { resize: none; }
+      }
+
+      .notes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+
+        .note-item {
+          background: var(--bg-base);
+          padding: 10px;
+          border-radius: var(--radius-md);
+          
+          .note-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            .author { font-weight: 600; }
+          }
+          .content { font-size: 12.5px; }
+        }
+      }
+    }
+
+    .timeline-container {
+      position: relative;
+      padding-left: 20px;
+      border-left: 2px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      .timeline-item {
+        position: relative;
+        
+        .time-node {
+          position: absolute;
+          left: -26px;
+          top: 4px;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: var(--primary);
+          border: 2px solid var(--bg-surface);
+        }
+
+        .time-content {
+          .date { font-size: 10.5px; color: var(--text-muted); }
+          .title { font-size: 13px; font-weight: 600; }
+          .desc { font-size: 12px; color: var(--text-muted); }
+        }
+      }
+    }

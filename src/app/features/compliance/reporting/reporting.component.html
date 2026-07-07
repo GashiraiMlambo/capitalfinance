@@ -1,0 +1,106 @@
+<div class="rbz-reporting-container anim-fade-in">
+      
+      <div class="split-layout">
+        <!-- LEFT: EOD RECONCILIATION GATEWAY -->
+        <div class="left-pane card-banking">
+          <div class="panel-header">
+            <h3>RBZ EOD Reporting Gateway</h3>
+            <span class="subtext">Daily reconciliation transmit under exchange control directive</span>
+          </div>
+
+          <div class="reconcile-actions-box">
+            <div class="status-summary">
+              <div class="stat-circle" [class]="eodState().status.toLowerCase().replace(' ', '-')">
+                <span class="status-label">EOD STATUS</span>
+                <strong class="status-val">{{ eodState().status }}</strong>
+              </div>
+              
+              <div class="stat-brief">
+                <p><strong>Today's Ledger Snapshot</strong></p>
+                <p class="summary-text">
+                  Pending Transactions: {{ pendingCount() }} | Verified Transactions: {{ completedCount() }}
+                </p>
+                <p class="summary-text">
+                  Gross Foreign Payouts: \${{ totalVolume() | number:'1.2-2' }} USD
+                </p>
+              </div>
+            </div>
+
+            <!-- Warning if pending exist -->
+            <div class="pending-warning-banner" *ngIf="pendingCount() > 0">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span><strong>Awaiting Clearance:</strong> You have {{ pendingCount() }} transactions in queue. Resolve pending flags before submitting EOD reports.</span>
+            </div>
+
+            <!-- Submission trigger buttons -->
+            <div class="trigger-buttons" *ngIf="canSubmitEod()">
+              <button 
+                type="button" 
+                class="btn-primary" 
+                [disabled]="eodState().status === 'In Progress'"
+                (click)="triggerEodReconciliation()"
+              >
+                {{ eodState().status === 'In Progress' ? 'Transmitting Data...' : 'Reconcile & Submit EOD Batch' }}
+              </button>
+            </div>
+            <div class="restricted-info" *ngIf="!canSubmitEod()">
+              <p class="text-danger">EOD reconciliation submissions are restricted to Compliance Officers and System Admins.</p>
+            </div>
+          </div>
+
+          <!-- HISTORIC BATCHES -->
+          <div class="historic-batches">
+            <h4>EOD Batches Transmitted (Last 5 Days)</h4>
+            <div class="batches-grid">
+              <div class="batch-card" *ngFor="let b of stateService.eodBatches()">
+                <div class="batch-header">
+                  <span class="batch-date">{{ b.date | date:'mediumDate' }}</span>
+                  <span class="batch-status-tag">Sent</span>
+                </div>
+                <div class="batch-body">
+                  <div class="val-row">
+                    <span>Batch ID:</span>
+                    <span class="font-mono">{{ b.batchId }}</span>
+                  </div>
+                  <div class="val-row">
+                    <span>Transactions:</span>
+                    <span>{{ b.txnCount }}</span>
+                  </div>
+                  <div class="val-row">
+                    <span>Total USD:</span>
+                    <span>\${{ b.volumeUsd | number }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: LIVE RPA BOT SIMULATOR -->
+        <div class="right-pane">
+          <div class="card-banking terminal-card">
+            <div class="terminal-header">
+              <div class="window-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="terminal-title">RBZ_RPA_BOT_CONSOLE.sh</span>
+            </div>
+            
+            <div class="terminal-body" id="console-screen">
+              <div class="terminal-log-row" *ngFor="let log of consoleLogs()">
+                <span class="log-text">{{ log }}</span>
+              </div>
+              <div class="terminal-cursor" *ngIf="eodState().status === 'In Progress'"></div>
+            </div>
+          </div>
+
+          <div class="card-banking gateway-rules-card">
+            <h4>Exchange Control Regulations</h4>
+            <p class="text-sm">The Reserve Bank of Zimbabwe requires daily reporting of all micro-remittance outbounds and bureau exchange orders. Reports must resolve by 17:30 local Harare time daily.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>

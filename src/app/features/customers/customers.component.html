@@ -1,0 +1,364 @@
+<div class="customers-wrapper anim-fade-in">
+      <!-- HEADER ACTIONS -->
+      <div class="page-actions-header">
+        <h2>Customer Management System</h2>
+        <div class="tabs-banking">
+          <div class="tab-item" [class.active]="activeTab() === 'list'" (click)="setTab('list')">Customer Directory</div>
+          <div class="tab-item" [class.active]="activeTab() === 'register'" (click)="setTab('register')">Register New Customer</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: CUSTOMER DIRECTORY LIST -->
+      <div class="tab-content" *ngIf="activeTab() === 'list'">
+        <!-- SEARCH & FILTER BAR -->
+        <div class="directory-filter-bar card-banking">
+          <div class="search-box">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search by name, ID number, email..." [(ngModel)]="searchQuery" />
+          </div>
+          
+          <div class="filters">
+            <select class="form-control" [(ngModel)]="filterKyc">
+              <option value="ALL">All KYC Statuses</option>
+              <option value="Approved">Approved Only</option>
+              <option value="Pending">Pending Only</option>
+              <option value="Rejected">Rejected Only</option>
+            </select>
+
+            <select class="form-control" [(ngModel)]="sortField">
+              <option value="name">Sort by Name</option>
+              <option value="date">Sort by Reg Date</option>
+              <option value="balance">Sort by Savings Balance</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ENTERPRISE CUSTOMERS TABLE -->
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Customer ID</th>
+                  <th>Full Name</th>
+                  <th>Contact Info</th>
+                  <th>ID Number</th>
+                  <th>KYC Status</th>
+                  <th>Savings Balance</th>
+                  <th>Loan Balance</th>
+                  <th>Reg Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cust of filteredCustomers()" (click)="selectCustomer(cust)">
+                  <td><strong>{{ cust.id }}</strong></td>
+                  <td>
+                    <div class="customer-profile-cell">
+                      <div class="circle-placeholder">{{ cust.name[0] }}</div>
+                      <span>{{ cust.name }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="contact-cell">
+                      <span class="phone">{{ cust.phone }}</span>
+                      <span class="email">{{ cust.email }}</span>
+                    </div>
+                  </td>
+                  <td>{{ cust.idNumber }} <small class="text-muted">({{ cust.idType }})</small></td>
+                  <td>
+                    <span class="chip-status" [class]="'status-' + cust.kycStatus.toLowerCase()">
+                      {{ cust.kycStatus }}
+                    </span>
+                  </td>
+                  <td><strong>$ {{ cust.savingsBalance | number:'1.2-2' }}</strong></td>
+                  <td><strong class="text-danger">$ {{ cust.loanBalance | number:'1.2-2' }}</strong></td>
+                  <td>{{ cust.registeredAt | date:'mediumDate' }}</td>
+                  <td>
+                    <button class="btn-secondary" (click)="selectCustomer(cust); $event.stopPropagation()">
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredCustomers().length === 0">
+                  <td colspan="9" class="text-center">
+                    <div class="empty-state">
+                      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                      <p>No customers found matching the parameters</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: STEPPER REGISTRATION WIZARD -->
+      <div class="tab-content" *ngIf="activeTab() === 'register'">
+        <div class="card-banking stepper-card">
+          <!-- Stepper Header -->
+          <div class="stepper-header">
+            <div class="step-node" [class.step-active]="wizardStep() === 1" [class.step-completed]="wizardStep() > 1" (click)="goToStep(1)">
+              <div class="step-circle">1</div>
+              <span class="step-label">Personal details</span>
+            </div>
+            <div class="step-connector" [class.active]="wizardStep() > 1"></div>
+            <div class="step-node" [class.step-active]="wizardStep() === 2" [class.step-completed]="wizardStep() > 2" (click)="goToStep(2)">
+              <div class="step-circle">2</div>
+              <span class="step-label">KYC documents</span>
+            </div>
+            <div class="step-connector" [class.active]="wizardStep() > 2"></div>
+            <div class="step-node" [class.step-active]="wizardStep() === 3" [class.step-completed]="wizardStep() > 3" (click)="goToStep(3)">
+              <div class="step-circle">3</div>
+              <span class="step-label">Review & Submit</span>
+            </div>
+          </div>
+
+          <!-- Auto-Save Ticker Indicator -->
+          <div class="autosave-ticker" *ngIf="isFormAutosaving()">
+            <span class="dot"></span> Saving draft...
+          </div>
+
+          <!-- Wizard Step Content -->
+          <div class="wizard-step-content">
+            <!-- Step 1: Personal Details Form -->
+            <form [formGroup]="personalForm" *ngIf="wizardStep() === 1">
+              <div class="grid-container cols-2">
+                <div class="form-group">
+                  <label>Full Name *</label>
+                  <input type="text" class="form-control" formControlName="name" placeholder="John Doe" (input)="triggerAutoSave()" />
+                  <div class="error-message" *ngIf="personalForm.get('name')?.touched && personalForm.get('name')?.invalid">
+                    Name is required
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Email Address *</label>
+                  <input type="email" class="form-control" formControlName="email" placeholder="j.doe@example.com" (input)="triggerAutoSave()" />
+                  <div class="error-message" *ngIf="personalForm.get('email')?.touched && personalForm.get('email')?.invalid">
+                    Valid email is required
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Phone Number *</label>
+                  <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" (input)="triggerAutoSave()" />
+                </div>
+
+                <div class="form-group">
+                  <label>Gender *</label>
+                  <select class="form-control" formControlName="gender" (change)="triggerAutoSave()">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Date of Birth *</label>
+                  <input type="date" class="form-control" formControlName="dob" (change)="triggerAutoSave()" />
+                </div>
+
+                <div class="form-group">
+                  <label>ID Document Type *</label>
+                  <select class="form-control" formControlName="idType" (change)="triggerAutoSave()">
+                    <option value="National ID">National ID Card</option>
+                    <option value="Passport">International Passport</option>
+                    <option value="Driver License">Driver's License</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>ID Document Number *</label>
+                  <input type="text" class="form-control" formControlName="idNumber" placeholder="e.g. 63-123456-A-45" (input)="triggerAutoSave()" />
+                </div>
+
+                <div class="form-group">
+                  <label>Branch Assignment *</label>
+                  <select class="form-control" formControlName="branchId" (change)="triggerAutoSave()">
+                    <option *ngFor="let br of stateService.branches()" [value]="br.id">{{ br.name }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Residential / Business Address *</label>
+                <textarea class="form-control" formControlName="address" rows="3" placeholder="74 Borrowdale Rd, Harare..." (input)="triggerAutoSave()"></textarea>
+              </div>
+
+              <div class="wizard-footer">
+                <button type="button" class="btn-primary" [disabled]="personalForm.invalid" (click)="goToStep(2)">
+                  Continue to KYC
+                </button>
+              </div>
+            </form>
+
+            <!-- Step 2: KYC Documents Upload -->
+            <div class="kyc-upload-container" *ngIf="wizardStep() === 2">
+              <p class="section-desc">Please upload verification scans of the registration documents. Supports PDF, JPEG, PNG.</p>
+              
+              <div class="upload-dropzone">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <h4>Drag and drop ID Scan files here</h4>
+                <p class="text-muted">or click to browse your desktop computer</p>
+                <input type="file" class="hidden-file-input" (change)="onFileUploaded($event)" />
+              </div>
+
+              <!-- Uploaded files list mockup -->
+              <div class="uploaded-files-list">
+                <div class="file-item" *ngFor="let f of uploadedFiles()">
+                  <div class="file-name">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                    <span>{{ f.name }}</span>
+                  </div>
+                  <span class="file-size">{{ f.size }}</span>
+                  <button class="btn-text-action text-danger" (click)="removeUploadedFile(f.name)">Remove</button>
+                </div>
+              </div>
+
+              <div class="wizard-footer">
+                <button type="button" class="btn-secondary" (click)="goToStep(1)">Back</button>
+                <button type="button" class="btn-primary" (click)="goToStep(3)">Continue to Review</button>
+              </div>
+            </div>
+
+            <!-- Step 3: Review & Submit -->
+            <div class="review-container" *ngIf="wizardStep() === 3">
+              <h4>Review Customer Profile Information</h4>
+              <div class="divider"></div>
+              
+              <div class="grid-container cols-2 review-grid">
+                <div><span>Name:</span> <strong>{{ personalForm.value.name }}</strong></div>
+                <div><span>Email:</span> <strong>{{ personalForm.value.email }}</strong></div>
+                <div><span>Phone:</span> <strong>{{ personalForm.value.phone }}</strong></div>
+                <div><span>Gender:</span> <strong>{{ personalForm.value.gender }}</strong></div>
+                <div><span>Date of Birth:</span> <strong>{{ personalForm.value.dob }}</strong></div>
+                <div><span>ID Details:</span> <strong>{{ personalForm.value.idType }} - {{ personalForm.value.idNumber }}</strong></div>
+                <div class="full-width"><span>Address:</span> <strong>{{ personalForm.value.address }}</strong></div>
+              </div>
+
+              <div class="uploaded-files-review">
+                <h5>Uploaded KYC Files:</h5>
+                <ul>
+                  <li *ngFor="let f of uploadedFiles()">{{ f.name }} ({{ f.size }})</li>
+                  <li *ngIf="uploadedFiles().length === 0" class="text-muted">No documents uploaded. Profile KYC status will default to "Pending".</li>
+                </ul>
+              </div>
+
+              <div class="wizard-footer">
+                <button type="button" class="btn-secondary" (click)="goToStep(2)">Back</button>
+                <button type="button" class="btn-primary" (click)="submitCustomer()">Complete Registration</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CUSTOMER DETAIL SLIDE-OUT DRAWER -->
+      <div class="modal-overlay" *ngIf="selectedCustomer()" (click)="closeCustomerDetails()">
+        <div class="drawer-content" (click)="$event.stopPropagation()">
+          <div class="drawer-header">
+            <h3>Customer Folder</h3>
+            <button class="btn-close" (click)="closeCustomerDetails()">&times;</button>
+          </div>
+
+          <div class="drawer-body" *ngIf="selectedCustomer() as cust">
+            <!-- Summary Banner -->
+            <div class="customer-banner">
+              <div class="avatar-placeholder">{{ cust.name[0] }}</div>
+              <div class="meta">
+                <h4>{{ cust.name }}</h4>
+                <span>{{ cust.id }} • <span class="chip-status" [class]="'status-' + cust.kycStatus.toLowerCase()">{{ cust.kycStatus }}</span></span>
+              </div>
+            </div>
+
+            <!-- Balances Widgets -->
+            <div class="drawer-section">
+              <h5>Financial Portfolio</h5>
+              <div class="financial-widgets">
+                <div class="widget bg-light">
+                  <span class="label">Savings Deposits</span>
+                  <span class="value">$ {{ cust.savingsBalance | number:'1.2-2' }}</span>
+                </div>
+                <div class="widget bg-light">
+                  <span class="label">Outstanding Loan</span>
+                  <span class="value text-danger">$ {{ cust.loanBalance | number:'1.2-2' }}</span>
+                </div>
+                <div class="widget bg-light">
+                  <span class="label">Wallet Balance</span>
+                  <span class="value">$ {{ cust.walletBalance | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab details inside Drawer -->
+            <div class="tabs-banking">
+              <div class="tab-item" [class.active]="drawerTab() === 'profile'" (click)="drawerTab.set('profile')">Details</div>
+              <div class="tab-item" [class.active]="drawerTab() === 'kyc'" (click)="drawerTab.set('kyc')">KYC Docs</div>
+              <div class="tab-item" [class.active]="drawerTab() === 'notes'" (click)="drawerTab.set('notes')">Notes ({{ cust.notes.length }})</div>
+              <div class="tab-item" [class.active]="drawerTab() === 'timeline'" (click)="drawerTab.set('timeline')">Timeline</div>
+            </div>
+
+            <div class="drawer-tab-content">
+              <!-- PROFILE DETAILS -->
+              <div *ngIf="drawerTab() === 'profile'" class="profile-details-grid">
+                <div><span class="lbl">Phone:</span> {{ cust.phone }}</div>
+                <div><span class="lbl">Email:</span> {{ cust.email }}</div>
+                <div><span class="lbl">ID Card:</span> {{ cust.idType }} ({{ cust.idNumber }})</div>
+                <div><span class="lbl">Gender/DOB:</span> {{ cust.gender }} / {{ cust.dob }}</div>
+                <div><span class="lbl">Address:</span> {{ cust.address }}</div>
+                <div><span class="lbl">Registered At:</span> {{ cust.registeredAt | date:'medium' }}</div>
+              </div>
+
+              <!-- KYC DOCS -->
+              <div *ngIf="drawerTab() === 'kyc'" class="kyc-docs-list">
+                <div class="doc-item" *ngFor="let doc of cust.documents">
+                  <div class="doc-info">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                    <span>{{ doc.type }}</span>
+                  </div>
+                  <span class="chip-status" [class]="'status-' + doc.status.toLowerCase()">
+                    {{ doc.status }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- NOTES -->
+              <div *ngIf="drawerTab() === 'notes'" class="notes-container">
+                <!-- Add note form -->
+                <div class="add-note-box">
+                  <textarea class="form-control" placeholder="Write banking note..." rows="2" [(ngModel)]="newNoteContent"></textarea>
+                  <button class="btn-primary" (click)="addCustomerNote()">Add Note</button>
+                </div>
+                <div class="notes-list">
+                  <div class="note-item" *ngFor="let note of cust.notes">
+                    <div class="note-meta">
+                      <span class="author">{{ note.author }}</span>
+                      <span class="date">{{ note.date | date:'shortDate' }}</span>
+                    </div>
+                    <p class="content">{{ note.content }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TIMELINE -->
+              <div *ngIf="drawerTab() === 'timeline'" class="timeline-container">
+                <div class="timeline-item" *ngFor="let event of cust.timeline">
+                  <div class="time-node"></div>
+                  <div class="time-content">
+                    <span class="date">{{ event.date | date:'mediumDate' }}</span>
+                    <p class="title">{{ event.title }}</p>
+                    <p class="desc">{{ event.desc }}</p>
+                  </div>
+                </div>
+                <div class="empty-state" *ngIf="cust.timeline.length === 0">
+                  <p>No activity logs recorded yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,30 @@
+.notifications-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+      .tabs-banking { margin-bottom: 0; border: none; }
+    }
+
+    .max-w-600 {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .w-full { width: 100%; justify-content: center; }

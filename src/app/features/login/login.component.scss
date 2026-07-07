@@ -1,0 +1,283 @@
+.auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-gradient);
+      padding: 24px;
+    }
+
+    .auth-card {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      width: 100%;
+      max-width: 980px;
+      min-height: 600px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .brand-panel {
+      background: var(--primary);
+      padding: 48px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50%;
+        bottom: -150px;
+        left: -100px;
+      }
+
+      .brand-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 10;
+        
+        .brand-name {
+          font-family: 'Outfit', sans-serif;
+          font-weight: 700;
+          font-size: 20px;
+        }
+      }
+
+      .brand-body {
+        z-index: 10;
+        .promo-title {
+          font-size: 32px;
+          margin-bottom: 16px;
+          line-height: 1.2;
+        }
+        .promo-text {
+          color: rgba(255, 255, 255, 0.7);
+          line-height: 1.6;
+          margin-bottom: 24px;
+          font-size: 14px;
+        }
+
+        .network-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.15);
+          padding: 6px 14px;
+          border-radius: 9999px;
+          font-size: 12px;
+          font-weight: 500;
+
+          .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+          }
+
+          &.offline {
+            background: rgba(239, 68, 68, 0.15);
+            .dot { background: var(--danger); }
+          }
+        }
+      }
+
+      .brand-footer {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        z-index: 10;
+      }
+
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .form-panel {
+      padding: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-surface);
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 380px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .form-header {
+      margin-bottom: 24px;
+      
+      .form-title {
+        font-size: 24px;
+        margin-bottom: 6px;
+      }
+
+      .form-subtitle {
+        color: var(--text-muted);
+        font-size: 13.5px;
+      }
+    }
+
+    .quick-login-box {
+      background: var(--bg-base);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 20px;
+
+      .quick-label {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .quick-roles-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+
+        .btn-role {
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          color: var(--text-main);
+          padding: 6px;
+          border-radius: var(--radius-sm);
+          font-size: 11px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+          }
+        }
+      }
+    }
+
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .toggle-password-btn {
+        position: absolute;
+        right: 12px;
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .form-options {
+      margin-bottom: 24px;
+
+      .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12.5px;
+        color: var(--text-muted);
+        cursor: pointer;
+
+        input {
+          margin-top: 3px;
+        }
+      }
+    }
+
+    .general-error {
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: var(--danger-light);
+      color: var(--danger);
+      font-weight: 500;
+      font-size: 12.5px;
+    }
+
+    .w-full {
+      width: 100%;
+      justify-content: center;
+      padding: 12px;
+      font-size: 15px;
+    }
+
+    .forgot-link-wrapper {
+      text-align: center;
+      margin-top: 16px;
+
+      .forgot-link {
+        font-size: 13px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .otp-shield-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .otp-input {
+      letter-spacing: 0.4em;
+      font-size: 24px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+
+      button {
+        flex: 1;
+        justify-content: center;
+        padding: 12px;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }

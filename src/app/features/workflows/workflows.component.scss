@@ -1,0 +1,60 @@
+.workflows-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+      .tabs-banking { margin-bottom: 0; border: none; }
+    }
+
+    .subject-cell {
+      display: flex;
+      flex-direction: column;
+      .sub { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .max-w-700 {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .w-full { width: 100%; justify-content: center; }
+    .mt-4 { margin-top: 16px; }
+    .mt-2 { margin-top: 8px; }
+
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      
+      .checkbox-lbl {
+        margin-bottom: 0;
+        cursor: pointer;
+      }
+    }

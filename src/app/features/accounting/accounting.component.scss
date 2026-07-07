@@ -1,0 +1,137 @@
+.accounting-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+      .tabs-banking { margin-bottom: 0; border: none; }
+    }
+
+    .max-w-700 {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .ledger-posting-section {
+      background: var(--bg-base);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      
+      h5 { margin-bottom: 12px; font-size: 13px; color: var(--text-muted); }
+    }
+
+    .align-center {
+      align-items: center;
+    }
+
+    .validation-bar {
+      background: var(--danger-light);
+      border: 1px solid var(--danger);
+      border-radius: var(--radius-md);
+      color: var(--danger);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-weight: 500;
+      justify-content: center;
+
+      .divider-v { color: var(--border); }
+      .indicator-text { text-transform: uppercase; font-size: 11px; font-weight: 700; }
+
+      &.valid {
+        background: var(--success-light);
+        border-color: var(--success);
+        color: var(--success);
+      }
+    }
+
+    .w-full { width: 100%; justify-content: center; }
+    .mt-4 { margin-top: 16px; }
+    .mb-0 { margin-bottom: 0; }
+
+    .entry-line {
+      font-size: 12px;
+      margin-bottom: 4px;
+      
+      .acct { font-family: monospace; }
+    }
+
+    // Financial statements layout
+    .statement-table {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .statement-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 12px;
+      font-size: 13.5px;
+      border-bottom: 1px solid var(--border-light);
+
+      &.header {
+        background: var(--primary-light);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: var(--primary);
+        border-bottom: 2px solid var(--primary);
+        padding: 8px 12px;
+        margin-top: 8px;
+      }
+
+      &.total {
+        font-weight: 700;
+        border-top: 1px solid var(--text-main);
+        border-bottom: 2px double var(--text-main);
+        background: var(--bg-base);
+        padding: 8px 12px;
+      }
+
+      &.net-income {
+        background: var(--success-light);
+        border-bottom-color: var(--success);
+      }
+    }
+
+    .bg-success {
+      background-color: var(--success) !important;
+      border-color: var(--success) !important;
+      color: white !important;
+      &:hover { opacity: 0.9; }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: var(--radius-sm);
+    }
+
+    .alert-success-banking {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+    }
+
+    .p-3 { padding: 12px; }
+    .mb-3 { margin-bottom: 12px; }

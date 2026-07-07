@@ -1,0 +1,125 @@
+<div class="rate-management-container anim-fade-in">
+      
+      <div class="split-layout">
+        <!-- LEFT: RATES LIST TABLE -->
+        <div class="left-pane table-container">
+          <div class="table-header-bar">
+            <h3>Currency Exchange Rate Sheet</h3>
+            <span class="active-rates-tag">Middle Office Live Feed</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table-enterprise">
+              <thead>
+                <tr>
+                  <th>Currency Pair</th>
+                  <th>Buy Rate</th>
+                  <th>Sell Rate</th>
+                  <th>Spread Margin</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of stateService.rates()">
+                  <td><strong>{{ r.pair }}</strong></td>
+                  <td>{{ r.buyRate | number:'1.2-2' }}</td>
+                  <td>{{ r.sellRate | number:'1.2-2' }}</td>
+                  <td>
+                    <span class="spread-tag">{{ r.spread }}%</span>
+                  </td>
+                  <td>
+                    <span class="status-indicator" [class.live]="r.status === 'Live'" [class.pending]="r.status === 'Pending Approval'">
+                      {{ r.status }}
+                    </span>
+                  </td>
+                  <td>{{ r.lastUpdated | date:'mediumTime' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pending rate proposals queue (Only visible to Admin & Manager) -->
+          <div class="proposals-queue-section" *ngIf="pendingProposals().length > 0">
+            <h4>Pending Rate Modifications</h4>
+            <div class="proposals-list">
+              <div class="proposal-item" *ngFor="let p of pendingProposals()">
+                <div class="prop-details">
+                  <h5>{{ p.pair }} Proposers Proposal</h5>
+                  <p class="prop-rates">
+                    Proposed: BUY <strong>{{ p.proposedBuyRate }}</strong> | SELL <strong>{{ p.proposedSellRate }}</strong>
+                  </p>
+                  <p class="prop-meta">Proposed by {{ p.proposedBy }} | Justification: "{{ p.justification }}"</p>
+                </div>
+                
+                <div class="prop-actions" *ngIf="isAdmin()">
+                  <button type="button" class="btn-verify-reject" (click)="rejectRate(p.pair)">Reject</button>
+                  <button type="button" class="btn-verify-approve" (click)="approveRate(p.pair)">Approve & Publish</button>
+                </div>
+                <div class="prop-waiting" *ngIf="!isAdmin()">
+                  <span class="waiting-tag">Awaiting Admin Sign-off</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: PROPOSE OVERRIDE FORM (Manager Only) -->
+        <div class="right-pane">
+          <div class="card-banking propose-card" *ngIf="canPropose()">
+            <h4>Propose Rate Override</h4>
+            <p class="text-sm">Branch Managers may propose adjustments to exchange rate margins. Submissions require System Admin approval before going live.</p>
+
+            <form [formGroup]="rateForm" (ngSubmit)="submitProposal()">
+              <div class="form-group">
+                <label>Target Currency Pair</label>
+                <select class="form-control" formControlName="pair">
+                  <option *ngFor="let r of stateService.rates()" [value]="r.pair">{{ r.pair }}</option>
+                </select>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Proposed BUY Rate</label>
+                  <input type="number" class="form-control" formControlName="proposedBuy" placeholder="0.00" step="0.01" />
+                </div>
+                <div class="form-group">
+                  <label>Proposed SELL Rate</label>
+                  <input type="number" class="form-control" formControlName="proposedSell" placeholder="0.00" step="0.01" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Justification Notes <span class="text-danger">*</span></label>
+                <textarea 
+                  class="form-control" 
+                  rows="3" 
+                  formControlName="justification"
+                  placeholder="Explain why this rate modification is required (e.g., local currency depreciation, liquidity balance shifts)..."
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn-primary w-full" [disabled]="rateForm.invalid">
+                Propose Rate Overrides
+              </button>
+            </form>
+          </div>
+
+          <div class="card-banking explain-card" *ngIf="!canPropose()">
+            <h4>Rate Control Policy</h4>
+            <p class="text-sm">Currency spreads are regulated by Central Treasury guidelines. Manual override proposals can only be drafted by Branch Managers.</p>
+            <div class="info-badges">
+              <div class="info-row">
+                <span>Spread Threshold:</span>
+                <span>Max 6% Spread Cap</span>
+              </div>
+              <div class="info-row">
+                <span>Auditing:</span>
+                <span>All proposals logged in RBZ audit log</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>

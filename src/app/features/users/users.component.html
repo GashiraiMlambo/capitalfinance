@@ -1,0 +1,62 @@
+<div class="users-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Institutional User Accounts & Role Permissions</h2>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container mt-4">
+        <table class="table-enterprise">
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Access Group / Role</th>
+              <th>Account Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of stateService.users()">
+              <td><strong>{{ u.id }}</strong></td>
+              <td>{{ u.name }}</td>
+              <td>{{ u.email }}</td>
+              <td>
+                <span class="chip-status status-info">{{ u.role }}</span>
+              </td>
+              <td><span class="chip-status status-approved">Active</span></td>
+              <td>
+                <button class="btn-secondary" (click)="openEditRole(u)">Modify Access</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MODIFY ACCESS MODAL -->
+      <div class="modal-overlay" *ngIf="showEditModal()" (click)="showEditModal.set(false)">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <h3>Modify Access Permissions</h3>
+          <p class="section-desc">Alter the security credentials and access permissions for <strong>{{ selectedUser()?.name }}</strong>.</p>
+
+          <form (submit)="updateUserRole(); $event.preventDefault()">
+            <div class="form-group">
+              <label>Select Access Role *</label>
+              <select class="form-control" [(ngModel)]="newRole" name="role" required>
+                <option value="Admin">Admin (Full Access & Settings)</option>
+                <option value="Operations">Operations (Client Intake & Transfers)</option>
+                <option value="Risk">Risk (KYC & Credit Underwriting)</option>
+                <option value="Accounting">Accounting (Ledger Posting & Financials)</option>
+              </select>
+            </div>
+
+            <div class="btn-group mt-4">
+              <button type="button" class="btn-secondary" (click)="showEditModal.set(false)">Cancel</button>
+              <button type="submit" class="btn-primary" [disabled]="!newRole">
+                Update Credentials
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,520 @@
+<div class="dashboard-wrapper anim-fade-in">
+      
+      <!-- ROLE-BASED DASHBOARD SELECTOR SIMULATOR -->
+      <div class="simulator-bar">
+        <div class="sim-left">
+          <span class="pulse-indicator"></span>
+          <span class="simulator-label">DASHBOARD VIEW SELECTOR:</span>
+        </div>
+        <div class="simulator-buttons">
+          <button class="sim-btn" [class.active]="activeRole() === 'Admin'" (click)="activeRole.set('Admin')">
+            Admin View
+          </button>
+          <button class="sim-btn" [class.active]="activeRole() === 'Operations'" (click)="activeRole.set('Operations')">
+            Operations View
+          </button>
+          <button class="sim-btn" [class.active]="activeRole() === 'Risk'" (click)="activeRole.set('Risk')">
+            Risk View
+          </button>
+          <button class="sim-btn" [class.active]="activeRole() === 'Accounting'" (click)="activeRole.set('Accounting')">
+            Accounting View
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== 1. ADMIN DASHBOARD VIEW ==================== -->
+      <div *ngIf="activeRole() === 'Admin'" class="dashboard-grid anim-fade-in">
+        <!-- Summary metrics -->
+        <div class="grid-container cols-4">
+          <div class="card-banking card-gradient-primary">
+            <div class="metric-header">
+              <span class="text-muted text-white">TOTAL SAVINGS PORTFOLIO</span>
+              <div class="metric-icon bg-white-op">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ {{ stateService.totalSavings() | number:'1.2-2' }}</div>
+            <div class="metric-footer text-white">
+              <span class="trend positive font-semibold">✓ Normal</span>
+              <span class="footer-label text-white-50">Liquidity threshold active</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">ACTIVE CLIENTS COUNT</span>
+              <div class="metric-icon primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ stateService.customers().length }} Members</div>
+            <div class="metric-footer">
+              <span class="trend positive">+{{ approvedCustomersCount() }} Approved</span>
+              <span class="footer-label">in master database</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">SYSTEM USERS / STAFF</span>
+              <div class="metric-icon success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2a5 5 0 00-5 5v3a1 1 0 001 1h8a1 1 0 001-1V7a5 5 0 00-5-5zM4 22a8 8 0 0116 0H4z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ stateService.users().length }} Accounts</div>
+            <div class="metric-footer">
+              <span class="trend positive">4 Active Roles</span>
+              <span class="footer-label">RBAC enforcement on</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">PENDING WORKFLOWS</span>
+              <div class="metric-icon danger">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ stateService.workflowApprovals().length }} Actions</div>
+            <div class="metric-footer">
+              <span class="trend negative">Tiers Assigned</span>
+              <span class="footer-label">awaiting authorization</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions-bar">
+          <h3>Admin Control Center</h3>
+          <div class="actions-buttons">
+            <button class="btn-secondary" (click)="navigate('/portal/users')">Manage System Users</button>
+            <button class="btn-secondary" (click)="navigate('/portal/accounting')">Audit General Ledger</button>
+          </div>
+        </div>
+
+        <!-- Charts and audit lists -->
+        <div class="grid-container cols-2">
+          <div class="card-banking">
+            <h3>Branch Cash Distribution Overview</h3>
+            <apx-chart
+              [series]="branchPerfChart.series"
+              [chart]="branchPerfChart.chart"
+              [xaxis]="branchPerfChart.xaxis"
+              [plotOptions]="branchPerfChart.plotOptions"
+              [colors]="branchPerfChart.colors"
+              [dataLabels]="branchPerfChart.dataLabels"
+            ></apx-chart>
+          </div>
+
+          <div class="card-banking">
+            <h3>Recent System Audit Trail</h3>
+            <p class="section-desc">Secured audit trail of staff actions recorded on the Central Capital platform.</p>
+            <div class="audit-list">
+              <div class="audit-item" *ngFor="let log of stateService.auditLogs().slice(0, 5)">
+                <div class="log-info">
+                  <span class="action">{{ log.action }}</span>
+                  <span class="user-ip"><span class="chip-status status-info">{{ log.role || 'User' }}</span> {{ log.userName }} ({{ log.ipAddress }})</span>
+                </div>
+                <span class="time">{{ log.timestamp | date:'shortTime' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 2. OPERATIONS DASHBOARD VIEW ==================== -->
+      <div *ngIf="activeRole() === 'Operations'" class="dashboard-grid anim-fade-in">
+        <!-- Summary metrics -->
+        <div class="grid-container cols-4">
+          <div class="card-banking card-gradient-primary">
+            <div class="metric-header">
+              <span class="text-muted text-white">ONBOARDED CLIENTS</span>
+              <div class="metric-icon bg-white-op">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ stateService.customers().length }} Customers</div>
+            <div class="metric-footer text-white">
+              <span class="trend positive font-semibold">Live Database</span>
+              <span class="footer-label text-white-50">Registered tellers</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">PENDING RISK KYC VERIFY</span>
+              <div class="metric-icon danger">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ pendingKycCount() }} Accounts</div>
+            <div class="metric-footer">
+              <span class="trend negative">Locked Deposits</span>
+              <span class="footer-label">awaiting Risk approval</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">APPROVED CLIENTS (ACTIVE)</span>
+              <div class="metric-icon success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ approvedCustomersCount() }} Accounts</div>
+            <div class="metric-footer">
+              <span class="trend positive">Eligible for Payouts</span>
+              <span class="footer-label">and deposits operations</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">TELLER VAULT BAL (CODE 1000)</span>
+              <div class="metric-icon primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ {{ vaultCashBalance() | number:'1.2-2' }}</div>
+            <div class="metric-footer">
+              <span class="trend positive">✓ Balanced</span>
+              <span class="footer-label">Real-time ledger sync</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions-bar">
+          <h3>Operations Quick Actions</h3>
+          <div class="actions-buttons">
+            <button class="btn-primary" (click)="navigate('/portal/customers')">Register/Onboard Customer</button>
+            <button class="btn-secondary" (click)="navigate('/portal/wallet')">Process Counter Deposit</button>
+            <button class="btn-secondary" (click)="navigate('/portal/wallet')">Process Cash Withdrawal</button>
+          </div>
+        </div>
+
+        <!-- Onboarding and deposits review -->
+        <div class="grid-container cols-2">
+          <div class="card-banking">
+            <h3>Newly Onboarded Clients Queue</h3>
+            <p class="section-desc">Recent customers registered in the system. Status must be vetted by Risk prior to ledger deposits.</p>
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Customer Name</th>
+                    <th>Document</th>
+                    <th>Date Registered</th>
+                    <th>KYC Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let c of stateService.customers().slice(0, 5)">
+                    <td><strong>{{ c.name }}</strong><br><small class="text-muted">{{ c.id }}</small></td>
+                    <td>{{ c.idType }} ({{ c.idNumber }})</td>
+                    <td>{{ c.registeredAt | date:'mediumDate' }}</td>
+                    <td>
+                      <span class="chip-status" [class]="'status-' + c.kycStatus.toLowerCase()">
+                        {{ c.kycStatus }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <h3>Operations Cash Flow Summary</h3>
+            <apx-chart
+              [series]="opsFlowChart.series"
+              [chart]="opsFlowChart.chart"
+              [xaxis]="opsFlowChart.xaxis"
+              [stroke]="opsFlowChart.stroke"
+              [colors]="opsFlowChart.colors"
+              [dataLabels]="opsFlowChart.dataLabels"
+            ></apx-chart>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 3. RISK & COMPLIANCE DASHBOARD VIEW ==================== -->
+      <div *ngIf="activeRole() === 'Risk'" class="dashboard-grid anim-fade-in">
+        <!-- Summary metrics -->
+        <div class="grid-container cols-4">
+          <div class="card-banking card-gradient-primary">
+            <div class="metric-header">
+              <span class="text-muted text-white">PENDING KYC REVIEW</span>
+              <div class="metric-icon bg-white-op">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ pendingKycCount() }} Clients</div>
+            <div class="metric-footer text-white">
+              <span class="trend negative font-semibold">⚠️ Attention Required</span>
+              <span class="footer-label text-white-50">Vetting checks pending</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">REJECTED / RISK BLOCKED</span>
+              <div class="metric-icon danger">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ rejectedKycCount() }} Accounts</div>
+            <div class="metric-footer">
+              <span class="trend negative">Locked Wallets</span>
+              <span class="footer-label">AML or ID mismatch</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">APPROVED & VERIFIED</span>
+              <div class="metric-icon success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ approvedCustomersCount() }} Clients</div>
+            <div class="metric-footer">
+              <span class="trend positive">Safe Status</span>
+              <span class="footer-label">Cleared for deposits</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">ACTIVE SYSTEM RISK ALERTS</span>
+              <div class="metric-icon primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">{{ stateService.riskAlerts().length }} Alerts</div>
+            <div class="metric-footer">
+              <span class="trend positive">Gateways Active</span>
+              <span class="footer-label">AML watch active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions-bar">
+          <h3>Risk Officer Workspace</h3>
+          <div class="actions-buttons">
+            <button class="btn-primary" (click)="navigate('/portal/risk')">Open KYC Verification Queue</button>
+          </div>
+        </div>
+
+        <!-- KYC quick verify grid -->
+        <div class="grid-container cols-2">
+          <!-- Pending KYC list with action buttons -->
+          <div class="card-banking">
+            <h3>Dashboard KYC Verification Hub</h3>
+            <p class="section-desc">Audit registered customers. Running the RBZ AML check is required before you can Approve or Reject below.</p>
+
+            <div class="alert-success-banking p-3 mb-3 anim-fade-in" *ngIf="kycActionSuccessMsg()">
+              {{ kycActionSuccessMsg() }}
+            </div>
+
+            <div class="kyc-dashboard-list">
+              <div class="kyc-dashboard-item" *ngFor="let c of pendingKycCustomers()">
+                <div class="kyc-details-wrapper">
+                  <div class="kyc-details">
+                    <span class="name">{{ c.name }}</span>
+                    <span class="info">ID: <code>{{ c.idNumber }}</code></span>
+                  </div>
+
+                  <!-- RBZ Check inline -->
+                  <div class="rbz-dashboard-check mt-2">
+                    <button *ngIf="!rbzStatus()[c.id]" class="btn-primary btn-sm bg-blue py-1" (click)="runRbzCheck(c.id, c.name, c.idNumber)">
+                      🔍 Query RBZ API
+                    </button>
+                    <div *ngIf="rbzStatus()[c.id]?.loading" class="rbz-loading">
+                      <span class="spinner-small"></span> Querying...
+                    </div>
+                    <div *ngIf="rbzStatus()[c.id] && !rbzStatus()[c.id].loading" class="rbz-badge" [class.success]="rbzStatus()[c.id].success" [class.warning]="!rbzStatus()[c.id].success">
+                      {{ rbzStatus()[c.id].success ? '✓ Match: ' + rbzStatus()[c.id].data.name : '⚠️ Sanction Flag' }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="kyc-actions">
+                  <button class="btn-verify-quick" [disabled]="!rbzStatus()[c.id] || rbzStatus()[c.id].loading" (click)="approveKycQuick(c.id)">Approve</button>
+                  <button class="btn-reject-quick" [disabled]="!rbzStatus()[c.id] || rbzStatus()[c.id].loading" (click)="rejectKycQuick(c.id)">Reject</button>
+                </div>
+              </div>
+              <div class="empty-state py-4 text-center text-muted" *ngIf="pendingKycCustomers().length === 0">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                <p class="mt-2 font-medium">No pending KYC files left in queue.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Watchlist Alerts list -->
+          <div class="card-banking">
+            <h3>Watchlist Alerts & Compliance Logs</h3>
+            <p class="section-desc">Automated flags generated by credit index checks and multiple-device logging alerts.</p>
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Alert Severity</th>
+                    <th>Customer Name</th>
+                    <th>Risk Type</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let alert of stateService.riskAlerts()">
+                    <td>
+                      <span class="chip-status" [class]="'status-' + (alert.severity === 'Critical' || alert.severity === 'High' ? 'rejected' : 'warning')">
+                        {{ alert.severity }}
+                      </span>
+                    </td>
+                    <td><strong>{{ alert.customerName }}</strong><br><small class="text-muted">{{ alert.description }}</small></td>
+                    <td>{{ alert.riskType }}</td>
+                    <td><span class="chip-status status-info">{{ alert.status }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 4. FINANCE & ACCOUNTING DASHBOARD VIEW ==================== -->
+      <div *ngIf="activeRole() === 'Accounting'" class="dashboard-grid anim-fade-in">
+        <!-- Summary metrics -->
+        <div class="grid-container cols-4">
+          <div class="card-banking card-gradient-primary">
+            <div class="metric-header">
+              <span class="text-muted text-white">TELLER VAULT ASSETS</span>
+              <div class="metric-icon bg-white-op">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ {{ vaultCashBalance() | number:'1.2-2' }}</div>
+            <div class="metric-footer text-white">
+              <span class="trend positive font-semibold">GL Account 1000</span>
+              <span class="footer-label text-white-50">Cash & bank equivalents</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">CLIENT DEPOSIT LIABILITIES</span>
+              <div class="metric-icon primary">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ {{ customerSavingsLiability() | number:'1.2-2' }}</div>
+            <div class="metric-footer">
+              <span class="trend positive">GL Account 2000</span>
+              <span class="footer-label">Outstanding member deposits</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">PAID-IN SHARE CAPITAL</span>
+              <div class="metric-icon success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ {{ paidInShareCapital() | number:'1.2-2' }}</div>
+            <div class="metric-footer">
+              <span class="trend positive">GL Account 3000</span>
+              <span class="footer-label">Member share equity</span>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <div class="metric-header">
+              <span class="text-muted">TRIAL BALANCE DIFFERENCE</span>
+              <div class="metric-icon success">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+              </div>
+            </div>
+            <div class="metric-value">$ 0.00</div>
+            <div class="metric-footer">
+              <span class="trend positive">✓ Fully Balanced</span>
+              <span class="footer-label">Debits match Credits</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions-bar">
+          <h3>Double-Entry Accounting Actions</h3>
+          <div class="actions-buttons">
+            <button class="btn-primary" (click)="navigate('/portal/accounting')">Post Manual Journal Entry</button>
+            <button class="btn-secondary" (click)="navigate('/portal/accounting')">Process Staff Payroll</button>
+          </div>
+        </div>
+
+        <!-- Chart of Accounts Trial Balance -->
+        <div class="grid-container cols-2">
+          <div class="card-banking">
+            <h3>Trial Balance Sheet Summary</h3>
+            <p class="section-desc">Active account code values stored in the institutional chart of accounts.</p>
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>GL Code</th>
+                    <th>Account Name</th>
+                    <th>Category</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let acc of stateService.chartOfAccounts()">
+                    <td><code>{{ acc.code }}</code></td>
+                    <td><strong>{{ acc.name }}</strong></td>
+                    <td><span class="chip-status status-info">{{ acc.category }}</span></td>
+                    <td>
+                      <strong [class.text-success]="acc.balance >= 0" [class.text-danger]="acc.balance < 0">
+                        $ {{ acc.balance | number:'1.2-2' }}
+                      </strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card-banking">
+            <h3>Recent General Ledger Journal Entries</h3>
+            <p class="section-desc">Real-time ledger audit trail of recent teller operations and transaction postings.</p>
+            <div class="table-container max-h-320">
+              <table class="table-enterprise">
+                <thead>
+                  <tr>
+                    <th>Ref No</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let entry of stateService.journalEntries().slice(0, 5)">
+                    <td><code>{{ entry.referenceNo }}</code></td>
+                    <td>
+                      <strong>{{ entry.description }}</strong>
+                      <div class="mt-1" style="font-size: 11px;">
+                        <span class="text-success font-semibold" *ngFor="let d of entry.debits">Dr Code {{ d.accountCode }}: $ {{ d.amount }} &nbsp;</span>
+                        <span class="text-danger font-semibold" *ngFor="let c of entry.credits">Cr Code {{ c.accountCode }}: $ {{ c.amount }} &nbsp;</span>
+                      </div>
+                    </td>
+                    <td>{{ entry.date }}</td>
+                    <td><span class="chip-status status-approved">Posted</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

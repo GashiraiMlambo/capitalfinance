@@ -1,0 +1,191 @@
+<div class="risk-wrapper anim-fade-in">
+  <div class="page-actions-header">
+    <h2>Risk Management & Credit Supervision</h2>
+  </div>
+  
+  <!-- KYC VERIFICATION QUEUE -->
+  <div class="card-banking mt-4">
+    <h3>Pending KYC Verification Queue</h3>
+    <p class="desc-text text-muted">Verify identity and address documentation legitimacy. Run the Reserve Bank of Zimbabwe (RBZ) AML check to cross-reference records before finalizing onboarding status.</p>
+    
+    <div class="table-container mt-2">
+      <table class="table-enterprise">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Full Name</th>
+            <th>ID Details</th>
+            <th>Uploaded Files</th>
+            <th>RBZ Registry Audit</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of pendingKycCustomers()">
+            <td><strong>{{ c.id }}</strong></td>
+            <td>{{ c.name }}</td>
+            <td>
+              <strong>{{ c.idNumber }}</strong><br>
+              <small class="text-muted">({{ c.idType }})</small>
+            </td>
+            <td>
+              <div class="kyc-files-cell">
+                <span class="file-tag" *ngFor="let doc of c.documents">
+                  📄 {{ doc.type }} ({{ doc.status }})
+                </span>
+                <span class="text-muted" *ngIf="c.documents.length === 0">No documents uploaded</span>
+              </div>
+            </td>
+            
+            <!-- RBZ API Check Panel -->
+            <td>
+              <div class="rbz-panel">
+                <button *ngIf="!rbzStatus()[c.id]" class="btn-primary btn-sm bg-blue" (click)="runRbzCheck(c.id, c.name, c.idNumber)">
+                  🔍 Query RBZ API
+                </button>
+                
+                <div *ngIf="rbzStatus()[c.id]?.loading" class="rbz-loading">
+                  <span class="spinner-small"></span> Querying RBZ registry...
+                </div>
+                
+                <div *ngIf="rbzStatus()[c.id] && !rbzStatus()[c.id].loading" class="rbz-result-card" [class.success]="rbzStatus()[c.id].success" [class.warning]="!rbzStatus()[c.id].success">
+                  <div class="result-header">
+                    <strong>{{ rbzStatus()[c.id].success ? '✓ RBZ MATCHED' : '⚠️ AML SUSPICION' }}</strong>
+                  </div>
+                  <div class="result-details mt-1">
+                    <div>Name: <strong>{{ rbzStatus()[c.id].data.name }}</strong></div>
+                    <div>AML Watchlist: <strong [class.text-success]="rbzStatus()[c.id].success" [class.text-danger]="!rbzStatus()[c.id].success">{{ rbzStatus()[c.id].data.amlStatus }}</strong></div>
+                    <div>Risk Index: <strong>{{ rbzStatus()[c.id].data.riskScore }}/100</strong></div>
+                    <div *ngIf="rbzStatus()[c.id].data.notes" class="text-danger font-semibold mt-1">{{ rbzStatus()[c.id].data.notes }}</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Verify Decisions -->
+            <td>
+              <div class="action-buttons-cell">
+                <button class="btn-primary btn-sm bg-success" [disabled]="!rbzStatus()[c.id] || rbzStatus()[c.id].loading" (click)="approveKyc(c.id)">
+                  Verify (Legit)
+                </button>
+                <button class="btn-secondary btn-sm text-danger" [disabled]="!rbzStatus()[c.id] || rbzStatus()[c.id].loading" (click)="rejectKyc(c.id)">
+                  Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="pendingKycCustomers().length === 0">
+            <td colspan="6" class="text-center text-muted py-4">
+              <div class="empty-state">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="mr-2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>All customer folders verified. Queue clear!</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RISK MATRICES -->
+  <div class="grid-container cols-4 mt-4">
+    <div class="card-banking border-left-danger">
+      <span class="text-muted">PAR % INDEX</span>
+      <div class="metric-val text-danger">{{ stateService.portfolioAtRiskPct() | number:'1.1-1' }} %</div>
+      <p class="desc">Portfolio-at-Risk (Loans over 30 days past due)</p>
+    </div>
+    <div class="card-banking">
+      <span class="text-muted">PAR 1-30 DAYS</span>
+      <div class="metric-val text-warning">$ 1,500.00</div>
+      <p class="desc">Early arrears monitoring cycle</p>
+    </div>
+    <div class="card-banking">
+      <span class="text-muted">PAR 31-90 DAYS</span>
+      <div class="metric-val text-danger">$ {{ stateService.portfolioAtRiskValue() | number:'1.2-2' }}</div>
+      <p class="desc">Non-performing loan (NPL) exposure</p>
+    </div>
+    <div class="card-banking">
+      <span class="text-muted">PROVISIONING COVER</span>
+      <div class="metric-val text-success">150.00 %</div>
+      <p class="desc">Ledger provisioning against loan losses</p>
+    </div>
+  </div>
+
+  <div class="grid-container cols-2 mt-4">
+    <!-- Watchlist customers -->
+    <div class="card-banking">
+      <h3>Arrears Watchlist & Overdue Accounts</h3>
+      <p class="desc-text text-muted">Accounts flagged with active repayment delays.</p>
+
+      <div class="table-container mt-2">
+        <table class="table-enterprise">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Loan ID</th>
+              <th>Overdue Since</th>
+              <th>Days Overdue</th>
+              <th>Total Arrears</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let loan of overdueLoans()">
+              <td>{{ loan.customerName }}</td>
+              <td><code>{{ loan.id }}</code></td>
+              <td>{{ loan.disbursementDate }}</td>
+              <td>45 Days</td>
+              <td><strong class="text-danger">$ {{ loan.outstandingBalance | number:'1.2-2' }}</strong></td>
+              <td>
+                <span class="chip-status status-rejected">Under Watch</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fraud alert logs -->
+    <div class="card-banking">
+      <h3>System Credit Bureau Query Log</h3>
+      <p class="desc-text text-muted font-medium">Bureaus queries fired during customer underwriting.</p>
+
+      <div class="table-container mt-2">
+        <table class="table-enterprise">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Subject Client</th>
+              <th>Credit Score</th>
+              <th>Status</th>
+              <th>Response Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Jun 29 09:30 AM</td>
+              <td>Jenny Jenkins</td>
+              <td><strong>740</strong> (Excellent)</td>
+              <td><span class="chip-status status-approved">Approved</span></td>
+              <td>Success</td>
+            </tr>
+            <tr>
+              <td>Jun 28 02:45 PM</td>
+              <td>Simon Jenkins</td>
+              <td><strong>610</strong> (Fair)</td>
+              <td><span class="chip-status status-pending">Review Required</span></td>
+              <td>Success</td>
+            </tr>
+            <tr>
+              <td>Jun 25 11:15 AM</td>
+              <td>Marcus Aurelius</td>
+              <td><strong>520</strong> (Poor)</td>
+              <td><span class="chip-status status-rejected">Auto Reject</span></td>
+              <td>Success</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

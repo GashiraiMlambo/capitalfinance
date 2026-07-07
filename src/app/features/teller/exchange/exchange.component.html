@@ -1,0 +1,230 @@
+<div class="exchange-container anim-fade-in">
+      
+      <!-- OFFLINE STATUS ALERT -->
+      <div class="offline-banner" *ngIf="!isOnline()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636a9 9 0 010 12.728m0-12.728l-1.414 1.414m1.414-1.414a9 9 0 00-12.728 0M6.343 17.657l1.414-1.414m-1.414 1.414a9 9 0 010-12.728M3.636 18.364a9 9 0 0012.728 0M12 12v.01"/></svg>
+        <span>Running Offline Mode. You can save transactions locally as drafts. They will auto-sync when online.</span>
+      </div>
+
+      <div class="split-view">
+        <!-- FORM WORKFLOW PANEL -->
+        <div class="form-panel card-banking">
+          <div class="panel-header">
+            <h3>New Currency Exchange Order</h3>
+            <span class="subtext">Capture exchange transaction details</span>
+          </div>
+
+          <form [formGroup]="exchangeForm" (ngSubmit)="submitExchange()">
+            <!-- 1. Customer Selection / Lookup -->
+            <div class="section-group">
+              <div class="section-title">
+                <span class="step-num">1</span>
+                <h5>Customer KYC Search</h5>
+              </div>
+
+              <div class="form-group search-lookup">
+                <label>Search Customer by Name / ID</label>
+                <div class="lookup-input-wrapper">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    placeholder="Type name, passport or phone..." 
+                    [(ngModel)]="searchQuery" 
+                    [ngModelOptions]="{standalone: true}"
+                    (input)="showLookupDropdown.set(true)"
+                  />
+                  <div class="lookup-dropdown" *ngIf="showLookupDropdown() && filteredCustomers().length > 0">
+                    <button 
+                      type="button" 
+                      class="dropdown-item" 
+                      *ngFor="let c of filteredCustomers()"
+                      (click)="selectCustomer(c)"
+                    >
+                      <div class="cust-row-info">
+                        <span class="name">{{ c.name }}</span>
+                        <span class="passport">{{ c.nationalId }} ({{ c.nationality }})</span>
+                      </div>
+                      <span class="kyc-badge" [class]="c.kycStatus.toLowerCase()">
+                        {{ c.kycStatus }}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Selected Customer Card -->
+                <div class="selected-customer-card" *ngIf="selectedCustomer()">
+                  <div class="cust-card-main">
+                    <div class="cust-brief">
+                      <p class="name">{{ selectedCustomer()?.name }}</p>
+                      <p class="meta">{{ selectedCustomer()?.nationalId }} | {{ selectedCustomer()?.phone }}</p>
+                      <p class="address">{{ selectedCustomer()?.address }}</p>
+                    </div>
+                    <span class="kyc-badge" [class]="selectedCustomer()?.kycStatus?.toLowerCase() || ''">
+                      KYC: {{ selectedCustomer()?.kycStatus }}
+                    </span>
+                  </div>
+
+                  <!-- KYC Warning Flags -->
+                  <div class="kyc-blocking-alert" *ngIf="isKycBlocked()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span><strong>Transaction Blocked:</strong> Customer's KYC status is flagged as <strong>{{ selectedCustomer()?.kycStatus }}</strong>. Update compliance credentials before executing new transactions.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Transaction Details -->
+            <div class="section-group" [class.disabled]="isKycBlocked() || !selectedCustomer()">
+              <div class="section-title">
+                <span class="step-num">2</span>
+                <h5>Exchange Parameters</h5>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Direction</label>
+                  <select class="form-control" formControlName="direction">
+                    <option value="Buy">Buy (Customer gives Foreign, receives ZWG)</option>
+                    <option value="Sell">Sell (Customer gives ZWG, receives Foreign)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Currency Pair</label>
+                  <select class="form-control" formControlName="pair" (change)="updateCalculator()">
+                    <option *ngFor="let r of stateService.rates()" [value]="r.pair">{{ r.pair }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Amount (Foreign Currency)</label>
+                  <div class="currency-input-wrapper">
+                    <span class="currency-symbol">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      formControlName="amount" 
+                      placeholder="0.00" 
+                      (input)="updateCalculator()"
+                    />
+                  </div>
+                  <!-- Threshold Override Alert -->
+                  <div class="threshold-alert" *ngIf="showThresholdWarning()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Amount exceeds Teller limit ($5,000). Submission will route to Branch Manager for override approval.</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Calculated Payout (ZWG)</label>
+                  <div class="calculated-payout-box text-gradient">
+                    {{ destinationAmount() | number:'1.2-2' }} ZWG
+                    <span class="calculation-breakdown">Rate: {{ selectedRate().buyRate }} | Fee: {{ selectedRateFee() | number:'1.2-2' }} ZWG</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Source of Funds</label>
+                  <select class="form-control" formControlName="sourceOfFunds">
+                    <option value="Salary">Salary / Remuneration</option>
+                    <option value="Business Income">Business / Trade Income</option>
+                    <option value="Savings">Personal Savings</option>
+                    <option value="Gift">Gifts / Inheritance</option>
+                    <option value="Other">Other / Miscellaneous</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Purpose of Transaction</label>
+                  <select class="form-control" formControlName="purpose">
+                    <option value="Travel">Holiday / Travel Allowance</option>
+                    <option value="Medical">Medical Bills / Insurance</option>
+                    <option value="Education">School / University Fees</option>
+                    <option value="Trade/Import">Cross-Border Trading / Imports</option>
+                    <option value="Family">Family Support / Subsistence</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Payout Settlement Mode</label>
+                <select class="form-control" formControlName="payoutMethod">
+                  <option value="Cash">Cash Payout (ZWG Notes)</option>
+                  <option value="EcoCash">EcoCash Mobile Money</option>
+                  <option value="Bank Transfer">RTGS Bank Deposit</option>
+                  <option value="ZIPIT">ZIPIT Instant Transfer</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button 
+                type="button" 
+                class="btn-secondary" 
+                (click)="saveLocalDraft()" 
+                [disabled]="!selectedCustomer()"
+              >
+                Save Draft
+              </button>
+              <button 
+                type="submit" 
+                class="btn-primary" 
+                [disabled]="exchangeForm.invalid || isKycBlocked() || !selectedCustomer()"
+              >
+                Submit Exchange
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT PANEL: DRAFTS QUEUE & LIQUIDITY STATUS -->
+        <div class="sidebar-info-panel">
+          <!-- Local Drafts Queue -->
+          <div class="card-banking drafts-card">
+            <div class="card-header">
+              <h4>Local Drafts Queue</h4>
+              <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+            </div>
+            
+            <div class="drafts-list" *ngIf="localDrafts().length > 0">
+              <div class="draft-item" *ngFor="let d of localDrafts()">
+                <div class="draft-brief">
+                  <p class="cust-name"><strong>{{ d.customerName }}</strong></p>
+                  <p class="details">{{ d.pair }} | {{ d.direction }} | \${{ d.amount }}</p>
+                </div>
+                <div class="draft-actions">
+                  <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>
+                  <button type="button" class="btn-action-delete" (click)="deleteDraft(d.id)">×</button>
+                </div>
+              </div>
+            </div>
+            <p class="empty-text" *ngIf="localDrafts().length === 0">No local drafts cached on this device.</p>
+          </div>
+
+          <!-- Branch Liquidity Ticker -->
+          <div class="card-banking liquidity-card">
+            <h4>Branch Currency Liquidity</h4>
+            <div class="liquidity-list">
+              <div class="liq-row" *ngFor="let l of stateService.branchLiquidity()">
+                <div class="liq-meta">
+                  <strong>{{ l.currency }}</strong>
+                  <span class="threshold-label">Threshold: \${{ l.threshold }}</span>
+                </div>
+                <div class="liq-values">
+                  <span class="balance" [class.low-liq]="l.balance < l.threshold">
+                    \${{ l.balance | number }}
+                  </span>
+                  <span class="reserved">Reserved: \${{ l.reserved | number }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

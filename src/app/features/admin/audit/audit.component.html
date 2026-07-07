@@ -1,0 +1,76 @@
+<div class="audit-log-container anim-fade-in">
+      
+      <!-- TOP FILTERING CONTROLS CARD -->
+      <div class="card-banking filter-card">
+        <div class="filter-header">
+          <h3>System Audit Trail</h3>
+          <div class="export-controls">
+            <label class="auto-refresh-label">
+              <input type="checkbox" [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()" />
+              <span>Stream logs (Live)</span>
+            </label>
+            <button type="button" class="btn-secondary" (click)="exportLogs()">Export logs CSV</button>
+          </div>
+        </div>
+
+        <div class="filter-grid">
+          <div class="form-group">
+            <label>Search Logs (User or Action)</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search by username, action keywords, reference..." 
+              [(ngModel)]="searchQuery"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Severity Category</label>
+            <select class="form-control" [(ngModel)]="selectedSeverity">
+              <option value="ALL">All Severities</option>
+              <option value="INFO">INFO (User actions, rate views)</option>
+              <option value="WARNING">WARNING (Limits exceeded, drafts)</option>
+              <option value="CRITICAL">CRITICAL (Reversals, AML flags, EOD)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN AUDIT TRAIL SCROLL LEDGER -->
+      <div class="card-banking table-container">
+        <div class="table-responsive">
+          <table class="table-enterprise">
+            <thead>
+              <tr>
+                <th>Audit ID</th>
+                <th>Time (UTC)</th>
+                <th>Principal Actor</th>
+                <th>Severity</th>
+                <th>Logged Message / Operations Payload</th>
+                <th>Audit Host Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of filteredLogs()">
+                <td class="font-mono"><strong>{{ log.id }}</strong></td>
+                <td>{{ log.timestamp | date:'medium' }}</td>
+                <td><strong>{{ log.user }}</strong></td>
+                <td>
+                  <span class="sev-tag" [class]="log.severity.toLowerCase()">
+                    {{ log.severity }}
+                  </span>
+                </td>
+                <td>
+                  <span class="payload-text">{{ log.action }}</span>
+                </td>
+                <td class="font-mono">{{ log.ipAddress }}</td>
+              </tr>
+              <tr *ngIf="filteredLogs().length === 0">
+                <td colspan="6" class="no-records">No audit records found matching selected filters.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>

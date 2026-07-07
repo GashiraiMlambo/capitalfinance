@@ -2,90 +2,145 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  // Authentication Routes
   {
     path: 'login',
-    loadComponent: () => import('./features/login/login').then(m => m.LoginComponent)
+    loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent)
   },
+  {
+    path: 'auth',
+    children: [
+      {
+        path: 'login',
+        loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent)
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./features/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+      }
+    ]
+  },
+
+  // 1. Teller Operations
+  {
+    path: 'teller',
+    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/teller/dashboard/dashboard.component').then(m => m.TellerDashboardComponent)
+      },
+      {
+        path: 'exchange/new',
+        loadComponent: () => import('./features/teller/exchange/exchange.component').then(m => m.ExchangeComponent)
+      },
+      {
+        path: 'remittance/new',
+        loadComponent: () => import('./features/teller/remittance/remittance.component').then(m => m.RemittanceComponent)
+      },
+      {
+        path: 'transaction/:id/receipt',
+        loadComponent: () => import('./features/teller/receipt/receipt.component').then(m => m.ReceiptComponent)
+      },
+      {
+        path: 'customers/:id',
+        loadComponent: () => import('./features/teller/customers/profile.component').then(m => m.CustomerProfileComponent)
+      }
+    ]
+  },
+
+  // 2. Customer Onboarding
+  {
+    path: 'onboarding',
+    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'new',
+        loadComponent: () => import('./features/onboarding/onboarding.component').then(m => m.OnboardingComponent)
+      }
+    ]
+  },
+
+  // 3. Branch Operations
+  {
+    path: 'branch',
+    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/branch/dashboard/dashboard.component').then(m => m.BranchDashboardComponent)
+      },
+      {
+        path: 'transactions/:id/review',
+        loadComponent: () => import('./features/branch/review/review.component').then(m => m.BranchReviewComponent)
+      },
+      {
+        path: 'rates',
+        loadComponent: () => import('./features/branch/rates/rates.component').then(m => m.RateManagementComponent)
+      }
+    ]
+  },
+
+  // 4. Compliance Operations
+  {
+    path: 'compliance',
+    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/compliance/dashboard/dashboard.component').then(m => m.ComplianceDashboardComponent)
+      },
+      {
+        path: 'rbz-reporting',
+        loadComponent: () => import('./features/compliance/reporting/reporting.component').then(m => m.RbzReportingComponent)
+      }
+    ]
+  },
+
+  // 5. Customer Self-Service Portal
   {
     path: 'portal',
     loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
     canActivate: [authGuard],
     children: [
       {
-        path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard').then(m => m.DashboardComponent)
+        path: 'home',
+        loadComponent: () => import('./features/customer-portal/home/home.component').then(m => m.PortalHomeComponent)
       },
       {
-        path: 'customers',
-        loadComponent: () => import('./features/customers/customers').then(m => m.CustomersComponent)
-      },
-      {
-        path: 'loans',
-        loadComponent: () => import('./features/loans/loans').then(m => m.LoansComponent)
-      },
-      {
-        path: 'savings',
-        loadComponent: () => import('./features/savings/savings').then(m => m.SavingsComponent)
-      },
-      {
-        path: 'wallet',
-        loadComponent: () => import('./features/wallet/wallet').then(m => m.WalletComponent)
-      },
-      {
-        path: 'collections',
-        loadComponent: () => import('./features/collections/collections').then(m => m.CollectionsComponent)
-      },
-      {
-        path: 'guarantors',
-        loadComponent: () => import('./features/guarantors/guarantors').then(m => m.GuarantorsComponent)
-      },
-      {
-        path: 'collateral',
-        loadComponent: () => import('./features/collateral/collateral').then(m => m.CollateralComponent)
-      },
-      {
-        path: 'accounting',
-        loadComponent: () => import('./features/accounting/accounting').then(m => m.AccountingComponent)
-      },
-      {
-        path: 'reports',
-        loadComponent: () => import('./features/reports/reports').then(m => m.ReportsComponent)
-      },
-      {
-        path: 'notifications',
-        loadComponent: () => import('./features/notifications/notifications').then(m => m.NotificationsComponent)
-      },
-      {
-        path: 'branches',
-        loadComponent: () => import('./features/branches/branches').then(m => m.BranchesComponent)
-      },
-      {
-        path: 'users',
-        loadComponent: () => import('./features/users/users').then(m => m.UsersComponent)
-      },
-      {
-        path: 'workflows',
-        loadComponent: () => import('./features/workflows/workflows').then(m => m.WorkflowsComponent)
-      },
-      {
-        path: 'risk',
-        loadComponent: () => import('./features/risk/risk').then(m => m.RiskComponent)
-      },
-      {
-        path: 'integrations',
-        loadComponent: () => import('./features/integrations/integrations').then(m => m.IntegrationsComponent)
-      },
-      {
-        path: 'settings',
-        loadComponent: () => import('./features/settings/settings').then(m => m.SettingsComponent)
+        path: 'transactions',
+        loadComponent: () => import('./features/customer-portal/home/home.component').then(m => m.PortalHomeComponent)
       },
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
   },
+
+  // 6. System Administration
+  {
+    path: 'admin',
+    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'users',
+        loadComponent: () => import('./features/admin/users/users.component').then(m => m.UserManagementComponent)
+      },
+      {
+        path: 'audit-log',
+        loadComponent: () => import('./features/admin/audit/audit.component').then(m => m.AuditLogComponent)
+      }
+    ]
+  },
+
+  // Fallbacks
   {
     path: '',
     redirectTo: 'login',
@@ -96,3 +151,4 @@ export const routes: Routes = [
     redirectTo: 'login'
   }
 ];
+

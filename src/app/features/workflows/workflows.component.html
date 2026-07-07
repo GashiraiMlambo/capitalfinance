@@ -1,0 +1,103 @@
+<div class="workflows-wrapper anim-fade-in">
+      <div class="page-actions-header">
+        <h2>Credit Committee Workflows & Credit Scoring</h2>
+        <div class="tabs-banking">
+          <div class="tab-item" [class.active]="activeTab() === 'approvals'" (click)="activeTab.set('approvals')">Pending Approvals</div>
+          <div class="tab-item" [class.active]="activeTab() === 'scoring'" (click)="activeTab.set('scoring')">Scoring Engine Configs</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: PENDING APPROVALS LIST -->
+      <div class="tab-content" *ngIf="activeTab() === 'approvals'">
+        <div class="table-container">
+          <table class="table-enterprise">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Request Type</th>
+                <th>Requester</th>
+                <th>Subject Details</th>
+                <th>Assigned Tier</th>
+                <th>Approval Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of workflowApprovals()">
+                <td><strong>{{ task.id }}</strong></td>
+                <td>
+                  <span class="chip-status status-info">{{ task.type }}</span>
+                </td>
+                <td>{{ task.requesterName }}</td>
+                <td>
+                  <div class="subject-cell">
+                    <span class="main">{{ task.description }}</span>
+                    <span class="sub">ID: {{ task.targetId }}</span>
+                  </div>
+                </td>
+                <td>{{ task.tierAssigned }}</td>
+                <td>
+                  <span class="chip-status" [class]="'status-' + task.status.toLowerCase()">
+                    {{ task.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="row-actions" *ngIf="task.status === 'Pending'">
+                    <button class="btn-primary" (click)="approveTask(task)">Approve</button>
+                    <button class="btn-danger" (click)="rejectTask(task.id)">Reject</button>
+                  </div>
+                  <span *ngIf="task.status !== 'Pending'" class="text-muted">Completed</span>
+                </td>
+              </tr>
+              <tr *ngIf="workflowApprovals().length === 0">
+                <td colspan="7" class="text-center">
+                  <div class="empty-state">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806a3.42 3.42 0 014.438 0a3.42 3.42 0 001.946.806a3.42 3.42 0 013.138 3.138a3.42 3.42 0 00.806 1.946a3.42 3.42 0 010 4.438a3.42 3.42 0 00-.806 1.946a3.42 3.42 0 01-3.138 3.138a3.42 3.42 0 00-1.946.806a3.42 3.42 0 01-4.438 0a3.42 3.42 0 00-1.946-.806a3.42 3.42 0 01-3.138-3.138a3.42 3.42 0 00-.806-1.946a3.42 3.42 0 010-4.438a3.42 3.42 0 00.806-1.946a3.42 3.42 0 013.138-3.138z"/></svg>
+                    <p>No active workflow tickets in the registry</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: SCORING ENGINE CONFIGS -->
+      <div class="tab-content" *ngIf="activeTab() === 'scoring'">
+        <div class="card-banking max-w-700">
+          <h3>Automated Scoring Matrix Configuration</h3>
+          <p class="section-desc">Adjust thresholds utilized by the AI loan underwriting engine to flag risk levels.</p>
+ 
+          <form (submit)="saveScoringConfigs(); $event.preventDefault()">
+            <div class="grid-container cols-2">
+              <div class="form-group">
+                <label>Minimum Credit Bureau Score (0 - 900)</label>
+                <input type="number" class="form-control" [(ngModel)]="minCreditScore" name="minScore" />
+              </div>
+              <div class="form-group">
+                <label>Maximum Debt-To-Income Ratio (%)</label>
+                <input type="number" class="form-control" [(ngModel)]="maxDti" name="maxDti" />
+              </div>
+            </div>
+
+            <div class="grid-container cols-2">
+              <div class="form-group">
+                <label>Minimum Collateral Coverage Ratio (%)</label>
+                <input type="number" class="form-control" [(ngModel)]="minCollateralCover" name="minColl" />
+              </div>
+              <div class="form-group font-medium">
+                <label>Verification Rules</label>
+                <div class="toggle-group mt-2">
+                  <input type="checkbox" [(ngModel)]="autoKycCheck" name="autoKyc" id="autoKyc" />
+                  <label for="autoKyc" class="checkbox-lbl">Enforce Automated KYC Checks</label>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-full mt-4">
+              Save Scoring Criteria Settings
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>

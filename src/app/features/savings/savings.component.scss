@@ -1,0 +1,166 @@
+.savings-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .page-actions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+
+      h2 { font-size: 20px; font-family: 'Outfit', sans-serif; }
+      .tabs-banking { margin-bottom: 0; border: none; }
+    }
+
+    .directory-filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+
+      .search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 320px;
+
+        svg { position: absolute; left: 12px; color: var(--text-muted); }
+        input {
+          width: 100%;
+          background: var(--bg-base);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
+          padding: 8px 12px 8px 38px;
+          outline: none;
+          color: var(--text-main);
+          
+          &:focus { border-color: var(--primary); }
+        }
+      }
+
+      .filters {
+        display: flex;
+        gap: 12px;
+        select { min-width: 180px; }
+      }
+    }
+
+    .max-w-600 {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .w-full { width: 100%; justify-content: center; }
+    .mt-2 { margin-top: 8px; }
+    .mt-4 { margin-top: 16px; }
+
+    .valuation-indicator {
+      background: var(--primary-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13.5px;
+      color: var(--text-main);
+    }
+
+    .max-h-320 {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    // Drawer internals
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+
+      .btn-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--text-muted);
+        &:hover { color: var(--text-main); }
+      }
+    }
+
+    .customer-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+
+      .avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 20px;
+      }
+
+      .meta {
+        h4 { font-size: 16px; }
+        span { font-size: 12px; color: var(--text-muted); }
+      }
+    }
+
+    .current-bal-widget {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-primary);
+
+      .lbl { font-size: 11px; text-transform: uppercase; opacity: 0.8; font-weight: 600; }
+      .val { font-size: 24px; font-weight: 700; font-family: 'Outfit', sans-serif; }
+    }
+
+    .drawer-section {
+      margin-top: 20px;
+      h5 { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+
+      &.border-box {
+        background: var(--bg-base);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 14px;
+      }
+    }
+
+    .warning-alert {
+      background: var(--warning-light);
+      border: 1px solid var(--warning);
+      border-radius: var(--radius-md);
+      color: var(--warning);
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      svg { flex-shrink: 0; }
+    }
