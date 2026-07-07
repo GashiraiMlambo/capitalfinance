@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { StateService, Customer } from '../../../core/services/state.service';
 
 interface LocalRemitDraft {
@@ -17,7 +17,7 @@ interface LocalRemitDraft {
 @Component({
   selector: 'app-remittance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './remittance.component.html',
   styleUrl: './remittance.component.scss',})
 export class RemittanceComponent implements OnInit, OnDestroy {

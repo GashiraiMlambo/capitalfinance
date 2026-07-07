@@ -1,12 +1,12 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StateService, Transaction } from '../../../core/services/state.service';
 
 @Component({
   selector: 'app-receipt',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './receipt.component.html',
   styleUrl: './receipt.component.scss',})
 export class ReceiptComponent implements OnInit {

@@ -2,12 +2,11 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StateService } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-workflows',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './workflows.component.html',
   styleUrl: './workflows.component.scss',})
 export class WorkflowsComponent {
@@ -27,7 +26,7 @@ export class WorkflowsComponent {
       .map(t => ({
         id: t.id,
         type: t.type === 'Exchange' ? 'FX Exchange' : 'Remittance',
-        requesterName: 'John Doe (Teller)',
+        requesterName: 'Tapiwa Mbonge (Teller)',
         description: `${t.direction} ${t.amount} USD (${t.flagReason})`,
         targetId: t.customerId,
         tierAssigned: t.flagReason === 'Sanctions hit' ? 'Compliance' : 'Branch Manager',

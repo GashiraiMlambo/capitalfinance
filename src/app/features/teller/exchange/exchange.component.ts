@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { StateService, Customer, ExchangeRate } from '../../../core/services/state.service';
 
 interface LocalDraft {
@@ -17,7 +17,7 @@ interface LocalDraft {
 @Component({
   selector: 'app-exchange',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './exchange.component.html',
   styleUrl: './exchange.component.scss',})
 export class ExchangeComponent implements OnInit, OnDestroy {

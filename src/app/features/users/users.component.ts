@@ -2,12 +2,11 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StateService, User } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',})
 export class UsersComponent {

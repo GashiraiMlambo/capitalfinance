@@ -229,22 +229,22 @@ export interface LedgerAccount {
 export class StateService {
   // Pre-configured mock staff & customers
   users = signal<User[]>([
-    { id: 'USR-001', name: 'John Doe', email: 'teller@ccfinance.co.zw', role: 'Teller', branchId: 'BR-101', active: true, avatar: 'assets/avatars/teller.png' },
-    { id: 'USR-002', name: 'Thomas Miller', email: 'manager@ccfinance.co.zw', role: 'Branch Manager', branchId: 'BR-101', active: true, avatar: 'assets/avatars/manager.png' },
-    { id: 'USR-003', name: 'Marcus Vance', email: 'compliance@ccfinance.co.zw', role: 'Compliance Officer', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/compliance.png' },
-    { id: 'USR-004', name: 'Sarah Jenkins', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' },
-    { id: 'USR-005', name: 'James Carter', email: 'agent@ccfinance.co.zw', role: 'Field Agent', branchId: 'BR-102', active: true, avatar: 'assets/avatars/agent.png' },
-    { id: 'USR-006', name: 'Alexander Wright', email: 'customer@ccfinance.co.zw', role: 'Customer (Self-Service)', branchId: 'BR-PORTAL', active: true, avatar: 'assets/avatars/customer.png' }
+    { id: 'USR-001', name: 'Tapiwa Mbonge', email: 'teller@ccfinance.co.zw', role: 'Teller', branchId: 'BR-101', active: true, avatar: 'assets/avatars/teller.png' },
+    { id: 'USR-002', name: 'Takudzwa Pelonzi', email: 'manager@ccfinance.co.zw', role: 'Branch Manager', branchId: 'BR-101', active: true, avatar: 'assets/avatars/manager.png' },
+    { id: 'USR-003', name: 'Sakhe Mbonge', email: 'compliance@ccfinance.co.zw', role: 'Compliance Officer', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/compliance.png' },
+    { id: 'USR-004', name: 'Tapiwa Pelonzi', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' },
+    { id: 'USR-005', name: 'Takudzwa Sakhe', email: 'agent@ccfinance.co.zw', role: 'Field Agent', branchId: 'BR-102', active: true, avatar: 'assets/avatars/agent.png' },
+    { id: 'USR-006', name: 'Tapiwa Takudzwa', email: 'customer@ccfinance.co.zw', role: 'Customer (Self-Service)', branchId: 'BR-PORTAL', active: true, avatar: 'assets/avatars/customer.png' }
   ]);
 
   savingsAccounts = signal<SavingsAccount[]>([
-    { accountNumber: 'SAV-1002394', customerId: 'CUST-001', customerName: 'Alexander Wright', productType: 'Voluntary Savings', interestRate: 3, balance: 1450, status: 'Active' },
-    { accountNumber: 'SAV-3392019', customerId: 'CUST-002', customerName: 'Sarah Connor', productType: 'Fixed Deposit', interestRate: 8, balance: 5000, lockedUntil: '2026-12-28', status: 'Locked' }
+    { accountNumber: 'SAV-1002394', customerId: 'CUST-001', customerName: 'Tapiwa Takudzwa', productType: 'Voluntary Savings', interestRate: 3, balance: 1450, status: 'Active' },
+    { accountNumber: 'SAV-3392019', customerId: 'CUST-002', customerName: 'Pelonzi Sakhe', productType: 'Fixed Deposit', interestRate: 8, balance: 5000, lockedUntil: '2026-12-28', status: 'Locked' }
   ]);
 
   currentUser = signal<User | null>({
     id: 'USR-001',
-    name: 'John Doe',
+    name: 'Tapiwa Mbonge',
     email: 'teller@ccfinance.co.zw',
     role: 'Teller',
     branchId: 'BR-101',
@@ -255,11 +255,11 @@ export class StateService {
   customers = signal<Customer[]>([
     {
       id: 'CUST-001',
-      name: 'Alexander Wright',
+      name: 'Tapiwa Takudzwa',
       nationality: 'Zimbabwean',
       nationalId: '63-123456-A-45',
       phone: '+263 77 123 4567',
-      email: 'a.wright@gmail.com',
+      email: 't.takudzwa@gmail.com',
       address: '74 Borrowdale Rd, Harare, Zimbabwe',
       dob: '1985-05-12',
       occupation: 'Retail Merchant',
@@ -277,11 +277,11 @@ export class StateService {
     },
     {
       id: 'CUST-002',
-      name: 'Sarah Connor',
+      name: 'Pelonzi Sakhe',
       nationality: 'Zimbabwean',
       nationalId: '42-998822-B-12',
       phone: '+263 78 888 9999',
-      email: 'sconnor@cyberdyne.net',
+      email: 'ssakhe@cyberdyne.net',
       address: '42 Sector Road, Bulawayo, Zimbabwe',
       dob: '1989-11-23',
       occupation: 'Security Consultant',
@@ -297,11 +297,11 @@ export class StateService {
     },
     {
       id: 'CUST-003',
-      name: 'Kofi Mensah',
+      name: 'Mbonge Takudzwa',
       nationality: 'Ghanaian',
       nationalId: 'GHA-0023412-8',
       phone: '+233 24 555 1234',
-      email: 'k.mensah@ghana-tech.com',
+      email: 'm.takudzwa@gmail.com',
       address: 'Ring Road Central, Accra, Ghana',
       dob: '1978-04-03',
       occupation: 'Software Engineer',
@@ -317,11 +317,11 @@ export class StateService {
     },
     {
       id: 'CUST-004',
-      name: 'Fatima Al-Sayed',
+      name: 'Tapiwa Sakhe',
       nationality: 'Kenyan',
       nationalId: 'ID-88392019',
       phone: '+254 71 234 5678',
-      email: 'fatima.s@outlook.com',
+      email: 't.sakhe@outlook.com',
       address: 'Kilimani, Nairobi, Kenya',
       dob: '1992-07-31',
       occupation: 'Diplomat',
@@ -348,7 +348,7 @@ export class StateService {
     {
       id: 'TXN-001',
       customerId: 'CUST-001',
-      customerName: 'Alexander Wright',
+      customerName: 'Tapiwa Takudzwa',
       type: 'Exchange',
       currencyPair: 'USD/ZWG',
       direction: 'Buy',
@@ -365,7 +365,7 @@ export class StateService {
     {
       id: 'TXN-002',
       customerId: 'CUST-001',
-      customerName: 'Alexander Wright',
+      customerName: 'Tapiwa Takudzwa',
       type: 'Remittance',
       currencyPair: 'USD/ZWG',
       direction: 'International',
@@ -374,7 +374,7 @@ export class StateService {
       rate: 24.50,
       fee: 35,
       payoutMethod: 'Mobile Wallet',
-      recipientName: 'Mercy Wright',
+      recipientName: 'Mercy Takudzwa',
       recipientPhone: '+263 77 999 8888',
       recipientAccount: '0779998888',
       purpose: 'Family Support',
@@ -388,7 +388,7 @@ export class StateService {
     {
       id: 'TXN-003',
       customerId: 'CUST-003',
-      customerName: 'Kofi Mensah',
+      customerName: 'Mbonge Takudzwa',
       type: 'Remittance',
       currencyPair: 'USD/ZWG',
       direction: 'International',
@@ -397,7 +397,7 @@ export class StateService {
       rate: 24.50,
       fee: 150,
       payoutMethod: 'Bank Deposit',
-      recipientName: 'Kofi Mensah Jr',
+      recipientName: 'Mbonge Takudzwa Jr',
       recipientPhone: '+233 24 555 9999',
       recipientAccount: '990218820',
       purpose: 'Business',
@@ -408,12 +408,12 @@ export class StateService {
       tellerId: 'USR-001',
       payoutPin: 'REM-3901-ABC',
       flagReason: 'Sanctions hit',
-      vettingResult: 'Sanctions watch list match: Name matches Kofi Mensah with 89% confidence.'
+      vettingResult: 'Sanctions watch list match: Name matches Mbonge Takudzwa with 89% confidence.'
     },
     {
       id: 'TXN-004',
       customerId: 'CUST-002',
-      customerName: 'Sarah Connor',
+      customerName: 'Pelonzi Sakhe',
       type: 'Exchange',
       currencyPair: 'USD/ZWG',
       direction: 'Buy',
@@ -432,8 +432,8 @@ export class StateService {
   ]);
 
   auditLogs = signal<AuditLog[]>([
-    { id: 'AUD-001', timestamp: '2026-07-07T10:15:00Z', userId: 'USR-001', userName: 'John Doe', user: 'John Doe', role: 'Teller', action: 'Created currency exchange TXN-001', severity: 'INFO', ipAddress: '192.168.1.50' },
-    { id: 'AUD-002', timestamp: '2026-07-07T11:00:00Z', userId: 'USR-001', userName: 'John Doe', user: 'John Doe', role: 'Teller', action: 'Created remittance transaction TXN-002', severity: 'INFO', ipAddress: '192.168.1.50' }
+    { id: 'AUD-001', timestamp: '2026-07-07T10:15:00Z', userId: 'USR-001', userName: 'Tapiwa Mbonge', user: 'Tapiwa Mbonge', role: 'Teller', action: 'Created currency exchange TXN-001', severity: 'INFO', ipAddress: '192.168.1.50' },
+    { id: 'AUD-002', timestamp: '2026-07-07T11:00:00Z', userId: 'USR-001', userName: 'Tapiwa Mbonge', user: 'Tapiwa Mbonge', role: 'Teller', action: 'Created remittance transaction TXN-002', severity: 'INFO', ipAddress: '192.168.1.50' }
   ]);
 
   branchLiquidity = signal<BranchLiquidity[]>([
@@ -456,7 +456,7 @@ export class StateService {
 
   notifications = signal<{ id: string; title: string; body: string; date: string; type: string; read: boolean }[]>([
     { id: 'n1', title: 'Rate Changed', body: 'USD/ZWG buy rate changed from 24.40 to 24.50', date: '2026-07-07T12:00:00Z', type: 'rate', read: false },
-    { id: 'n2', title: 'Compliance Warning', body: 'KYC Limit override requested for customer Sarah Connor', date: '2026-07-07T12:05:00Z', type: 'override', read: false }
+    { id: 'n2', title: 'Compliance Warning', body: 'KYC Limit override requested for customer Pelonzi Sakhe', date: '2026-07-07T12:05:00Z', type: 'override', read: false }
   ]);
 
   // Teller Session Stats
@@ -465,7 +465,7 @@ export class StateService {
     const totalVal = txns.reduce((sum, t) => sum + (t.type === 'Exchange' ? t.amount : t.amount), 0);
     return {
       tellerId: 'USR-001',
-      tellerName: 'John Doe',
+      tellerName: 'Tapiwa Mbonge',
       branchName: 'Harare CBD Branch',
       sessionStart: '2026-07-07T08:00:00Z',
       txnTodayCount: txns.length,
@@ -690,14 +690,14 @@ export class StateService {
 
   // Missing signals for Backward Compatibility
   collectors = signal<Collector[]>([
-    { id: 'COL-001', name: 'Agent Smith', collectionsToday: 1200, status: 'Active', assignedZone: 'Harare CBD', currentGps: { latitude: -17.8248, longitude: 31.0530 }, recoveryRatePct: 92 },
-    { id: 'COL-002', name: 'Agent Jones', collectionsToday: 850, status: 'Active', assignedZone: 'Bulawayo Central', currentGps: { latitude: -20.1438, longitude: 28.5779 }, recoveryRatePct: 87 }
+    { id: 'COL-001', name: 'Takudzwa Mbonge', collectionsToday: 1200, status: 'Active', assignedZone: 'Harare CBD', currentGps: { latitude: -17.8248, longitude: 31.0530 }, recoveryRatePct: 92 },
+    { id: 'COL-002', name: 'Pelonzi Tapiwa', collectionsToday: 850, status: 'Active', assignedZone: 'Bulawayo Central', currentGps: { latitude: -20.1438, longitude: 28.5779 }, recoveryRatePct: 87 }
   ]);
   promiseToPays = signal<PromiseToPay[]>([
-    { id: 'PTP-001', customerId: 'CUST-001', customerName: 'Alexander Wright', loanId: 'LND-001', amount: 450, promisedDate: '2026-07-20', status: 'Pending' }
+    { id: 'PTP-001', customerId: 'CUST-001', customerName: 'Tapiwa Takudzwa', loanId: 'LND-001', amount: 450, promisedDate: '2026-07-20', status: 'Pending' }
   ]);
   loans = signal<Loan[]>([
-    { id: 'LND-001', customerId: 'CUST-001', customerName: 'Alexander Wright', amount: 5000, interestRate: 12, repaymentPeriod: 12, status: 'Repaying', outstandingBalance: 4500, productType: 'SME Expansion Loan', paidAmount: 500, restructuredCount: 0, repaymentSchedule: [{ period: 1, dueDate: '2026-07-20', total: 450, paidAmount: 450, status: 'Paid' }] }
+    { id: 'LND-001', customerId: 'CUST-001', customerName: 'Tapiwa Takudzwa', amount: 5000, interestRate: 12, repaymentPeriod: 12, status: 'Repaying', outstandingBalance: 4500, productType: 'SME Expansion Loan', paidAmount: 500, restructuredCount: 0, repaymentSchedule: [{ period: 1, dueDate: '2026-07-20', total: 450, paidAmount: 450, status: 'Paid' }] }
   ]);
   collaterals = signal<Collateral[]>([]);
   guarantors = signal<Guarantor[]>([]);
@@ -729,7 +729,7 @@ export class StateService {
     { referenceNo: 'JE-001', description: 'Institutional Cash Settlement', date: '2026-07-07', debits: [{ accountCode: '1000', amount: 5000 }], credits: [{ accountCode: '1100', amount: 5000 }] }
   ]);
   riskAlerts = signal<any[]>([
-    { severity: 'Critical', customerName: 'Kofi Mensah', riskType: 'Sanctions List Hit', status: 'Pending Review', description: 'LexisNexis watchlist match confidence 89%.' }
+    { severity: 'Critical', customerName: 'Mbonge Takudzwa', riskType: 'Sanctions List Hit', status: 'Pending Review', description: 'LexisNexis watchlist match confidence 89%.' }
   ]);
   branches = signal<any[]>([
     { id: 'BR-101', name: 'Harare CBD Branch', code: 'CBD', address: 'Harare', active: true },

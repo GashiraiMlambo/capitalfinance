@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { StateService } from '../../core/services/state.service';
 
 interface LocalOnboardingDraft {
@@ -15,7 +15,7 @@ interface LocalOnboardingDraft {
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './onboarding.component.html',
   styleUrl: './onboarding.component.scss',})
 export class OnboardingComponent implements OnInit, OnDestroy {

@@ -2,13 +2,12 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { StateService, Customer } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, NgApexchartsModule],
+  imports: [CommonModule, NgApexchartsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',})
 export class DashboardComponent implements OnInit {
@@ -73,7 +72,7 @@ export class DashboardComponent implements OnInit {
     }));
 
     setTimeout(() => {
-      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('connor');
+      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('sakhe');
       
       this.rbzStatus.update(prev => ({
         ...prev,

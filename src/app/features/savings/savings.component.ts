@@ -2,12 +2,11 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StateService, SavingsAccount, Customer } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-savings',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './savings.component.html',
   styleUrl: './savings.component.scss',})
 export class SavingsComponent implements OnInit {

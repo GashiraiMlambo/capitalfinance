@@ -1,12 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StateService } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-integrations',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule],
   templateUrl: './integrations.component.html',
   styleUrl: './integrations.component.scss'
 })

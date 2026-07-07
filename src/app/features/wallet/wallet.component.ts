@@ -2,12 +2,11 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StateService, Customer } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-wallet',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './wallet.component.html',
   styleUrl: './wallet.component.scss',})
 export class WalletComponent implements OnInit {

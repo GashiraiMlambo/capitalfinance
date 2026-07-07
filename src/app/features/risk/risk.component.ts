@@ -1,12 +1,11 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StateService } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-risk',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule],
   templateUrl: './risk.component.html',
   styleUrl: './risk.component.scss'
 })
@@ -34,7 +33,7 @@ export class RiskComponent {
     // Simulate Reserve Bank API delay of 1.2s
     setTimeout(() => {
       // Determine response based on customer ID or details
-      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('connor');
+      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('sakhe');
       
       const responseData = isSanctionedOrSuspicious ? {
         name: `${name.toUpperCase()} (PASSPORT DB)`,

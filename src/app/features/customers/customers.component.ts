@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { StateService, Customer } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.scss',})
 export class CustomersComponent implements OnInit {

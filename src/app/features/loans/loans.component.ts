@@ -2,7 +2,6 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StateService, Loan, Customer, RepaymentPeriod } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 interface CalculatorSchedule {
   period: number;
@@ -16,7 +15,7 @@ interface CalculatorSchedule {
 @Component({
   selector: 'app-loans',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './loans.component.html',
   styleUrl: './loans.component.scss',})
 export class LoansComponent implements OnInit {

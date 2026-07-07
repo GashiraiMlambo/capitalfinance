@@ -2,12 +2,11 @@ import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StateService, LedgerAccount, JournalEntry } from '../../core/services/state.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-accounting',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './accounting.component.html',
   styleUrl: './accounting.component.scss',})
 export class AccountingComponent implements OnInit {
@@ -25,10 +24,10 @@ export class AccountingComponent implements OnInit {
   creditAmount = 0;
 
   workers = signal<any[]>([
-    { name: 'Daniel Boateng', email: 'd.boateng@ccfinance.co.zw', role: 'Operations', salary: 1800, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Markus Vance', email: 'm.vance@ccfinance.co.zw', role: 'Risk', salary: 2200, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Alice Smith', email: 'a.smith@ccfinance.co.zw', role: 'Accounting', salary: 2000, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Sarah Jenkins', email: 's.jenkins@ccfinance.co.zw', role: 'Admin', salary: 3500, paidThisMonth: false, lastPayDate: '' }
+    { name: 'Tapiwa Mbonge', email: 't.mbonge@ccfinance.co.zw', role: 'Operations', salary: 1800, paidThisMonth: false, lastPayDate: '' },
+    { name: 'Takudzwa Pelonzi', email: 't.pelonzi@ccfinance.co.zw', role: 'Risk', salary: 2200, paidThisMonth: false, lastPayDate: '' },
+    { name: 'Sakhe Mbonge', email: 's.mbonge@ccfinance.co.zw', role: 'Accounting', salary: 2000, paidThisMonth: false, lastPayDate: '' },
+    { name: 'Tapiwa Pelonzi', email: 't.pelonzi@ccfinance.co.zw', role: 'Admin', salary: 3500, paidThisMonth: false, lastPayDate: '' }
   ]);
 
   ngOnInit() {
