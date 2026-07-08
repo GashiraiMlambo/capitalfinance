@@ -59,7 +59,7 @@
       <form [formGroup]="onboardForm" (ngSubmit)="submitOnboarding()">
         <!-- STEP 1: PERSONAL INFORMATION -->
         <div *ngIf="activeStep() === 1" class="step-content">
-          <div class="form-grid-4">
+          <div class="form-grid-2">
             <div class="form-group">
               <label>Title</label>
               <select class="form-control" formControlName="title">
@@ -82,9 +82,6 @@
               <label>Last Name</label>
               <input type="text" class="form-control" formControlName="lastName" placeholder="Last Name" />
             </div>
-          </div>
-
-          <div class="form-grid-3">
             <div class="form-group">
               <label>Gender</label>
               <select class="form-control" formControlName="gender">
@@ -107,9 +104,6 @@
                 <option value="Other">Other</option>
               </select>
             </div>
-          </div>
-
-          <div class="form-grid-3">
             <div class="form-group">
               <label>Country of Birth</label>
               <input type="text" class="form-control" formControlName="countryOfBirth" placeholder="e.g. Zimbabwe" />
@@ -122,9 +116,6 @@
               <label>Citizenship</label>
               <input type="text" class="form-control" formControlName="citizenship" placeholder="e.g. Zimbabwean" />
             </div>
-          </div>
-
-          <div class="form-grid-3">
             <div class="form-group">
               <label>National ID / Passport Number</label>
               <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 63-123456-A-45" />
@@ -142,9 +133,6 @@
               <label>Maiden Name (if applicable)</label>
               <input type="text" class="form-control" formControlName="maidenName" placeholder="Maiden Name" />
             </div>
-          </div>
-
-          <div class="form-grid-3">
             <div class="form-group">
               <label>Phone Number</label>
               <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" />
@@ -157,21 +145,16 @@
               <label>Email Address</label>
               <input type="email" class="form-control" formControlName="email" placeholder="client@domain.com" />
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>Residential Address Details</label>
-            <input type="text" class="form-control" formControlName="residentialAddress" placeholder="Street Address, Suburb, City, Country" />
-          </div>
-
-          <div class="form-grid-2">
+            <div class="form-group full-width">
+              <label>Residential Address Details</label>
+              <input type="text" class="form-control" formControlName="residentialAddress" placeholder="Street Address, Suburb, City, Country" />
+            </div>
             <div class="form-group">
               <label class="checkbox-label mt-2">
                 <input type="checkbox" formControlName="postalAddressSame" />
                 <span>Postal Address same as Residential Address</span>
               </label>
             </div>
-
             <div class="form-group">
               <label>Communication Preference</label>
               <div class="radio-group">
@@ -189,16 +172,15 @@
                 </label>
               </div>
             </div>
-          </div>
-
-          <div class="form-group" *ngIf="!onboardForm.get('postalAddressSame')?.value">
-            <label>Postal Address Details</label>
-            <input type="text" class="form-control" formControlName="postalAddress" placeholder="P.O. Box or Postal Details" />
+            <div class="form-group full-width" *ngIf="!onboardForm.get('postalAddressSame')?.value">
+              <label>Postal Address Details</label>
+              <input type="text" class="form-control" formControlName="postalAddress" placeholder="P.O. Box or Postal Details" />
+            </div>
           </div>
 
           <div class="section-group">
             <h5>Next of Kin / Spouse Details</h5>
-            <div class="form-grid-3">
+            <div class="form-grid-2">
               <div class="form-group">
                 <label>Full Name</label>
                 <input type="text" class="form-control" formControlName="nextOfKinName" placeholder="Next of Kin Name" />
@@ -211,10 +193,10 @@
                 <label>Phone Number</label>
                 <input type="text" class="form-control" formControlName="nextOfKinPhone" placeholder="Phone Number" />
               </div>
-            </div>
-            <div class="form-group">
-              <label>Address</label>
-              <input type="text" class="form-control" formControlName="nextOfKinAddress" placeholder="Address" />
+              <div class="form-group full-width">
+                <label>Address</label>
+                <input type="text" class="form-control" formControlName="nextOfKinAddress" placeholder="Address" />
+              </div>
             </div>
           </div>
 
@@ -226,7 +208,7 @@
 
         <!-- STEP 2: EMPLOYMENT DETAILS -->
         <div *ngIf="activeStep() === 2" class="step-content">
-          <div class="form-grid-3">
+          <div class="form-grid-2">
             <div class="form-group">
               <label>Employment Status</label>
               <select class="form-control" formControlName="employmentStatus">
@@ -245,20 +227,14 @@
               <label>Industry</label>
               <input type="text" class="form-control" formControlName="industry" placeholder="e.g. Banking, Agriculture" />
             </div>
-          </div>
-
-          <div class="form-grid-2">
             <div class="form-group">
               <label>Employer Name</label>
               <input type="text" class="form-control" formControlName="employer" placeholder="Employer Name" />
             </div>
-            <div class="form-group">
+            <div class="form-group full-width">
               <label>Employer Address</label>
               <input type="text" class="form-control" formControlName="employerAddress" placeholder="Employer Address" />
             </div>
-          </div>
-
-          <div class="form-grid-3">
             <div class="form-group">
               <label>Gross Monthly Income</label>
               <input type="number" class="form-control" formControlName="grossIncome" placeholder="Gross Income" />

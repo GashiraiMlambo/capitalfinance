@@ -6,7 +6,7 @@
         <div class="alert-content">
           <strong>Low Liquidity Warning:</strong> Branch cash position for 
           <span class="warning-currency" *ngFor="let c of lowLiquidityCurrencies()">
-            {{ c.currency }} (\${{ c.balance | number }})
+            {{ c.currency }} ({{ getCurrencySymbol(c.currency) }}{{ c.balance | number }})
           </span>
           is below defined safety thresholds. Initiate vault transfer.
         </div>
@@ -16,7 +16,7 @@
       <div class="kpi-grid">
         <div class="card-banking card-gradient-primary">
           <h3>Branch Exchange Volume</h3>
-          <p class="kpi-num">\${{ branchTotalVolumeUsd() | number:'1.2-2' }} USD</p>
+          <p class="kpi-num">${{ branchTotalVolumeUsd() | number:'1.2-2' }} USD</p>
           <span class="kpi-sub">Today's aggregate transaction weight</span>
         </div>
 
@@ -54,7 +54,7 @@
                   <th>Voucher</th>
                   <th>Teller</th>
                   <th>Customer</th>
-                  <th>Amount (USD)</th>
+                  <th>Amount</th>
                   <th>Flag Reason</th>
                   <th>Action</th>
                 </tr>
@@ -64,7 +64,7 @@
                   <td class="font-mono"><strong>{{ t.id }}</strong></td>
                   <td>Tawanda Chiimbira</td>
                   <td>{{ t.customerName }}</td>
-                  <td>\${{ t.amount | number:'1.2-2' }}</td>
+                  <td>{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</td>
                   <td>
                     <span class="badge-reason" [class.sanctions]="t.flagReason === 'Sanctions hit'">
                       <svg *ngIf="t.flagReason === 'Sanctions hit'" class="severity-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: text-top;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -108,7 +108,7 @@
                   </div>
                   <div class="stat text-right">
                     <span class="label">Vol (USD)</span>
-                    <span class="value">\${{ getTellerTxnVolume(t.id) | number }}</span>
+                    <span class="value">${{ getTellerTxnVolume(t.id) | number }}</span>
                   </div>
                 </div>
               </div>
@@ -133,7 +133,7 @@
               <div class="liquidity-bar-item" *ngFor="let l of stateService.branchLiquidity()">
                 <div class="bar-meta">
                   <span><strong>{{ l.currency }}</strong></span>
-                  <span>\${{ l.balance | number }} / \${{ l.reserved + l.balance | number }}</span>
+                  <span>{{ getCurrencySymbol(l.currency) }}{{ l.balance | number }} / {{ getCurrencySymbol(l.currency) }}{{ l.reserved + l.balance | number }}</span>
                 </div>
                 <div class="bar-track">
                   <div 
@@ -143,7 +143,7 @@
                   ></div>
                 </div>
                 <div class="bar-labels">
-                  <span class="threshold">Min safety: \${{ l.threshold | number }}</span>
+                  <span class="threshold">Min safety: {{ getCurrencySymbol(l.currency) }}{{ l.threshold | number }}</span>
                   <span class="status-alert critical" *ngIf="l.balance < l.threshold">CRITICAL LOW</span>
                   <span class="status-alert warning" *ngIf="l.balance >= l.threshold && l.balance <= l.threshold * 1.6">WARNING: APPROACHING MIN SAFETY</span>
                 </div>

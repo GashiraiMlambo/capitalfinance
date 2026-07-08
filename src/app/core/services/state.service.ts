@@ -341,7 +341,12 @@ export class StateService {
     { pair: 'USD/ZWG', buyRate: 24.50, sellRate: 25.80, spread: 5.3, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
     { pair: 'GBP/ZWG', buyRate: 31.20, sellRate: 32.90, spread: 5.4, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
     { pair: 'ZAR/ZWG', buyRate: 1.30, sellRate: 1.42, spread: 9.2, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
-    { pair: 'EUR/ZWG', buyRate: 26.80, sellRate: 28.20, spread: 5.2, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' }
+    { pair: 'EUR/ZWG', buyRate: 26.80, sellRate: 28.20, spread: 5.2, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
+    { pair: 'GBP/USD', buyRate: 1.28, sellRate: 1.32, spread: 3.1, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
+    { pair: 'EUR/USD', buyRate: 1.09, sellRate: 1.13, spread: 3.6, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
+    { pair: 'USD/ZAR', buyRate: 18.20, sellRate: 18.90, spread: 3.8, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
+    { pair: 'GBP/ZAR', buyRate: 23.30, sellRate: 24.50, spread: 5.1, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' },
+    { pair: 'EUR/ZAR', buyRate: 19.80, sellRate: 20.80, spread: 5.0, lastUpdated: '2026-07-07T12:00:00Z', status: 'Live' }
   ]);
 
   transactions = signal<Transaction[]>([
@@ -428,6 +433,46 @@ export class StateService {
       tellerId: 'USR-001',
       flagReason: 'Exceeds daily KYC limit',
       vettingResult: 'Transaction amount ($15,000) exceeds Teller daily limit ($5,000). Requires Branch Manager override.'
+    },
+    {
+      id: 'TXN-005',
+      customerId: 'CUST-001',
+      customerName: 'Noah Chimboza',
+      type: 'Exchange',
+      currencyPair: 'GBP/USD',
+      direction: 'Buy',
+      amount: 100,
+      amountLocal: 127.36,
+      rate: 1.28,
+      fee: 0.64,
+      payoutMethod: 'Cash',
+      status: 'Completed',
+      timestamp: '2026-07-07T12:15:00Z',
+      branchId: 'BR-101',
+      tellerId: 'USR-001'
+    },
+    {
+      id: 'TXN-006',
+      customerId: 'CUST-002',
+      customerName: 'Josephat Chimuka',
+      type: 'Remittance',
+      currencyPair: 'USD/ZAR',
+      direction: 'International',
+      amount: 250,
+      amountLocal: 4550,
+      rate: 18.20,
+      fee: 12.50,
+      payoutMethod: 'Mobile Wallet',
+      recipientName: 'Sipho Ndlovu',
+      recipientPhone: '+27 82 123 4567',
+      recipientAccount: '0821234567',
+      purpose: 'Family Support',
+      sourceOfFunds: 'Savings',
+      status: 'Completed',
+      timestamp: '2026-07-07T13:40:00Z',
+      branchId: 'BR-101',
+      tellerId: 'USR-001',
+      payoutPin: 'REM-7734-SIP'
     }
   ]);
 
@@ -440,7 +485,8 @@ export class StateService {
     { currency: 'USD', balance: 45000, reserved: 15000, threshold: 10000 },
     { currency: 'ZWG', balance: 250000, reserved: 45000, threshold: 50000 },
     { currency: 'ZAR', balance: 85000, reserved: 12000, threshold: 20000 },
-    { currency: 'GBP', balance: 8000, reserved: 2000, threshold: 5000 }
+    { currency: 'GBP', balance: 8000, reserved: 2000, threshold: 5000 },
+    { currency: 'EUR', balance: 12000, reserved: 3000, threshold: 5000 }
   ]);
 
   eodStatus = signal<EodStatus>({

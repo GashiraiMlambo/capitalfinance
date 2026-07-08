@@ -60,7 +60,7 @@
             </div>
             <div class="detail-row">
               <span class="label">Principal Amount:</span>
-              <span class="value">\${{ transaction()?.amount | number:'1.2-2' }} USD</span>
+              <span class="value">{{ getCurrencySymbol(sourceCurrency()) }}{{ transaction()?.amount | number:'1.2-2' }} {{ sourceCurrency() }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Executed Exchange Rate:</span>
@@ -68,12 +68,12 @@
             </div>
             <div class="detail-row">
               <span class="label">Broker Service Fee:</span>
-              <span class="value">{{ transaction()?.fee | number:'1.2-2' }} ZWG</span>
+              <span class="value">{{ getCurrencySymbol(targetCurrency()) }}{{ transaction()?.fee | number:'1.2-2' }} {{ targetCurrency() }}</span>
             </div>
             <div class="divider-thin"></div>
             <div class="detail-row payout-row">
               <span class="label">Net Settlement Payout:</span>
-              <span class="value text-gradient font-lg">{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</span>
+              <span class="value text-gradient font-lg">{{ getCurrencySymbol(targetCurrency()) }}{{ transaction()?.amountLocal | number:'1.2-2' }} {{ targetCurrency() }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Payout Method:</span>
@@ -104,17 +104,17 @@
               <span class="value font-mono">{{ transaction()?.recipientAccount }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">Principal Send (USD):</span>
-              <span class="value">\${{ transaction()?.amount | number:'1.2-2' }} USD</span>
+              <span class="label">Principal Send ({{ sourceCurrency() }}):</span>
+              <span class="value">{{ getCurrencySymbol(sourceCurrency()) }}{{ transaction()?.amount | number:'1.2-2' }} {{ sourceCurrency() }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Remittance Fee Charged:</span>
-              <span class="value">\${{ transaction()?.fee | number:'1.2-2' }} USD</span>
+              <span class="value">{{ getCurrencySymbol(sourceCurrency()) }}{{ transaction()?.fee | number:'1.2-2' }} {{ sourceCurrency() }}</span>
             </div>
             <div class="divider-thin"></div>
             <div class="detail-row payout-row">
-              <span class="label">Total Collected (ZWG Equiv):</span>
-              <span class="value text-gradient font-lg">{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</span>
+              <span class="label">Total Collected ({{ targetCurrency() }} Equiv):</span>
+              <span class="value text-gradient font-lg">{{ getCurrencySymbol(targetCurrency()) }}{{ transaction()?.amountLocal | number:'1.2-2' }} {{ targetCurrency() }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Payout Channel:</span>

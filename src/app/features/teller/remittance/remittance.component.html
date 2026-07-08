@@ -149,9 +149,16 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Principal Transfer Amount (USD)</label>
+                  <label>Currency Pair</label>
+                  <select class="form-control" formControlName="pair" (change)="updateCalculator()">
+                    <option *ngFor="let r of stateService.rates()" [value]="r.pair">{{ r.pair }}</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Principal Transfer Amount ({{ remitForm.value.pair?.split('/')?.[0] }})</label>
                   <div class="input-addon-group">
-                    <span class="addon-symbol">$</span>
+                    <span class="addon-symbol">{{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}</span>
                     <input 
                       type="number" 
                       class="form-control" 
@@ -168,10 +175,10 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Total Charged Amount (ZWG Equivalent)</label>
+                  <label>Total Charged Amount ({{ remitForm.value.pair?.split('/')?.[1] }} Equivalent)</label>
                   <div class="calculated-payout-box text-gradient">
-                    {{ chargedLocalAmount() | number:'1.2-2' }} ZWG
-                    <span class="rate-breakdown">Principal: \${{ remitForm.value.amount || 0 }} | Fee: \${{ remitFee() }} | Rate: {{ usdToZwgRate() }}</span>
+                    {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[1]) }}{{ chargedLocalAmount() | number:'1.2-2' }} {{ remitForm.value.pair?.split('/')?.[1] }}
+                    <span class="rate-breakdown">Principal: {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}{{ remitForm.value.amount || 0 }} | Fee: {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}{{ remitFee() }} | Rate: {{ usdToZwgRate() }}</span>
                   </div>
                 </div>
               </div>
@@ -238,7 +245,7 @@
               <div class="draft-item" *ngFor="let d of localDrafts()">
                 <div class="draft-brief">
                   <p class="cust-name"><strong>To: {{ d.recipientName }}</strong></p>
-                  <p class="details">Sender: {{ d.senderName }} | \${{ d.amount }} ({{ d.direction }})</p>
+                  <p class="details">Sender: {{ d.senderName }} | {{ getCurrencySymbol(d.formData?.fields?.pair?.split('/')?.[0]) }}{{ d.amount }} ({{ d.direction }})</p>
                 </div>
                 <div class="draft-actions">
                   <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>

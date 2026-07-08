@@ -22,6 +22,20 @@ export class ReceiptComponent implements OnInit {
     return this.stateService.transactions().find(t => t.id === id);
   });
 
+  sourceCurrency = computed(() => this.transaction()?.currencyPair?.split('/')?.[0] || 'USD');
+  targetCurrency = computed(() => this.transaction()?.currencyPair?.split('/')?.[1] || 'ZWG');
+
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');

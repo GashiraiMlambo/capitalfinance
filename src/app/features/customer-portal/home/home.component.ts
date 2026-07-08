@@ -21,6 +21,17 @@ export class PortalHomeComponent implements OnInit {
   stateService = inject(StateService);
   private route = inject(ActivatedRoute);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   trackingPin = '';
   calcAmount = 100;
   calcPair = 'USD/ZWG';

@@ -71,7 +71,7 @@
                     </div>
                   </td>
                   <td>
-                    <strong class="text-danger">\${{ t.amount | number:'1.2-2' }} USD</strong>
+                    <strong class="text-danger">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }} {{ t.currencyPair?.split('/')?.[0] }}</strong>
                   </td>
                   <td>
                     <p class="vetting-text">{{ t.vettingResult }}</p>

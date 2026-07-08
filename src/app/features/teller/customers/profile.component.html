@@ -164,7 +164,7 @@
                 <tr *ngFor="let txn of customerTxns()">
                   <td class="font-mono">{{ txn.id }}</td>
                   <td>{{ txn.type }} ({{ txn.currencyPair }})</td>
-                  <td>\${{ txn.amount | number:'1.2-2' }}</td>
+                  <td>{{ getCurrencySymbol(txn.currencyPair?.split('/')?.[0]) }}{{ txn.amount | number:'1.2-2' }}</td>
                   <td>
                     <span class="chip-status" [class.status-approved]="txn.status === 'Completed'" [class.status-pending]="txn.status === 'Pending'" [class.status-rejected]="txn.status === 'Failed'">
                       {{ txn.status }}

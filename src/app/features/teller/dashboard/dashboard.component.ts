@@ -14,6 +14,17 @@ export class TellerDashboardComponent implements OnInit {
   stateService = inject(StateService);
   router = inject(Router);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   searchQuery = '';
   filterType = 'ALL';
   filterStatus = 'ALL';

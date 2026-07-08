@@ -36,7 +36,7 @@
                 <p class="kpi-label">Transactions Today</p>
               </div>
               <div class="kpi-box">
-                <p class="kpi-num">\${{ sessionStats().txnTodayValueUsd | number:'1.2-2' }}</p>
+                <p class="kpi-num">${{ sessionStats().txnTodayValueUsd | number:'1.2-2' }}</p>
                 <p class="kpi-label">Exchanged (USD Eq)</p>
               </div>
             </div>
@@ -165,8 +165,8 @@
                     </td>
                     <td>
                       <div class="amount-info">
-                        <strong class="txn-amount">\${{ t.amount | number:'1.2-2' }}</strong>
-                        <span class="subtext">{{ t.amountLocal | number:'1.2-2' }} ZWG</span>
+                        <strong class="txn-amount">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</strong>
+                        <span class="subtext">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }} {{ t.currencyPair?.split('/')?.[1] }}</span>
                       </div>
                     </td>
                     <td>

@@ -21,7 +21,7 @@
                   Pending Transactions: {{ pendingCount() }} | Verified Transactions: {{ completedCount() }}
                 </p>
                 <p class="summary-text">
-                  Gross Foreign Payouts: \${{ totalVolume() | number:'1.2-2' }} USD
+                  Gross Foreign Payouts: ${{ totalVolume() | number:'1.2-2' }} USD
                 </p>
               </div>
             </div>
@@ -68,7 +68,7 @@
                   </div>
                   <div class="val-row">
                     <span>Total USD:</span>
-                    <span>\${{ b.volumeUsd | number }}</span>
+                    <span>${{ b.volumeUsd | number }}</span>
                   </div>
                 </div>
               </div>

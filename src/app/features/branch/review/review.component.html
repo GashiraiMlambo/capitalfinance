@@ -39,19 +39,19 @@
             </div>
             <div class="detail-item">
               <span class="label">Settlement Amount:</span>
-              <span class="val font-lg"><strong>\${{ transaction()?.amount | number:'1.2-2' }} USD</strong></span>
+              <span class="val font-lg"><strong>{{ getCurrencySymbol(sourceCurrency()) }}{{ transaction()?.amount | number:'1.2-2' }} {{ sourceCurrency() }}</strong></span>
             </div>
             <div class="detail-item">
               <span class="label">Payout Equivalence:</span>
-              <span class="val font-lg"><strong>{{ transaction()?.amountLocal | number:'1.2-2' }} ZWG</strong></span>
+              <span class="val font-lg"><strong>{{ getCurrencySymbol(targetCurrency()) }}{{ transaction()?.amountLocal | number:'1.2-2' }} {{ targetCurrency() }}</strong></span>
             </div>
             <div class="detail-item">
               <span class="label">Conversion Rate Applied:</span>
-              <span class="val">{{ transaction()?.rate }} ZWG per USD</span>
+              <span class="val">{{ transaction()?.rate }} {{ targetCurrency() }} per {{ sourceCurrency() }}</span>
             </div>
             <div class="detail-item">
               <span class="label">Calculated Commission:</span>
-              <span class="val">{{ transaction()?.fee | number:'1.2-2' }} ZWG</span>
+              <span class="val">{{ transaction()?.type === 'Exchange' ? getCurrencySymbol(targetCurrency()) : getCurrencySymbol(sourceCurrency()) }}{{ transaction()?.fee | number:'1.2-2' }} {{ transaction()?.type === 'Exchange' ? targetCurrency() : sourceCurrency() }}</span>
             </div>
             <div class="detail-item">
               <span class="label">Funds Sourcing:</span>

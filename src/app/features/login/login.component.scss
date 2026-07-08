@@ -25,7 +25,7 @@
 }
 
 .brand-panel {
-  background: var(--primary);
+  background: var(--bg-sidebar);
   padding: 32px;
   color: white;
   display: flex;
@@ -51,10 +51,11 @@
         gap: 12px;
         z-index: 10;
         
-        .brand-name {
-          font-family: 'Outfit', sans-serif;
-          font-weight: 700;
-          font-size: 20px;
+        .brand-logo-img {
+          max-height: 75px;
+          max-width: 100%;
+          object-fit: contain;
+          filter: brightness(0) invert(1);
         }
       }
 

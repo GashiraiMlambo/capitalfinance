@@ -84,8 +84,8 @@
                 <div class="form-group">
                   <label>Direction</label>
                   <select class="form-control" formControlName="direction">
-                    <option value="Buy">Buy (Customer gives Foreign, receives ZWG)</option>
-                    <option value="Sell">Sell (Customer gives ZWG, receives Foreign)</option>
+                    <option value="Buy">Buy (Customer gives {{ exchangeForm.value.pair?.split('/')?.[0] }}, receives {{ exchangeForm.value.pair?.split('/')?.[1] }})</option>
+                    <option value="Sell">Sell (Customer gives {{ exchangeForm.value.pair?.split('/')?.[1] }}, receives {{ exchangeForm.value.pair?.split('/')?.[0] }})</option>
                   </select>
                 </div>
 
@@ -99,9 +99,9 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Amount (Foreign Currency)</label>
+                  <label>Amount ({{ exchangeForm.value.pair?.split('/')?.[0] }})</label>
                   <div class="currency-input-wrapper">
-                    <span class="currency-symbol">$</span>
+                    <span class="currency-symbol">{{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[0]) }}</span>
                     <input 
                       type="number" 
                       class="form-control" 
@@ -118,10 +118,10 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Calculated Payout (ZWG)</label>
+                  <label>Calculated Payout ({{ exchangeForm.value.pair?.split('/')?.[1] }})</label>
                   <div class="calculated-payout-box text-gradient">
-                    {{ destinationAmount() | number:'1.2-2' }} ZWG
-                    <span class="calculation-breakdown">Rate: {{ selectedRate().buyRate }} | Fee: {{ selectedRateFee() | number:'1.2-2' }} ZWG</span>
+                    {{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[1]) }}{{ destinationAmount() | number:'1.2-2' }} {{ exchangeForm.value.pair?.split('/')?.[1] }}
+                    <span class="calculation-breakdown">Rate: {{ exchangeForm.value.direction === 'Buy' ? selectedRate().buyRate : selectedRate().sellRate }} | Fee: {{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[1]) }}{{ selectedRateFee() | number:'1.2-2' }} {{ exchangeForm.value.pair?.split('/')?.[1] }}</span>
                   </div>
                 </div>
               </div>
@@ -196,7 +196,7 @@
               <div class="draft-item" *ngFor="let d of localDrafts()">
                 <div class="draft-brief">
                   <p class="cust-name"><strong>{{ d.customerName }}</strong></p>
-                  <p class="details">{{ d.pair }} | {{ d.direction }} | \${{ d.amount }}</p>
+                  <p class="details">{{ d.pair }} | {{ d.direction }} | {{ getCurrencySymbol(d.pair?.split('/')?.[0]) }}{{ d.amount }}</p>
                 </div>
                 <div class="draft-actions">
                   <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>
@@ -214,13 +214,13 @@
               <div class="liq-row" *ngFor="let l of stateService.branchLiquidity()">
                 <div class="liq-meta">
                   <strong>{{ l.currency }}</strong>
-                  <span class="threshold-label">Threshold: \${{ l.threshold }}</span>
+                  <span class="threshold-label">Threshold: {{ getCurrencySymbol(l.currency) }}{{ l.threshold }}</span>
                 </div>
                 <div class="liq-values">
                   <span class="balance" [class.low-liq]="l.balance < l.threshold">
-                    \${{ l.balance | number }}
+                    {{ getCurrencySymbol(l.currency) }}{{ l.balance | number }}
                   </span>
-                  <span class="reserved">Reserved: \${{ l.reserved | number }}</span>
+                  <span class="reserved">Reserved: {{ getCurrencySymbol(l.currency) }}{{ l.reserved | number }}</span>
                 </div>
               </div>
             </div>

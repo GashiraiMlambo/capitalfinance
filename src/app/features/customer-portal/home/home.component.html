@@ -20,7 +20,7 @@
             <tr>
               <th>Voucher</th>
               <th>Type</th>
-              <th>Sent Amount (USD)</th>
+              <th>Sent Amount</th>
               <th>Payout Equivalent</th>
               <th>Rate Applied</th>
               <th>Processing Fee</th>
@@ -38,10 +38,10 @@
                   {{ t.type }}
                 </span>
               </td>
-              <td><strong>\${{ t.amount | number:'1.2-2' }}</strong></td>
-              <td>{{ t.amountLocal | number:'1.2-2' }} ZWG</td>
+              <td><strong>{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</strong></td>
+              <td>{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }} {{ t.currencyPair?.split('/')?.[1] }}</td>
               <td>{{ t.rate }}</td>
-              <td>{{ t.fee | number:'1.2-2' }} ZWG</td>
+              <td>{{ t.type === 'Exchange' ? getCurrencySymbol(t.currencyPair?.split('/')?.[1]) : getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.fee | number:'1.2-2' }} {{ t.type === 'Exchange' ? t.currencyPair?.split('/')?.[1] : t.currencyPair?.split('/')?.[0] }}</td>
               <td>
                 <span class="chip-status" [class.status-approved]="t.status === 'Completed'" [class.status-pending]="t.status === 'Pending'" [class.status-rejected]="t.status === 'Failed'">
                   {{ t.status }}
@@ -99,7 +99,7 @@
             <div class="timeline-visual" *ngIf="trackingResult().txn">
               <div class="txn-meta-info">
                 <p><strong>Transfer to: {{ trackingResult().txn?.recipientName }}</strong></p>
-                <p class="subtext">Amount: \${{ trackingResult().txn?.amount }} USD | Method: {{ trackingResult().txn?.payoutMethod }}</p>
+                <p class="subtext">Amount: {{ getCurrencySymbol(trackingResult().txn?.currencyPair?.split('/')?.[0]) }}{{ trackingResult().txn?.amount }} {{ trackingResult().txn?.currencyPair?.split('/')?.[0] }} | Method: {{ trackingResult().txn?.payoutMethod }}</p>
               </div>
 
               <div class="stepper-horizontal">
@@ -134,7 +134,7 @@
             <div class="form-group">
               <label>Send Amount</label>
               <div class="addon-input">
-                <span class="addon">$</span>
+                <span class="addon">{{ getCurrencySymbol(calcPair.split('/')?.[0]) }}</span>
                 <input type="number" class="form-control" [(ngModel)]="calcAmount" (input)="runCalculation()" />
               </div>
             </div>
@@ -149,7 +149,7 @@
 
           <div class="calc-result-box text-gradient" [class.calculating]="isCalculating()">
             <ng-container *ngIf="!isCalculating()">
-              {{ (calcAmount ? calcResult() : 0) | number:'1.2-2' }} ZWG
+              {{ getCurrencySymbol(calcPair.split('/')?.[1]) }}{{ (calcAmount ? calcResult() : 0) | number:'1.2-2' }} {{ calcPair.split('/')?.[1] }}
               <span class="sub">Estimated net payout (Rate: {{ calcRate() }})</span>
             </ng-container>
 
@@ -173,7 +173,7 @@
               <tr>
                 <th>Voucher</th>
                 <th>Type</th>
-                <th>Sent (USD)</th>
+                <th>Sent</th>
                 <th>Payout</th>
                 <th>Status</th>
               </tr>
@@ -188,8 +188,8 @@
                     {{ t.type }}
                   </span>
                 </td>
-                <td>\${{ t.amount | number:'1.2-2' }}</td>
-                <td>{{ t.amountLocal | number:'1.2-2' }} ZWG</td>
+                <td>{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</td>
+                <td>{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }} {{ t.currencyPair?.split('/')?.[1] }}</td>
                 <td>
                   <span class="chip-status" [class.status-approved]="t.status === 'Completed'" [class.status-pending]="t.status === 'Pending'" [class.status-rejected]="t.status === 'Failed'">
                     {{ t.status }}

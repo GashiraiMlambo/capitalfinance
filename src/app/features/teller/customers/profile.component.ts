@@ -14,6 +14,17 @@ export class CustomerProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   stateService = inject(StateService);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   customerId = signal<string>('');
   newComplianceNote = '';
 

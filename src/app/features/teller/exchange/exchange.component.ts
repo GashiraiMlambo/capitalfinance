@@ -41,6 +41,17 @@ export class ExchangeComponent implements OnInit, OnDestroy {
   // Local drafts list
   localDrafts = signal<LocalDraft[]>([]);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   ngOnInit() {
     this.exchangeForm = this.fb.group({
       direction: ['Buy', Validators.required],

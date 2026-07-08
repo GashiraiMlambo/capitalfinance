@@ -13,6 +13,17 @@ export class BranchDashboardComponent {
   stateService = inject(StateService);
   private router = inject(Router);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   isReadOnly = computed(() => {
     const role = this.stateService.currentUser()?.role;
     return role === 'Compliance Officer';

@@ -59,6 +59,17 @@ export class RemittanceComponent implements OnInit, OnDestroy {
   // Local drafts list
   localDrafts = signal<LocalRemitDraft[]>([]);
 
+  getCurrencySymbol(curr: string | undefined): string {
+    if (!curr) return '$';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'GBP': return '£';
+      case 'EUR': return '€';
+      case 'ZAR': return 'R';
+      default: return curr;
+    }
+  }
+
   ngOnInit() {
     this.remitForm = this.fb.group({
       recipientName: ['', Validators.required],
@@ -66,6 +77,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
       direction: ['Local', Validators.required],
       payoutMethod: ['Cash Pickup', Validators.required],
       recipientAccount: [''],
+      pair: ['USD/ZWG', Validators.required],
       amount: [null, [Validators.required, Validators.min(5)]],
       sourceOfFunds: ['Salary', Validators.required],
       purpose: ['Family Support', Validators.required]
@@ -147,22 +159,23 @@ export class RemittanceComponent implements OnInit, OnDestroy {
   updateCalculator() {
     const amount = this.remitForm.get('amount')?.value || 0;
     const direction = this.remitForm.get('direction')?.value;
+    const pair = this.remitForm.get('pair')?.value || 'USD/ZWG';
 
-    // Use current USD/ZWG buy rate from state
+    // Use current selected pair buy rate from state
     const ratesList = this.stateService.rates();
-    const usdZwg = ratesList.find(r => r.pair === 'USD/ZWG');
-    const rateVal = usdZwg ? usdZwg.buyRate : 24.50;
+    const rateObj = ratesList.find(r => r.pair === pair);
+    const rateVal = rateObj ? rateObj.buyRate : 24.50;
     this.usdToZwgRate.set(rateVal);
 
-    // Fee structure: Local is flat $5 USD; International is $10 + 1% of principal
+    // Fee structure: Local is flat 5.00 of source currency; International is 10.00 + 1% of principal
     const fee = direction === 'Local' ? 5.00 : (10.00 + amount * 0.01);
     this.remitFee.set(Math.round(fee * 100) / 100);
 
-    // Calculate total equivalence charged in local currency ZWG
-    const principalZwg = amount * rateVal;
-    const feeZwg = fee * rateVal;
+    // Calculate total equivalence charged in destination currency
+    const principalDest = amount * rateVal;
+    const feeDest = fee * rateVal;
     
-    this.chargedLocalAmount.set(principalZwg + feeZwg);
+    this.chargedLocalAmount.set(principalDest + feeDest);
   }
 
   submitRemittance() {
@@ -179,7 +192,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
       customerId: sender.id,
       customerName: sender.name,
       type: 'Remittance' as const,
-      currencyPair: 'USD/ZWG',
+      currencyPair: formVal.pair,
       direction: formVal.direction === 'Local' ? ('Local' as const) : ('International' as const),
       amount: formVal.amount,
       amountLocal: this.chargedLocalAmount(),
@@ -256,6 +269,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
       direction: data.fields.direction,
       payoutMethod: data.fields.payoutMethod,
       recipientAccount: data.fields.recipientAccount,
+      pair: data.fields.pair || 'USD/ZWG',
       amount: data.fields.amount,
       sourceOfFunds: data.fields.sourceOfFunds,
       purpose: data.fields.purpose
@@ -287,7 +301,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
         customerId: data.sender.id,
         customerName: data.sender.name,
         type: 'Remittance' as const,
-        currencyPair: 'USD/ZWG',
+        currencyPair: data.fields.pair || 'USD/ZWG',
         direction: data.fields.direction === 'Local' ? ('Local' as const) : ('International' as const),
         amount: data.fields.amount,
         amountLocal: data.chargedLocalAmount,
