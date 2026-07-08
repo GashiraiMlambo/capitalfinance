@@ -1,6 +1,6 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StateService } from '../../core/services/state.service';
 
@@ -17,7 +17,8 @@ interface LocalOnboardingDraft {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './onboarding.component.html',
-  styleUrl: './onboarding.component.scss',})
+  styleUrl: './onboarding.component.scss',
+})
 export class OnboardingComponent implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
   stateService = inject(StateService);
@@ -25,6 +26,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   onboardForm!: FormGroup;
   isOnline = signal<boolean>(true);
+
+  // Stepper state
+  activeStep = signal<number>(1);
 
   // Vetting signals
   isVetting = signal<boolean>(false);
@@ -35,16 +39,66 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.onboardForm = this.fb.group({
-      name: ['', Validators.required],
-      nationality: ['Zimbabwean', Validators.required],
-      nationalId: ['', Validators.required],
+      // Step 1: Personal Details
+      title: ['Mr'],
+      firstName: ['', Validators.required],
+      middleName: [''],
+      lastName: ['', Validators.required],
+      gender: ['Male'],
       dob: ['', Validators.required],
-      occupation: ['', Validators.required],
+      race: ['African'],
+      countryOfBirth: ['Zimbabwe'],
+      nationality: ['Zimbabwean', Validators.required],
+      citizenship: ['Zimbabwean'],
+      maritalStatus: ['Single'],
+      maidenName: [''],
       phone: ['', Validators.required],
+      otherPhone: [''],
       email: [''],
-      address: ['', Validators.required],
-      idDocName: ['national_id.png', Validators.required],
-      proofResDocName: ['utility_bill.pdf', Validators.required],
+      isUsPersonFatca: [false],
+      residentialAddress: ['', Validators.required],
+      postalAddressSame: [true],
+      postalAddress: [''],
+      commPreference: ['SMS'],
+      nextOfKinName: [''],
+      nextOfKinRel: [''],
+      nextOfKinPhone: [''],
+      nextOfKinAddress: [''],
+      nationalId: ['', Validators.required],
+
+      // Step 2: Employment Details
+      employmentStatus: ['Employed'],
+      jobTitle: [''],
+      industry: [''],
+      employer: [''],
+      employerAddress: [''],
+      grossIncome: [''],
+      netIncome: [''],
+      currency: ['USD'],
+      sourceOfFunds: this.fb.array([this.fb.control('Salary')]),
+
+      // Step 3: Documents Upload
+      passportPhotoName: [''],
+      passportPhotoLater: [false],
+      idPassportName: [''],
+      idPassportLater: [false],
+      proofResName: [''],
+      proofResLater: [false],
+      specimenSigName: [''],
+      specimenSigLater: [false],
+      foreignStatementName: [''],
+      foreignStatementLater: [false],
+      proofIncomeName: [''],
+      proofIncomeLater: [false],
+      marriageCertName: [''],
+      marriageCertLater: [false],
+      usFatcaName: [''],
+      usFatcaLater: [false],
+      highRiskDeclName: [''],
+      highRiskDeclLater: [false],
+      optionalFilesName: [''],
+
+      // Screening
       ofacVerified: [true],
       pepCheck: [true]
     });
@@ -71,9 +125,44 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.isOnline.set(false);
   }
 
-  submitOnboarding() {
-    if (this.onboardForm.invalid) return;
+  // Stepper navigation
+  nextStep() {
+    if (this.activeStep() < 3) {
+      this.activeStep.update(s => s + 1);
+    }
+  }
 
+  prevStep() {
+    if (this.activeStep() > 1) {
+      this.activeStep.update(s => s - 1);
+    }
+  }
+
+  // Dynamic sources of funds FormArray getters & setters
+  get sourceOfFundsArray() {
+    return this.onboardForm.get('sourceOfFunds') as FormArray;
+  }
+
+  addSourceOfFunds(value = '') {
+    this.sourceOfFundsArray.push(this.fb.control(value));
+  }
+
+  removeSourceOfFunds(index: number) {
+    if (this.sourceOfFundsArray.length > 1) {
+      this.sourceOfFundsArray.removeAt(index);
+    }
+  }
+
+  onFileSelected(event: any, controlName: string) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.onboardForm.get(controlName)?.setValue(file.name);
+    }
+  }
+
+  submitOnboarding() {
+    // Note: User requested that we allow navigation/submit even if fields are empty, 
+    // so we don't guard submission with this.onboardForm.invalid.
     if (!this.isOnline()) {
       this.saveLocalDraft(true);
       alert('Offline. Saved onboarding file to your device and will sync on network restoration.');
@@ -98,12 +187,13 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private executeSubmit() {
     this.isVetting.set(false);
     const formVal = this.onboardForm.value;
+    const name = `${formVal.firstName || ''} ${formVal.middleName ? formVal.middleName + ' ' : ''}${formVal.lastName || ''}`.trim() || 'Unnamed Customer';
 
-    // Check PEP screening rules: if pepCheck is checked and PEP flags are active, or if name contains a flagged pattern
+    // Check PEP screening rules
     let kycStatus: 'Verified' | 'Flagged' | 'Pending' = 'Verified';
     let notes = 'Regulatory registry checks succeeded.';
 
-    if (formVal.name.toLowerCase().includes('kofi')) {
+    if (name.toLowerCase().includes('kofi')) {
       kycStatus = 'Flagged';
       notes = 'Sanctions screening match: Customer flagged due to Name match on AML database.';
     } else if (!formVal.pepCheck) {
@@ -111,20 +201,32 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       notes = 'Awaiting PEP checklist validation.';
     }
 
+    // Build the documents list for stateService
+    const documents: { type: string; url: string; status: 'Verified' | 'Pending' | 'Rejected' }[] = [];
+    if (formVal.passportPhotoName || formVal.passportPhotoLater) {
+      documents.push({ type: 'Passport Photo', url: formVal.passportPhotoLater ? 'Upload Later' : (formVal.passportPhotoName || ''), status: formVal.passportPhotoLater ? 'Pending' : 'Verified' });
+    }
+    if (formVal.idPassportName || formVal.idPassportLater) {
+      documents.push({ type: 'National ID Scan', url: formVal.idPassportLater ? 'Upload Later' : (formVal.idPassportName || ''), status: formVal.idPassportLater ? 'Pending' : 'Verified' });
+    }
+    if (formVal.proofResName || formVal.proofResLater) {
+      documents.push({ type: 'Proof of Residence', url: formVal.proofResLater ? 'Upload Later' : (formVal.proofResName || ''), status: formVal.proofResLater ? 'Pending' : 'Verified' });
+    }
+    if (formVal.specimenSigName || formVal.specimenSigLater) {
+      documents.push({ type: 'Specimen Signature', url: formVal.specimenSigLater ? 'Upload Later' : (formVal.specimenSigName || ''), status: formVal.specimenSigLater ? 'Pending' : 'Verified' });
+    }
+
     const onboardObj = {
-      name: formVal.name,
-      nationality: formVal.nationality,
-      nationalId: formVal.nationalId,
-      phone: formVal.phone,
+      name,
+      nationality: formVal.nationality || 'Zimbabwean',
+      nationalId: formVal.nationalId || 'N/A',
+      phone: formVal.phone || 'N/A',
       email: formVal.email || undefined,
-      address: formVal.address,
-      dob: formVal.dob,
-      occupation: formVal.occupation,
+      address: formVal.residentialAddress || 'N/A',
+      dob: formVal.dob || 'N/A',
+      occupation: formVal.jobTitle || 'N/A',
       kycStatus,
-      documents: [
-        { type: 'National ID Scan', url: formVal.idDocName, status: 'Verified' as const },
-        { type: 'Proof of Residence', url: formVal.proofResDocName, status: 'Verified' as const }
-      ],
+      documents,
       notes
     };
 
@@ -144,14 +246,15 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   saveLocalDraft(silent = false) {
-    const name = this.onboardForm.value.name || 'Anonymous';
+    const formVal = this.onboardForm.value;
+    const name = `${formVal.firstName || ''} ${formVal.lastName || ''}`.trim() || 'Anonymous';
     const draftId = `DRF-ONB-${Date.now()}`;
     const newDraft: LocalOnboardingDraft = {
       id: draftId,
       name,
-      nationalId: this.onboardForm.value.nationalId || 'N/A',
+      nationalId: formVal.nationalId || 'N/A',
       timestamp: new Date().toISOString(),
-      formData: this.onboardForm.value
+      formData: formVal
     };
 
     this.localDrafts.update(prev => {
@@ -167,20 +270,19 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   restoreDraft(d: LocalOnboardingDraft) {
     const fields = d.formData;
-    this.onboardForm.patchValue({
-      name: fields.name,
-      nationality: fields.nationality,
-      nationalId: fields.nationalId,
-      dob: fields.dob,
-      occupation: fields.occupation,
-      phone: fields.phone,
-      email: fields.email,
-      address: fields.address,
-      idDocName: fields.idDocName,
-      proofResDocName: fields.proofResDocName,
-      ofacVerified: fields.ofacVerified,
-      pepCheck: fields.pepCheck
-    });
+    
+    // Clear and rebuild sourceOfFunds FormArray
+    const sourceArray = this.onboardForm.get('sourceOfFunds') as FormArray;
+    sourceArray.clear();
+    if (fields.sourceOfFunds && Array.isArray(fields.sourceOfFunds)) {
+      fields.sourceOfFunds.forEach((val: string) => {
+        sourceArray.push(this.fb.control(val));
+      });
+    } else {
+      sourceArray.push(this.fb.control('Salary'));
+    }
+
+    this.onboardForm.patchValue(fields);
     this.deleteDraft(d.id);
   }
 
@@ -198,26 +300,28 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
     drafts.forEach(d => {
       const fields = d.formData;
+      const name = `${fields.firstName || ''} ${fields.lastName || ''}`.trim() || 'Anonymous';
+      
       let kycStatus: 'Verified' | 'Flagged' | 'Pending' = 'Verified';
       let notes = 'Synced automatically from offline cache.';
-      if (fields.name.toLowerCase().includes('kofi')) {
+      if (name.toLowerCase().includes('kofi')) {
         kycStatus = 'Flagged';
         notes = 'Flagged during offline sync - potential watch list match.';
       }
 
       const onboardObj = {
-        name: fields.name,
-        nationality: fields.nationality,
-        nationalId: fields.nationalId,
-        phone: fields.phone,
+        name,
+        nationality: fields.nationality || 'Zimbabwean',
+        nationalId: fields.nationalId || 'N/A',
+        phone: fields.phone || 'N/A',
         email: fields.email || undefined,
-        address: fields.address,
-        dob: fields.dob,
-        occupation: fields.occupation,
+        address: fields.residentialAddress || 'N/A',
+        dob: fields.dob || 'N/A',
+        occupation: fields.jobTitle || 'N/A',
         kycStatus,
         documents: [
-          { type: 'National ID Scan', url: fields.idDocName || 'id.png', status: 'Verified' as const },
-          { type: 'Proof of Residence', url: fields.proofResDocName || 'bill.pdf', status: 'Verified' as const }
+          { type: 'National ID Scan', url: fields.idPassportName || 'id.png', status: (fields.idPassportLater ? 'Pending' : 'Verified') as 'Pending' | 'Verified' | 'Rejected' },
+          { type: 'Proof of Residence', url: fields.proofResName || 'bill.pdf', status: (fields.proofResLater ? 'Pending' : 'Verified') as 'Pending' | 'Verified' | 'Rejected' }
         ],
         notes
       };

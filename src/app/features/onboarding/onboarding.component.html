@@ -1,168 +1,565 @@
 <div class="onboarding-container anim-fade-in">
-      <!-- OFFLINE STATUS BANNER -->
-      <div class="offline-banner" *ngIf="!isOnline()">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636a9 9 0 010 12.728m0-12.728l-1.414 1.414m1.414-1.414a9 9 0 00-12.728 0M6.343 17.657l1.414-1.414m-1.414 1.414a9 9 0 010-12.728M3.636 18.364a9 9 0 0012.728 0M12 12v.01"/></svg>
-        <span>Offline Mode Enabled. Onboarding files will be securely cached on this terminal and synced upon reconnection.</span>
+  <!-- OFFLINE STATUS BANNER -->
+  <div class="offline-banner" *ngIf="!isOnline()">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636a9 9 0 010 12.728m0-12.728l-1.414 1.414m1.414-1.414a9 9 0 00-12.728 0M6.343 17.657l1.414-1.414m-1.414 1.414a9 9 0 010-12.728M3.636 18.364a9 9 0 0012.728 0M12 12v.01"/></svg>
+    <span>Offline Mode Enabled. Onboarding files will be securely cached on this terminal and synced upon reconnection.</span>
+  </div>
+
+  <div class="split-view">
+    <!-- FORM WORKFLOW PANEL -->
+    <div class="form-panel card-banking">
+      <div class="panel-header">
+        <h3>New Customer Onboarding</h3>
+        <span class="subtext">Register customer details and perform regulatory vetting</span>
       </div>
 
-      <div class="split-view">
-        <!-- FORM WORKFLOW PANEL -->
-        <div class="form-panel card-banking">
-          <div class="panel-header">
-            <h3>New Customer Onboarding</h3>
-            <span class="subtext">Register customer details and perform regulatory vetting</span>
-          </div>
-
-          <!-- REGULATORY VETTING LOADER (Requirement 4) -->
-          <div class="vetting-loader-overlay" *ngIf="isVetting()">
-            <div class="loader-box">
-              <h4>Regulatory Screener Vetting</h4>
-              <p class="text-sm">Vetting credentials against central AML databases...</p>
-              
-              <div class="vetting-steps">
-                <div class="step" [class.done]="vetStep() > 1" [class.active]="vetStep() === 1">
-                  <span class="indicator"></span>
-                  <span>Reserve Bank of Zimbabwe Registry Search</span>
-                </div>
-                <div class="step" [class.done]="vetStep() > 2" [class.active]="vetStep() === 2">
-                  <span class="indicator"></span>
-                  <span>OFAC Sanctions & Exclusion List Vetting</span>
-                </div>
-                <div class="step" [class.done]="vetStep() > 3" [class.active]="vetStep() === 3">
-                  <span class="indicator"></span>
-                  <span>PEP (Politically Exposed Person) Database Lookup</span>
-                </div>
-              </div>
-
-              <div class="spinner"></div>
+      <!-- REGULATORY VETTING LOADER -->
+      <div class="vetting-loader-overlay" *ngIf="isVetting()">
+        <div class="loader-box">
+          <h4>Regulatory Screener Vetting</h4>
+          <p class="text-sm">Vetting credentials against central AML databases...</p>
+          
+          <div class="vetting-steps">
+            <div class="step" [class.done]="vetStep() > 1" [class.active]="vetStep() === 1">
+              <span class="indicator"></span>
+              <span>Reserve Bank of Zimbabwe Registry Search</span>
+            </div>
+            <div class="step" [class.done]="vetStep() > 2" [class.active]="vetStep() === 2">
+              <span class="indicator"></span>
+              <span>OFAC Sanctions & Exclusion List Vetting</span>
+            </div>
+            <div class="step" [class.done]="vetStep() > 3" [class.active]="vetStep() === 3">
+              <span class="indicator"></span>
+              <span>PEP (Politically Exposed Person) Database Lookup</span>
             </div>
           </div>
 
-          <form [formGroup]="onboardForm" (ngSubmit)="submitOnboarding()">
-            <!-- Primary Identifiers -->
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Stepper Progress Header -->
+      <div class="stepper-header mb-4">
+        <div class="step-indicator" [class.active]="activeStep() === 1" [class.completed]="activeStep() > 1" (click)="activeStep.set(1)">
+          <div class="circle">1</div>
+          <span>Personal Details</span>
+        </div>
+        <div class="step-line" [class.completed]="activeStep() > 1"></div>
+        <div class="step-indicator" [class.active]="activeStep() === 2" [class.completed]="activeStep() > 2" (click)="activeStep.set(2)">
+          <div class="circle">2</div>
+          <span>Employment Info</span>
+        </div>
+        <div class="step-line" [class.completed]="activeStep() > 2"></div>
+        <div class="step-indicator" [class.active]="activeStep() === 3" [class.completed]="activeStep() > 3" (click)="activeStep.set(3)">
+          <div class="circle">3</div>
+          <span>Upload Documents</span>
+        </div>
+      </div>
+
+      <form [formGroup]="onboardForm" (ngSubmit)="submitOnboarding()">
+        <!-- STEP 1: PERSONAL INFORMATION -->
+        <div *ngIf="activeStep() === 1" class="step-content">
+          <div class="form-grid">
             <div class="form-group">
-              <label>Full Legal Name (as on Passport/ID)</label>
-              <input type="text" class="form-control" formControlName="name" placeholder="Firstname Middlename Surname" />
-              <div class="error-message" *ngIf="onboardForm.get('name')?.touched && onboardForm.get('name')?.invalid">Name is required</div>
+              <label>Title</label>
+              <select class="form-control" formControlName="title">
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+                <option value="Ms">Ms</option>
+                <option value="Dr">Dr</option>
+                <option value="Prof">Prof</option>
+              </select>
             </div>
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" formControlName="firstName" placeholder="First Name" />
+            </div>
+          </div>
 
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Middle Name</label>
+              <input type="text" class="form-control" formControlName="middleName" placeholder="Middle Name" />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" formControlName="lastName" placeholder="Last Name" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Gender</label>
+              <select class="form-control" formControlName="gender">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" class="form-control" formControlName="dob" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Race</label>
+              <select class="form-control" formControlName="race">
+                <option value="African">African</option>
+                <option value="Asian">Asian</option>
+                <option value="White">White</option>
+                <option value="Mixed">Mixed</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Country of Birth</label>
+              <input type="text" class="form-control" formControlName="countryOfBirth" placeholder="e.g. Zimbabwe" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nationality</label>
+              <input type="text" class="form-control" formControlName="nationality" placeholder="e.g. Zimbabwean" />
+            </div>
+            <div class="form-group">
+              <label>Citizenship</label>
+              <input type="text" class="form-control" formControlName="citizenship" placeholder="e.g. Zimbabwean" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>National ID / Passport Number</label>
+              <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 63-123456-A-45" />
+            </div>
+            <div class="form-group">
+              <label>Marital Status</label>
+              <select class="form-control" formControlName="maritalStatus">
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Maiden Name (if applicable)</label>
+            <input type="text" class="form-control" formControlName="maidenName" placeholder="Maiden Name" />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" />
+            </div>
+            <div class="form-group">
+              <label>Other Phone Number</label>
+              <input type="text" class="form-control" formControlName="otherPhone" placeholder="+263 78 123 4567" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" class="form-control" formControlName="email" placeholder="client@domain.com" />
+          </div>
+
+
+
+          <div class="form-group">
+            <label>Residential Address Details</label>
+            <input type="text" class="form-control" formControlName="residentialAddress" placeholder="Street Address, Suburb, City, Country" />
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="postalAddressSame" />
+              <span>Postal Address same as Residential Address</span>
+            </label>
+          </div>
+
+          <div class="form-group" *ngIf="!onboardForm.get('postalAddressSame')?.value">
+            <label>Postal Address Details</label>
+            <input type="text" class="form-control" formControlName="postalAddress" placeholder="P.O. Box or Postal Details" />
+          </div>
+
+          <div class="form-group">
+            <label>Communication Preference</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" value="SMS" formControlName="commPreference" />
+                <span>SMS</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" value="Email" formControlName="commPreference" />
+                <span>Email</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" value="Phone Call" formControlName="commPreference" />
+                <span>Phone Call</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="section-group">
+            <h5>Next of Kin / Spouse Details</h5>
             <div class="form-grid">
               <div class="form-group">
-                <label>Nationality</label>
-                <select class="form-control" formControlName="nationality">
-                  <option value="Zimbabwean">Zimbabwean</option>
-                  <option value="South African">South African</option>
-                  <option value="Kenyan">Kenyan</option>
-                  <option value="Ghanaian">Ghanaian</option>
-                  <option value="Zambian">Zambian</option>
-                  <option value="Other">Other (Regional/International)</option>
-                </select>
+                <label>Full Name</label>
+                <input type="text" class="form-control" formControlName="nextOfKinName" placeholder="Next of Kin Name" />
               </div>
-
               <div class="form-group">
-                <label>National ID / Passport Number</label>
-                <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 63-123456-A-45 or Passport No" />
-                <div class="error-message" *ngIf="onboardForm.get('nationalId')?.touched && onboardForm.get('nationalId')?.invalid">Valid ID/Passport is required</div>
+                <label>Relationship</label>
+                <input type="text" class="form-control" formControlName="nextOfKinRel" placeholder="e.g. Spouse, Sibling" />
               </div>
             </div>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Date of Birth</label>
-                <input type="date" class="form-control" formControlName="dob" />
-                <div class="error-message" *ngIf="onboardForm.get('dob')?.touched && onboardForm.get('dob')?.invalid">Date of birth is required</div>
-              </div>
-
-              <div class="form-group">
-                <label>Occupation</label>
-                <input type="text" class="form-control" formControlName="occupation" placeholder="e.g. Merchant, Farmer, Engineer" />
-              </div>
-            </div>
-
             <div class="form-grid">
               <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" />
-                <div class="error-message" *ngIf="onboardForm.get('phone')?.touched && onboardForm.get('phone')?.invalid">Phone is required</div>
+                <input type="text" class="form-control" formControlName="nextOfKinPhone" placeholder="Phone Number" />
               </div>
-
               <div class="form-group">
-                <label>Email Address (Optional)</label>
-                <input type="email" class="form-control" formControlName="email" placeholder="customer@domain.com" />
+                <label>Address</label>
+                <input type="text" class="form-control" formControlName="nextOfKinAddress" placeholder="Address" />
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Residential Physical Address</label>
-              <input type="text" class="form-control" formControlName="address" placeholder="House No, Street, Suburb, City, Country" />
-              <div class="error-message" *ngIf="onboardForm.get('address')?.touched && onboardForm.get('address')?.invalid">Residential Address is required</div>
-            </div>
-
-            <!-- KYC Documents Scan Upload -->
-            <div class="section-group">
-              <h5>KYC Support Documents</h5>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>National ID / Passport Scan</label>
-                  <input type="text" class="form-control" formControlName="idDocName" placeholder="Filename (e.g. id_passport.png)" />
-                </div>
-                <div class="form-group">
-                  <label>Proof of Residence (Utility Bill/Lease)</label>
-                  <input type="text" class="form-control" formControlName="proofResDocName" placeholder="Filename (e.g. utility_bill.pdf)" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Screening Options -->
-            <div class="section-group screening-box">
-              <h5>Mandatory AML Screening Rules</h5>
-              <div class="checkbox-list">
-                <label class="checkbox-label">
-                  <input type="checkbox" formControlName="ofacVerified" />
-                  <span>Execute OFAC sanctions checks prior to submit</span>
-                </label>
-                <label class="checkbox-label">
-                  <input type="checkbox" formControlName="pepCheck" />
-                  <span>Verify customer is NOT a Politically Exposed Person (PEP)</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="form-actions">
-              <button type="button" class="btn-secondary" (click)="saveLocalDraft()">Save Draft</button>
-              <button type="submit" class="btn-primary" [disabled]="onboardForm.invalid">Submit Onboarding</button>
-            </div>
-          </form>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="saveLocalDraft()">Save Draft</button>
+            <button type="button" class="btn-primary" (click)="nextStep()">Next: Employment Info</button>
+          </div>
         </div>
 
-        <!-- RIGHT PANEL: OFFLINE ONBOARDING QUEUE -->
-        <div class="sidebar-info-panel">
-          <div class="card-banking drafts-card">
-            <div class="card-header">
-              <h4>Local Onboarding Drafts</h4>
-              <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+        <!-- STEP 2: EMPLOYMENT DETAILS -->
+        <div *ngIf="activeStep() === 2" class="step-content">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Employment Status</label>
+              <select class="form-control" formControlName="employmentStatus">
+                <option value="Employed">Employed</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Unemployed">Unemployed</option>
+                <option value="Retired">Retired</option>
+                <option value="Student">Student</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Job Title</label>
+              <input type="text" class="form-control" formControlName="jobTitle" placeholder="e.g. Sales Executive" />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Industry</label>
+              <input type="text" class="form-control" formControlName="industry" placeholder="e.g. Banking, Agriculture" />
+            </div>
+            <div class="form-group">
+              <label>Employer Name</label>
+              <input type="text" class="form-control" formControlName="employer" placeholder="Employer Name" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Employer Address</label>
+            <input type="text" class="form-control" formControlName="employerAddress" placeholder="Employer Address" />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Gross Monthly Income</label>
+              <input type="number" class="form-control" formControlName="grossIncome" placeholder="Gross Income" />
+            </div>
+            <div class="form-group">
+              <label>Net Monthly Income</label>
+              <input type="number" class="form-control" formControlName="netIncome" placeholder="Net Income" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Income Currency</label>
+            <select class="form-control" formControlName="currency">
+              <option value="USD">USD</option>
+              <option value="ZWG">ZWG</option>
+              <option value="ZAR">ZAR</option>
+              <option value="GBP">GBP</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+
+          <!-- Dynamic Source of Funds Array -->
+          <div class="section-group">
+            <div class="section-header-row">
+              <h5>Sources of Funds</h5>
+              <button type="button" class="btn-text-action" (click)="addSourceOfFunds()">+ Add Source</button>
             </div>
             
-            <div class="drafts-list" *ngIf="localDrafts().length > 0">
-              <div class="draft-item" *ngFor="let d of localDrafts()">
-                <div class="draft-brief">
-                  <p class="cust-name"><strong>{{ d.name }}</strong></p>
-                  <p class="details">ID: {{ d.nationalId }} | {{ d.timestamp | date:'shortTime' }}</p>
-                </div>
-                <div class="draft-actions">
-                  <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>
-                  <button type="button" class="btn-action-delete" (click)="deleteDraft(d.id)">×</button>
+            <div formArrayName="sourceOfFunds" class="source-funds-list">
+              <div *ngFor="let control of sourceOfFundsArray.controls; let i = index" class="source-funds-item mt-2">
+                <div class="input-with-action">
+                  <input type="text" [formControlName]="i" class="form-control" placeholder="e.g. Monthly Salary, Investment returns, Farming" />
+                  <button type="button" class="btn-text-action text-danger" (click)="removeSourceOfFunds(i)" [disabled]="sourceOfFundsArray.length <= 1">Remove</button>
                 </div>
               </div>
             </div>
-            <p class="empty-text" *ngIf="localDrafts().length === 0">No cached onboarding profiles.</p>
           </div>
 
-          <div class="card-banking specs-card">
-            <h4>RBZ Vetting Parameters</h4>
-            <p class="text-sm">Tellers must execute mandatory vetting protocols under RBZ directives. Non-compliant onboarding triggers compliance auditing logs.</p>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="prevStep()">Back: Personal Details</button>
+            <button type="button" class="btn-primary" (click)="nextStep()">Next: Upload Documents</button>
           </div>
         </div>
+
+        <!-- STEP 3: DOCUMENTS UPLOAD -->
+        <div *ngIf="activeStep() === 3" class="step-content">
+          <div class="section-group">
+            <h5>Required & Optional Documents</h5>
+            <p class="section-desc">Provide filenames of support documents. Toggle "Upload Later" if files are not immediately available.</p>
+
+            <!-- Documents List -->
+            <div class="document-upload-grid">
+              <!-- 1. Passport photo -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Passport Photo</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('passportPhotoLater')?.value" (click)="!onboardForm.get('passportPhotoLater')?.value && passportPhotoInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('passportPhotoName')?.value">{{ onboardForm.get('passportPhotoName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('passportPhotoName')?.value">Choose passport photo</span>
+                  </div>
+                  <input type="file" style="display: none;" #passportPhotoInput (change)="onFileSelected($event, 'passportPhotoName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="passportPhotoLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 2. ID/Passport -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>National ID / Passport Scan</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('idPassportLater')?.value" (click)="!onboardForm.get('idPassportLater')?.value && idPassportInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('idPassportName')?.value">{{ onboardForm.get('idPassportName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('idPassportName')?.value">Choose ID/Passport file</span>
+                  </div>
+                  <input type="file" style="display: none;" #idPassportInput (change)="onFileSelected($event, 'idPassportName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="idPassportLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 3. Proof of residence -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Proof of Residence</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('proofResLater')?.value" (click)="!onboardForm.get('proofResLater')?.value && proofResInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('proofResName')?.value">{{ onboardForm.get('proofResName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('proofResName')?.value">Choose proof of residence</span>
+                  </div>
+                  <input type="file" style="display: none;" #proofResInput (change)="onFileSelected($event, 'proofResName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="proofResLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 4. Specimen signature -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Specimen Signature</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('specimenSigLater')?.value" (click)="!onboardForm.get('specimenSigLater')?.value && specimenSigInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('specimenSigName')?.value">{{ onboardForm.get('specimenSigName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('specimenSigName')?.value">Choose signature file</span>
+                  </div>
+                  <input type="file" style="display: none;" #specimenSigInput (change)="onFileSelected($event, 'specimenSigName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="specimenSigLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 5. Foreign statement -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Foreign Bank Statement</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('foreignStatementLater')?.value" (click)="!onboardForm.get('foreignStatementLater')?.value && foreignStatementInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('foreignStatementName')?.value">{{ onboardForm.get('foreignStatementName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('foreignStatementName')?.value">Choose bank statement</span>
+                  </div>
+                  <input type="file" style="display: none;" #foreignStatementInput (change)="onFileSelected($event, 'foreignStatementName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="foreignStatementLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 6. Proof of income -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Proof of Income</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('proofIncomeLater')?.value" (click)="!onboardForm.get('proofIncomeLater')?.value && proofIncomeInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('proofIncomeName')?.value">{{ onboardForm.get('proofIncomeName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('proofIncomeName')?.value">Choose proof of income</span>
+                  </div>
+                  <input type="file" style="display: none;" #proofIncomeInput (change)="onFileSelected($event, 'proofIncomeName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="proofIncomeLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 7. Marriage certificate -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Marriage Certificate</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('marriageCertLater')?.value" (click)="!onboardForm.get('marriageCertLater')?.value && marriageCertInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('marriageCertName')?.value">{{ onboardForm.get('marriageCertName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('marriageCertName')?.value">Choose marriage cert</span>
+                  </div>
+                  <input type="file" style="display: none;" #marriageCertInput (change)="onFileSelected($event, 'marriageCertName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="marriageCertLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 8. US FATCA documents -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>US FATCA Documents</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('usFatcaLater')?.value" (click)="!onboardForm.get('usFatcaLater')?.value && usFatcaInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('usFatcaName')?.value">{{ onboardForm.get('usFatcaName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('usFatcaName')?.value">Choose FATCA form</span>
+                  </div>
+                  <input type="file" style="display: none;" #usFatcaInput (change)="onFileSelected($event, 'usFatcaName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="usFatcaLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 9. High-risk country declarations -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>High-Risk Country Declaration</label>
+                  <div class="file-uploader-box" [class.disabled]="onboardForm.get('highRiskDeclLater')?.value" (click)="!onboardForm.get('highRiskDeclLater')?.value && highRiskDeclInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('highRiskDeclName')?.value">{{ onboardForm.get('highRiskDeclName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('highRiskDeclName')?.value">Choose declaration file</span>
+                  </div>
+                  <input type="file" style="display: none;" #highRiskDeclInput (change)="onFileSelected($event, 'highRiskDeclName')" />
+                </div>
+                <label class="checkbox-label mt-2">
+                  <input type="checkbox" formControlName="highRiskDeclLater" />
+                  <span>Upload Later</span>
+                </label>
+              </div>
+
+              <!-- 10. Optional files -->
+              <div class="doc-upload-item">
+                <div class="doc-meta">
+                  <label>Optional Files</label>
+                  <div class="file-uploader-box" (click)="optionalFilesInput.click()">
+                    <div class="uploader-icon">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    </div>
+                    <span class="file-name" *ngIf="onboardForm.get('optionalFilesName')?.value">{{ onboardForm.get('optionalFilesName')?.value }}</span>
+                    <span class="upload-prompt" *ngIf="!onboardForm.get('optionalFilesName')?.value">Choose optional files</span>
+                  </div>
+                  <input type="file" style="display: none;" #optionalFilesInput (change)="onFileSelected($event, 'optionalFilesName')" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mandatory AML Screening Rules (always included for compliance vetting) -->
+          <div class="section-group screening-box mt-4">
+            <h5>Mandatory AML Screening Rules</h5>
+            <div class="checkbox-list">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="ofacVerified" />
+                <span>Execute OFAC sanctions checks prior to submit</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="pepCheck" />
+                <span>Verify customer is NOT a Politically Exposed Person (PEP)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="prevStep()">Back: Employment Info</button>
+            <button type="submit" class="btn-primary">Submit Onboarding</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- RIGHT PANEL: OFFLINE ONBOARDING QUEUE -->
+    <div class="sidebar-info-panel">
+      <div class="card-banking drafts-card">
+        <div class="card-header">
+          <h4>Local Onboarding Drafts</h4>
+          <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+        </div>
+        
+        <div class="drafts-list" *ngIf="localDrafts().length > 0">
+          <div class="draft-item" *ngFor="let d of localDrafts()">
+            <div class="draft-brief">
+              <p class="cust-name"><strong>{{ d.name }}</strong></p>
+              <p class="details">ID: {{ d.nationalId }} | {{ d.timestamp | date:'shortTime' }}</p>
+            </div>
+            <div class="draft-actions">
+              <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>
+              <button type="button" class="btn-action-delete" (click)="deleteDraft(d.id)">×</button>
+            </div>
+          </div>
+        </div>
+        <p class="empty-text" *ngIf="localDrafts().length === 0">No cached onboarding profiles.</p>
+      </div>
+
+      <div class="card-banking specs-card">
+        <h4>RBZ Vetting Parameters</h4>
+        <p class="text-sm">Tellers must execute mandatory vetting protocols under RBZ directives. Non-compliant onboarding triggers compliance auditing logs.</p>
       </div>
     </div>
+  </div>
+</div>

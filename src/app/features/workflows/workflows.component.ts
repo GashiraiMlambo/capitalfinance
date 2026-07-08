@@ -26,7 +26,7 @@ export class WorkflowsComponent {
       .map(t => ({
         id: t.id,
         type: t.type === 'Exchange' ? 'FX Exchange' : 'Remittance',
-        requesterName: 'Tapiwa Mbonge (Teller)',
+        requesterName: 'Tawanda Chiimbira (Teller)',
         description: `${t.direction} ${t.amount} USD (${t.flagReason})`,
         targetId: t.customerId,
         tierAssigned: t.flagReason === 'Sanctions hit' ? 'Compliance' : 'Branch Manager',

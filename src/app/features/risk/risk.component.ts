@@ -33,7 +33,7 @@ export class RiskComponent {
     // Simulate Reserve Bank API delay of 1.2s
     setTimeout(() => {
       // Determine response based on customer ID or details
-      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('sakhe');
+      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('chimuka');
       
       const responseData = isSanctionedOrSuspicious ? {
         name: `${name.toUpperCase()} (PASSPORT DB)`,

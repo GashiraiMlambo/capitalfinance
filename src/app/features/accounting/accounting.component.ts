@@ -24,10 +24,10 @@ export class AccountingComponent implements OnInit {
   creditAmount = 0;
 
   workers = signal<any[]>([
-    { name: 'Tapiwa Mbonge', email: 't.mbonge@ccfinance.co.zw', role: 'Operations', salary: 1800, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Takudzwa Pelonzi', email: 't.pelonzi@ccfinance.co.zw', role: 'Risk', salary: 2200, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Sakhe Mbonge', email: 's.mbonge@ccfinance.co.zw', role: 'Accounting', salary: 2000, paidThisMonth: false, lastPayDate: '' },
-    { name: 'Tapiwa Pelonzi', email: 't.pelonzi@ccfinance.co.zw', role: 'Admin', salary: 3500, paidThisMonth: false, lastPayDate: '' }
+    { name: 'Tawanda Chiimbira', email: 't.chiimbira@ccfinance.co.zw', role: 'Operations', salary: 1800, paidThisMonth: false, lastPayDate: '' },
+    { name: 'George Chikopa', email: 'g.chikopa@ccfinance.co.zw', role: 'Risk', salary: 2200, paidThisMonth: false, lastPayDate: '' },
+    { name: 'Tedias Chikore', email: 't.chikore@ccfinance.co.zw', role: 'Accounting', salary: 2000, paidThisMonth: false, lastPayDate: '' },
+    { name: 'Chemunofira Chikosi', email: 'g.chikopa@ccfinance.co.zw', role: 'Admin', salary: 3500, paidThisMonth: false, lastPayDate: '' }
   ]);
 
   ngOnInit() {

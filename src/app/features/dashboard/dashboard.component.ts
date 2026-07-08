@@ -72,7 +72,7 @@ export class DashboardComponent implements OnInit {
     }));
 
     setTimeout(() => {
-      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('sakhe');
+      const isSanctionedOrSuspicious = idNum.includes('7839219') || name.toLowerCase().includes('chimuka');
       
       this.rbzStatus.update(prev => ({
         ...prev,
