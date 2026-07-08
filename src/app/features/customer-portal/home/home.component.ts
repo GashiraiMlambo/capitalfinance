@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { StateService, Transaction, ExchangeRate } from '../../../core/services/state.service';
 
 interface TrackingState {
@@ -18,6 +19,7 @@ interface TrackingState {
   styleUrl: './home.component.scss',})
 export class PortalHomeComponent implements OnInit {
   stateService = inject(StateService);
+  private route = inject(ActivatedRoute);
 
   trackingPin = '';
   calcAmount = 100;
@@ -26,6 +28,8 @@ export class PortalHomeComponent implements OnInit {
   // Signals
   calcResult = signal<number>(0);
   calcRate = signal<number>(24.50);
+  isHistoryView = signal<boolean>(false);
+  isCalculating = signal<boolean>(false);
   trackingResult = signal<TrackingState>({ searched: false, txn: null, step: 0, error: '' });
 
   customerName = computed(() => {
@@ -48,17 +52,29 @@ export class PortalHomeComponent implements OnInit {
   });
 
   ngOnInit() {
+    this.route.url.subscribe(url => {
+      const path = url.map(s => s.path).join('/');
+      this.isHistoryView.set(path.includes('transactions'));
+    });
     this.runCalculation();
   }
 
   runCalculation() {
-    const rateObj = this.stateService.rates().find(r => r.pair === this.calcPair);
-    if (!rateObj) return;
+    this.isCalculating.set(true);
+    setTimeout(() => {
+      const rateObj = this.stateService.rates().find(r => r.pair === this.calcPair);
+      if (!rateObj) {
+        this.isCalculating.set(false);
+        return;
+      }
 
-    this.calcRate.set(rateObj.buyRate);
-    const equiv = this.calcAmount * rateObj.buyRate;
-    const fee = Math.max(10, equiv * 0.005);
-    this.calcResult.set(equiv - fee);
+      this.calcRate.set(rateObj.buyRate);
+      const amt = this.calcAmount || 0;
+      const equiv = amt * rateObj.buyRate;
+      const fee = Math.max(10, equiv * 0.005);
+      this.calcResult.set(equiv - fee);
+      this.isCalculating.set(false);
+    }, 450);
   }
 
   trackTransaction() {

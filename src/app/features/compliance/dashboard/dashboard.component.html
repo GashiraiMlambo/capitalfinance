@@ -119,7 +119,17 @@
 
           <div class="card-banking policy-card">
             <h4>Compliance Guidelines</h4>
-            <p class="text-sm">Under Section 35 of the Zimbabwe Money Laundering & Proceeds of Crime Act, all cash exchange orders exceeding $5,000 USD or matches on international sanction lists must undergo formal Compliance Officer audit clearance.</p>
+            <p class="text-sm" [style.line-height]="'1.6'" [style.margin-bottom]="'10px'">
+              Under Section 35 of the Zimbabwe Money Laundering & Proceeds of Crime Act, all cash exchange orders exceeding $5,000 USD or matches on international sanction lists must undergo formal Compliance Officer audit clearance.
+            </p>
+            <div *ngIf="showFullGuidelines()">
+              <p class="text-sm statutory-text" [style.line-height]="'1.6'" [style.margin-top]="'8px'" [style.border-top]="'1px dashed var(--border)'" [style.padding-top]="'8px'">
+                <strong>Statutory Requirements:</strong> Officers must verify the customer's PEP status, confirm source of funds documents, and file a Suspicious Transaction Report (STR) with the Financial Intelligence Unit (FIU) within 72 hours of identifying a flag.
+              </p>
+            </div>
+            <button type="button" class="btn-text-action" [style.margin-top]="'8px'" (click)="toggleGuidelines()">
+              {{ showFullGuidelines() ? 'Collapse Guidelines' : 'Read Full Act & Guidelines' }}
+            </button>
           </div>
         </div>
       </div>

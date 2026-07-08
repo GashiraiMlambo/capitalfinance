@@ -200,12 +200,24 @@
         padding: 16px;
         font-family: 'Courier New', Courier, monospace;
         font-size: 11.5px;
-        overflow-y: auto;
+        overflow-y: scroll;
+        max-height: 320px;
         flex: 1;
         display: flex;
         flex-direction: column;
         gap: 6px;
         background: #010409;
+
+        &::-webkit-scrollbar {
+          width: 4px;
+        }
+        &::-webkit-scrollbar-track {
+          background: #010409;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: #39FF14;
+          border-radius: 2px;
+        }
       }
 
       .terminal-log-row {

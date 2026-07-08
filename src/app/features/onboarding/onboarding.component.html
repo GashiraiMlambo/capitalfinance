@@ -59,7 +59,7 @@
       <form [formGroup]="onboardForm" (ngSubmit)="submitOnboarding()">
         <!-- STEP 1: PERSONAL INFORMATION -->
         <div *ngIf="activeStep() === 1" class="step-content">
-          <div class="form-grid">
+          <div class="form-grid-4">
             <div class="form-group">
               <label>Title</label>
               <select class="form-control" formControlName="title">
@@ -74,9 +74,6 @@
               <label>First Name</label>
               <input type="text" class="form-control" formControlName="firstName" placeholder="First Name" />
             </div>
-          </div>
-
-          <div class="form-grid">
             <div class="form-group">
               <label>Middle Name</label>
               <input type="text" class="form-control" formControlName="middleName" placeholder="Middle Name" />
@@ -87,7 +84,7 @@
             </div>
           </div>
 
-          <div class="form-grid">
+          <div class="form-grid-3">
             <div class="form-group">
               <label>Gender</label>
               <select class="form-control" formControlName="gender">
@@ -100,9 +97,6 @@
               <label>Date of Birth</label>
               <input type="date" class="form-control" formControlName="dob" />
             </div>
-          </div>
-
-          <div class="form-grid">
             <div class="form-group">
               <label>Race</label>
               <select class="form-control" formControlName="race">
@@ -113,13 +107,13 @@
                 <option value="Other">Other</option>
               </select>
             </div>
+          </div>
+
+          <div class="form-grid-3">
             <div class="form-group">
               <label>Country of Birth</label>
               <input type="text" class="form-control" formControlName="countryOfBirth" placeholder="e.g. Zimbabwe" />
             </div>
-          </div>
-
-          <div class="form-grid">
             <div class="form-group">
               <label>Nationality</label>
               <input type="text" class="form-control" formControlName="nationality" placeholder="e.g. Zimbabwean" />
@@ -130,7 +124,7 @@
             </div>
           </div>
 
-          <div class="form-grid">
+          <div class="form-grid-3">
             <div class="form-group">
               <label>National ID / Passport Number</label>
               <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 63-123456-A-45" />
@@ -144,14 +138,13 @@
                 <option value="Widowed">Widowed</option>
               </select>
             </div>
+            <div class="form-group">
+              <label>Maiden Name (if applicable)</label>
+              <input type="text" class="form-control" formControlName="maidenName" placeholder="Maiden Name" />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Maiden Name (if applicable)</label>
-            <input type="text" class="form-control" formControlName="maidenName" placeholder="Maiden Name" />
-          </div>
-
-          <div class="form-grid">
+          <div class="form-grid-3">
             <div class="form-group">
               <label>Phone Number</label>
               <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" />
@@ -160,25 +153,42 @@
               <label>Other Phone Number</label>
               <input type="text" class="form-control" formControlName="otherPhone" placeholder="+263 78 123 4567" />
             </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" class="form-control" formControlName="email" placeholder="client@domain.com" />
+            </div>
           </div>
-
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" class="form-control" formControlName="email" placeholder="client@domain.com" />
-          </div>
-
-
 
           <div class="form-group">
             <label>Residential Address Details</label>
             <input type="text" class="form-control" formControlName="residentialAddress" placeholder="Street Address, Suburb, City, Country" />
           </div>
 
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" formControlName="postalAddressSame" />
-              <span>Postal Address same as Residential Address</span>
-            </label>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="checkbox-label mt-2">
+                <input type="checkbox" formControlName="postalAddressSame" />
+                <span>Postal Address same as Residential Address</span>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>Communication Preference</label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" value="SMS" formControlName="commPreference" />
+                  <span>SMS</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" value="Email" formControlName="commPreference" />
+                  <span>Email</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" value="Phone Call" formControlName="commPreference" />
+                  <span>Phone Call</span>
+                </label>
+              </div>
+            </div>
           </div>
 
           <div class="form-group" *ngIf="!onboardForm.get('postalAddressSame')?.value">
@@ -186,27 +196,9 @@
             <input type="text" class="form-control" formControlName="postalAddress" placeholder="P.O. Box or Postal Details" />
           </div>
 
-          <div class="form-group">
-            <label>Communication Preference</label>
-            <div class="radio-group">
-              <label class="radio-label">
-                <input type="radio" value="SMS" formControlName="commPreference" />
-                <span>SMS</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" value="Email" formControlName="commPreference" />
-                <span>Email</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" value="Phone Call" formControlName="commPreference" />
-                <span>Phone Call</span>
-              </label>
-            </div>
-          </div>
-
           <div class="section-group">
             <h5>Next of Kin / Spouse Details</h5>
-            <div class="form-grid">
+            <div class="form-grid-3">
               <div class="form-group">
                 <label>Full Name</label>
                 <input type="text" class="form-control" formControlName="nextOfKinName" placeholder="Next of Kin Name" />
@@ -215,16 +207,14 @@
                 <label>Relationship</label>
                 <input type="text" class="form-control" formControlName="nextOfKinRel" placeholder="e.g. Spouse, Sibling" />
               </div>
-            </div>
-            <div class="form-grid">
               <div class="form-group">
                 <label>Phone Number</label>
                 <input type="text" class="form-control" formControlName="nextOfKinPhone" placeholder="Phone Number" />
               </div>
-              <div class="form-group">
-                <label>Address</label>
-                <input type="text" class="form-control" formControlName="nextOfKinAddress" placeholder="Address" />
-              </div>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" class="form-control" formControlName="nextOfKinAddress" placeholder="Address" />
             </div>
           </div>
 
@@ -236,7 +226,7 @@
 
         <!-- STEP 2: EMPLOYMENT DETAILS -->
         <div *ngIf="activeStep() === 2" class="step-content">
-          <div class="form-grid">
+          <div class="form-grid-3">
             <div class="form-group">
               <label>Employment Status</label>
               <select class="form-control" formControlName="employmentStatus">
@@ -251,25 +241,24 @@
               <label>Job Title</label>
               <input type="text" class="form-control" formControlName="jobTitle" placeholder="e.g. Sales Executive" />
             </div>
-          </div>
-
-          <div class="form-grid">
             <div class="form-group">
               <label>Industry</label>
               <input type="text" class="form-control" formControlName="industry" placeholder="e.g. Banking, Agriculture" />
             </div>
+          </div>
+
+          <div class="form-grid-2">
             <div class="form-group">
               <label>Employer Name</label>
               <input type="text" class="form-control" formControlName="employer" placeholder="Employer Name" />
             </div>
+            <div class="form-group">
+              <label>Employer Address</label>
+              <input type="text" class="form-control" formControlName="employerAddress" placeholder="Employer Address" />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Employer Address</label>
-            <input type="text" class="form-control" formControlName="employerAddress" placeholder="Employer Address" />
-          </div>
-
-          <div class="form-grid">
+          <div class="form-grid-3">
             <div class="form-group">
               <label>Gross Monthly Income</label>
               <input type="number" class="form-control" formControlName="grossIncome" placeholder="Gross Income" />
@@ -278,17 +267,16 @@
               <label>Net Monthly Income</label>
               <input type="number" class="form-control" formControlName="netIncome" placeholder="Net Income" />
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>Income Currency</label>
-            <select class="form-control" formControlName="currency">
-              <option value="USD">USD</option>
-              <option value="ZWG">ZWG</option>
-              <option value="ZAR">ZAR</option>
-              <option value="GBP">GBP</option>
-              <option value="EUR">EUR</option>
-            </select>
+            <div class="form-group">
+              <label>Income Currency</label>
+              <select class="form-control" formControlName="currency">
+                <option value="USD">USD</option>
+                <option value="ZWG">ZWG</option>
+                <option value="ZAR">ZAR</option>
+                <option value="GBP">GBP</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
           </div>
 
           <!-- Dynamic Source of Funds Array -->
@@ -535,10 +523,16 @@
 
     <!-- RIGHT PANEL: OFFLINE ONBOARDING QUEUE -->
     <div class="sidebar-info-panel">
-      <div class="card-banking drafts-card">
-        <div class="card-header">
-          <h4>Local Onboarding Drafts</h4>
-          <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+      <div class="card-banking drafts-card" [class.offline-highlight]="!isOnline()">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h4 style="margin: 0; font-size: 14px; font-weight: 700;">Local Onboarding Drafts</h4>
+            <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+          </div>
+          <div class="network-badge" [class.offline]="!isOnline()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+            <span class="network-dot"></span>
+            <span class="network-text">{{ isOnline() ? 'Online' : 'Offline' }}</span>
+          </div>
         </div>
         
         <div class="drafts-list" *ngIf="localDrafts().length > 0">
@@ -558,7 +552,7 @@
 
       <div class="card-banking specs-card">
         <h4>RBZ Vetting Parameters</h4>
-        <p class="text-sm">Tellers must execute mandatory vetting protocols under RBZ directives. Non-compliant onboarding triggers compliance auditing logs.</p>
+        <p class="text-sm">Operators must execute mandatory vetting protocols under RBZ directives. Non-compliant onboarding triggers compliance auditing logs.</p>
       </div>
     </div>
   </div>

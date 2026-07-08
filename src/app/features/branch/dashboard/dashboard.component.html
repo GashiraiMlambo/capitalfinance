@@ -67,11 +67,12 @@
                   <td>\${{ t.amount | number:'1.2-2' }}</td>
                   <td>
                     <span class="badge-reason" [class.sanctions]="t.flagReason === 'Sanctions hit'">
+                      <svg *ngIf="t.flagReason === 'Sanctions hit'" class="severity-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; display: inline-block; vertical-align: text-top;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                       {{ t.flagReason }}
                     </span>
                   </td>
                   <td>
-                    <button class="btn-action-review" (click)="reviewOverride(t.id)">
+                    <button [class]="isReadOnly() ? 'btn-action-inspect' : 'btn-action-review'" (click)="reviewOverride(t.id)">
                       {{ isReadOnly() ? 'Inspect' : 'Review & Approve' }}
                     </button>
                   </td>
@@ -116,8 +117,19 @@
 
           <!-- Currency Drawer Position -->
           <div class="card-banking liquidity-card">
-            <h4>Vault & Drawer Balances</h4>
-            <div class="liquidity-bar-list">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h4 style="margin: 0;">Vault & Drawer Balances</h4>
+              <button 
+                *ngIf="isReadOnly()" 
+                type="button" 
+                class="btn-text-action" 
+                (click)="toggleVaultBalances()"
+              >
+                {{ showVaultBalances() ? 'Collapse' : 'Expand' }}
+              </button>
+            </div>
+
+            <div class="liquidity-bar-list" *ngIf="!isReadOnly() || showVaultBalances()">
               <div class="liquidity-bar-item" *ngFor="let l of stateService.branchLiquidity()">
                 <div class="bar-meta">
                   <span><strong>{{ l.currency }}</strong></span>
@@ -127,14 +139,19 @@
                   <div 
                     class="bar-fill" 
                     [style.width.%]="getLiquidityPercentage(l.balance, l.threshold)"
-                    [class.low-liq]="l.balance < l.threshold"
+                    [class]="getLiquiditySeverityClass(l.balance, l.threshold)"
                   ></div>
                 </div>
                 <div class="bar-labels">
                   <span class="threshold">Min safety: \${{ l.threshold | number }}</span>
-                  <span class="status-alert" *ngIf="l.balance < l.threshold">LOW LIQUIDITY</span>
+                  <span class="status-alert critical" *ngIf="l.balance < l.threshold">CRITICAL LOW</span>
+                  <span class="status-alert warning" *ngIf="l.balance >= l.threshold && l.balance <= l.threshold * 1.6">WARNING: APPROACHING MIN SAFETY</span>
                 </div>
               </div>
+            </div>
+
+            <div *ngIf="isReadOnly() && !showVaultBalances()" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.4;">
+              Vault position is collapsed under Compliance Officer security view. Click <strong>Expand</strong> to verify thresholds.
             </div>
           </div>
         </div>

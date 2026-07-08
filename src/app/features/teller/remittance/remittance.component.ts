@@ -34,6 +34,23 @@ export class RemittanceComponent implements OnInit, OnDestroy {
   isOnline = signal<boolean>(true);
   amlFlagged = signal<boolean>(false);
 
+  // Computed signals for role and limits
+  userRole = computed(() => {
+    return this.stateService.currentUser()?.role || 'Teller';
+  });
+
+  isFieldAgent = computed(() => {
+    return this.userRole() === 'Field Agent';
+  });
+
+  limitLabel = computed(() => {
+    return this.isFieldAgent() ? 'Single Agent Limit:' : 'Single Teller Limit:';
+  });
+
+  limitValue = computed(() => {
+    return this.isFieldAgent() ? '$2,000.00 USD' : '$5,000.00 USD';
+  });
+
   // Transfer Calculation Signals
   usdToZwgRate = signal<number>(24.50);
   remitFee = signal<number>(5.00); // Flat fee in USD
@@ -113,7 +130,8 @@ export class RemittanceComponent implements OnInit, OnDestroy {
 
   showLimitWarning(): boolean {
     const amount = this.remitForm.get('amount')?.value;
-    return amount > 5000;
+    const limit = this.isFieldAgent() ? 2000 : 5000;
+    return amount > limit;
   }
 
   runAmlVetting() {

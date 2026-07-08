@@ -28,13 +28,8 @@ interface MenuItem {
       <aside class="portal-sidebar">
         <div class="sidebar-brand">
           <div class="brand-logo">
-            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 28 72 A 36 36 0 0 1 72 28" stroke="white" stroke-width="8" stroke-linecap="round" />
-              <path d="M 78 34 A 36 36 0 0 1 34 78" stroke="white" stroke-width="8" stroke-linecap="round" />
-              <path d="M 22 56 L 38 68 L 56 46 L 70 56 L 86 34" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M 70 32 H 88 V 50" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span class="brand-name" *ngIf="!isSidebarCollapsed()">Central Capital Finance</span>
+            <img *ngIf="!isSidebarCollapsed()" src="/5940427112177143524_120-removebg-preview.png" alt="Central Capital Finance" class="full-logo" />
+            <img *ngIf="isSidebarCollapsed()" src="/5940427112177143524_120-removebg-preview.png" alt="Logo" class="collapsed-logo" />
           </div>
           <button class="btn-sidebar-toggle" (click)="toggleSidebar()">
             <svg *ngIf="!isSidebarCollapsed()" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
@@ -246,22 +241,40 @@ interface MenuItem {
       width: 70px;
     }
 
+    .portal-container.sidebar-collapsed .sidebar-brand {
+      padding: 0 10px;
+      justify-content: center;
+      gap: 4px;
+    }
+
     .sidebar-brand {
       height: 70px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 16px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 
       .brand-logo {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-family: 'Outfit', sans-serif;
-        font-weight: 700;
-        font-size: 18px;
-        color: white;
+        width: calc(100% - 28px);
+        overflow: hidden;
+
+        .full-logo {
+          max-height: 56px;
+          max-width: 100%;
+          object-fit: contain;
+          filter: brightness(0) invert(1);
+        }
+
+        .collapsed-logo {
+          width: 32px;
+          height: 32px;
+          object-fit: cover;
+          object-position: left center;
+          filter: brightness(0) invert(1);
+        }
       }
 
       .btn-sidebar-toggle {
@@ -372,8 +385,22 @@ interface MenuItem {
         &.active-link {
           color: white;
           background-color: var(--bg-sidebar-active);
-          font-weight: 500;
-          box-shadow: 0 4px 12px rgba(10, 37, 64, 0.25);
+          font-weight: 600;
+          position: relative;
+          padding-left: 16px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            height: 70%;
+            width: 4px;
+            background-color: white;
+            border-radius: 0 4px 4px 0;
+          }
+
           .nav-item-icon { color: white; }
         }
       }

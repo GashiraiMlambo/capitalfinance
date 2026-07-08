@@ -163,7 +163,7 @@
                   <!-- Over-limit warning -->
                   <div class="limit-warn-box" *ngIf="showLimitWarning()">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span>Transaction exceeds Teller daily limit ($5,000). Submission will route to Branch Manager for override.</span>
+                    <span>Transaction exceeds {{ isFieldAgent() ? 'Agent' : 'Teller' }} daily limit ({{ isFieldAgent() ? '$2,000' : '$5,000' }}). Submission will route to Branch Manager for override.</span>
                   </div>
                 </div>
 
@@ -223,10 +223,16 @@
         <!-- RIGHT PANEL: OFFLINE QUEUE & COMPLIANCE SUMMARY -->
         <div class="sidebar-info-panel">
           <!-- Offline Queue -->
-          <div class="card-banking drafts-card">
-            <div class="card-header">
-              <h4>Local Remittance Drafts</h4>
-              <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+          <div class="card-banking drafts-card" [class.offline-highlight]="!isOnline()">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 10px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h4 style="margin: 0; font-size: 14px; font-weight: 700;">Local Remittance Drafts</h4>
+                <span class="drafts-count-badge" *ngIf="localDrafts().length > 0">{{ localDrafts().length }}</span>
+              </div>
+              <div class="network-badge" [class.offline]="!isOnline()" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                <span class="network-dot"></span>
+                <span class="network-text">{{ isOnline() ? 'Online' : 'Offline' }}</span>
+              </div>
             </div>
             <div class="drafts-list" *ngIf="localDrafts().length > 0">
               <div class="draft-item" *ngFor="let d of localDrafts()">
@@ -249,8 +255,8 @@
             <p class="text-sm">Central Capital Finance enforces automatic vetting checks against UN sanctions lists, OFAC directories, and domestic watchlists for all outbound remittances.</p>
             <div class="spec-list">
               <div class="spec-row">
-                <span class="spec-label">Single Teller Limit:</span>
-                <span class="spec-val">$5,000.00 USD</span>
+                <span class="spec-label">{{ limitLabel() }}</span>
+                <span class="spec-val">{{ limitValue() }}</span>
               </div>
               <div class="spec-row">
                 <span class="spec-label">Recipient Match Rule:</span>

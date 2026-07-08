@@ -518,10 +518,12 @@ export class StateService {
     } as Transaction;
 
     // Auto-checking limits
-    if (newTxn.amount > 5000) {
+    const limitThreshold = this.currentUser()?.role === 'Field Agent' ? 2000 : 5000;
+    const operatorRoleLabel = this.currentUser()?.role || 'Teller';
+    if (newTxn.amount > limitThreshold) {
       newTxn.status = 'Pending';
       newTxn.flagReason = 'Exceeds daily KYC limit';
-      newTxn.vettingResult = `Transaction amount ($${newTxn.amount}) exceeds Teller limit ($5,000). Needs Manager review.`;
+      newTxn.vettingResult = `Transaction amount ($${newTxn.amount}) exceeds ${operatorRoleLabel} limit ($${limitThreshold.toLocaleString()}). Needs Manager review.`;
       this.notifications.update(prev => [
         { id: `notif-${Date.now()}`, title: 'Override Required', body: `Limit breach by ${newTxn.customerName} ($${newTxn.amount})`, date: new Date().toISOString(), type: 'override', read: false },
         ...prev

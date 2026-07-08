@@ -22,6 +22,11 @@ export class ComplianceDashboardComponent {
   private router = inject(Router);
 
   isPinging = signal<boolean>(false);
+  showFullGuidelines = signal<boolean>(false);
+
+  toggleGuidelines() {
+    this.showFullGuidelines.update(v => !v);
+  }
 
   integrations = signal<ComplianceIntegration[]>([
     { id: 'i1', name: 'LexisNexis AML Vetting API', status: 'Active', latencyMs: 120, lastSync: '1m ago' },

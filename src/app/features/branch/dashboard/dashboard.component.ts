@@ -18,6 +18,12 @@ export class BranchDashboardComponent {
     return role === 'Compliance Officer';
   });
 
+  showVaultBalances = signal<boolean>(false);
+
+  toggleVaultBalances() {
+    this.showVaultBalances.update(v => !v);
+  }
+
   hasPendingReviews = computed(() => this.pendingOverrideCount() > 0);
 
   pendingTransactions = computed(() => {
@@ -63,6 +69,16 @@ export class BranchDashboardComponent {
   getLiquidityPercentage(balance: number, threshold: number): number {
     const maxVal = threshold * 3;
     return Math.min(100, (balance / maxVal) * 100);
+  }
+
+  getLiquiditySeverityClass(balance: number, threshold: number): string {
+    if (balance < threshold) {
+      return 'critical-liq';
+    } else if (balance <= threshold * 1.6) {
+      return 'warning-liq';
+    } else {
+      return 'healthy-liq';
+    }
   }
 
   reviewOverride(id: string) {
