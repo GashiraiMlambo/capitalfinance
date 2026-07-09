@@ -89,6 +89,47 @@ export class CustomersComponent implements OnInit {
     }, 1000);
   }
 
+  formatIdNumber(raw: string): string {
+    let clean = raw.replace(/[^a-zA-Z0-9]/g, '');
+    let s1 = clean.substring(0, 2);
+    let rest = clean.substring(2);
+    if (!rest) return s1;
+
+    let s2 = '';
+    let letterIndex = -1;
+    for (let i = 0; i < rest.length; i++) {
+      let char = rest[i];
+      if (/[a-zA-Z]/.test(char)) {
+        letterIndex = i;
+        break;
+      }
+      if (s2.length < 7) {
+        s2 += char;
+      }
+    }
+
+    if (letterIndex === -1) {
+      return `${s1}-${s2}`;
+    }
+
+    let s3 = rest[letterIndex].toUpperCase();
+    let afterLetter = rest.substring(letterIndex + 1).replace(/[^0-9]/g, '');
+    let s4 = afterLetter.substring(0, 2);
+
+    if (!s4 && afterLetter.length === 0) {
+      return `${s1}-${s2}-${s3}`;
+    }
+    return `${s1}-${s2}-${s3}-${s4}`;
+  }
+
+  onIdInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatIdNumber(input.value);
+    this.personalForm.get('idNumber')?.setValue(formatted, { emitEvent: false });
+    input.value = formatted;
+    this.triggerAutoSave();
+  }
+
   onFileUploaded(event: any) {
     const files = event.target.files;
     if (files && files.length > 0) {

@@ -74,6 +74,9 @@ export class RemittanceComponent implements OnInit, OnDestroy {
     this.remitForm = this.fb.group({
       recipientName: ['', Validators.required],
       recipientPhone: ['', Validators.required],
+      recipientIdType: ['', Validators.required],
+      recipientId: ['', Validators.required],
+      recipientAddress: ['', Validators.required],
       direction: ['Local', Validators.required],
       payoutMethod: ['Cash Pickup', Validators.required],
       recipientAccount: [''],
@@ -122,7 +125,9 @@ export class RemittanceComponent implements OnInit, OnDestroy {
   // Filter onboarded customers
   filteredCustomers = computed(() => {
     const q = this.searchQuery.toLowerCase().trim();
-    if (!q) return [];
+    if (!q) {
+      return this.stateService.customers();
+    }
     return this.stateService.customers().filter(
       c => c.name.toLowerCase().includes(q) || c.nationalId.toLowerCase().includes(q)
     );
@@ -134,10 +139,60 @@ export class RemittanceComponent implements OnInit, OnDestroy {
     this.showLookupDropdown.set(false);
   }
 
+  hideDropdown() {
+    setTimeout(() => {
+      this.showLookupDropdown.set(false);
+    }, 200);
+  }
+
   isKycBlocked(): boolean {
     const cust = this.selectedSender();
     if (!cust) return false;
     return cust.kycStatus === 'Flagged' || cust.kycStatus === 'Expired';
+  }
+
+  formatIdNumber(raw: string): string {
+    let clean = raw.replace(/[^a-zA-Z0-9]/g, '');
+    let s1 = clean.substring(0, 2);
+    let rest = clean.substring(2);
+    if (!rest) return s1;
+
+    let s2 = '';
+    let letterIndex = -1;
+    for (let i = 0; i < rest.length; i++) {
+      let char = rest[i];
+      if (/[a-zA-Z]/.test(char)) {
+        letterIndex = i;
+        break;
+      }
+      if (s2.length < 7) {
+        s2 += char;
+      }
+    }
+
+    if (letterIndex === -1) {
+      return `${s1}-${s2}`;
+    }
+
+    let s3 = rest[letterIndex].toUpperCase();
+    let afterLetter = rest.substring(letterIndex + 1).replace(/[^0-9]/g, '');
+    let s4 = afterLetter.substring(0, 2);
+
+    if (!s4 && afterLetter.length === 0) {
+      return `${s1}-${s2}-${s3}`;
+    }
+    return `${s1}-${s2}-${s3}-${s4}`;
+  }
+
+  onIdInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatIdNumber(input.value);
+    this.remitForm.get('recipientId')?.setValue(formatted, { emitEvent: false });
+    input.value = formatted;
+  }
+
+  onIdTypeChange() {
+    this.remitForm.get('recipientId')?.setValue('');
   }
 
   showLimitWarning(): boolean {
@@ -201,6 +256,9 @@ export class RemittanceComponent implements OnInit, OnDestroy {
       payoutMethod: formVal.payoutMethod,
       recipientName: formVal.recipientName,
       recipientPhone: formVal.recipientPhone,
+      recipientId: formVal.recipientId,
+      recipientIdType: formVal.recipientIdType,
+      recipientAddress: formVal.recipientAddress,
       recipientAccount: formVal.recipientAccount || undefined,
       purpose: formVal.purpose,
       sourceOfFunds: formVal.sourceOfFunds,
@@ -266,6 +324,9 @@ export class RemittanceComponent implements OnInit, OnDestroy {
     this.remitForm.patchValue({
       recipientName: data.fields.recipientName,
       recipientPhone: data.fields.recipientPhone,
+      recipientIdType: data.fields.recipientIdType || 'National ID',
+      recipientId: data.fields.recipientId || '',
+      recipientAddress: data.fields.recipientAddress || '',
       direction: data.fields.direction,
       payoutMethod: data.fields.payoutMethod,
       recipientAccount: data.fields.recipientAccount,
@@ -310,6 +371,9 @@ export class RemittanceComponent implements OnInit, OnDestroy {
         payoutMethod: data.fields.payoutMethod,
         recipientName: data.fields.recipientName,
         recipientPhone: data.fields.recipientPhone,
+        recipientId: data.fields.recipientId || '',
+        recipientIdType: data.fields.recipientIdType || 'National ID',
+        recipientAddress: data.fields.recipientAddress || '',
         recipientAccount: data.fields.recipientAccount,
         purpose: data.fields.purpose,
         sourceOfFunds: data.fields.sourceOfFunds,

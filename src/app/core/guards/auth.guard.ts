@@ -16,8 +16,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   const role = user.role;
   const url = state.url;
 
-  // Global Admin Bypass (except for Customer Portal home unless previewing)
+  // Global Admin Bypass (except for Customer Portal)
   if (role === 'System Admin') {
+    if (url.includes('/portal/')) {
+      return failRedirect(role, router);
+    }
     return true;
   }
 

@@ -32,6 +32,8 @@
                     [(ngModel)]="searchQuery" 
                     [ngModelOptions]="{standalone: true}"
                     (input)="showLookupDropdown.set(true)"
+                    (focus)="showLookupDropdown.set(true)"
+                    (blur)="hideDropdown()"
                   />
                   <div class="lookup-dropdown" *ngIf="showLookupDropdown() && filteredCustomers().length > 0">
                     <button 
@@ -74,7 +76,7 @@
             </div>
 
             <!-- 2. Transaction Details -->
-            <div class="section-group" [class.disabled]="isKycBlocked() || !selectedCustomer()">
+            <div class="section-group" [class.disabled]="isKycBlocked()">
               <div class="section-title">
                 <span class="step-num">2</span>
                 <h5>Exchange Parameters</h5>
@@ -82,7 +84,7 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Direction</label>
+                  <label class="required">Direction</label>
                   <select class="form-control" formControlName="direction">
                     <option value="Buy">Buy (Customer gives {{ exchangeForm.value.pair?.split('/')?.[0] }}, receives {{ exchangeForm.value.pair?.split('/')?.[1] }})</option>
                     <option value="Sell">Sell (Customer gives {{ exchangeForm.value.pair?.split('/')?.[1] }}, receives {{ exchangeForm.value.pair?.split('/')?.[0] }})</option>
@@ -90,7 +92,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Currency Pair</label>
+                  <label class="required">Currency Pair</label>
                   <select class="form-control" formControlName="pair" (change)="updateCalculator()">
                     <option *ngFor="let r of stateService.rates()" [value]="r.pair">{{ r.pair }}</option>
                   </select>
@@ -99,7 +101,7 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Amount ({{ exchangeForm.value.pair?.split('/')?.[0] }})</label>
+                  <label class="required">Amount ({{ exchangeForm.value.pair?.split('/')?.[0] }})</label>
                   <div class="currency-input-wrapper">
                     <span class="currency-symbol">{{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[0]) }}</span>
                     <input 
@@ -119,8 +121,10 @@
 
                 <div class="form-group">
                   <label>Calculated Payout ({{ exchangeForm.value.pair?.split('/')?.[1] }})</label>
-                  <div class="calculated-payout-box text-gradient">
-                    {{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[1]) }}{{ destinationAmount() | number:'1.2-2' }} {{ exchangeForm.value.pair?.split('/')?.[1] }}
+                  <div class="calculated-payout-box">
+                    <div>
+                      <span class="text-gradient">{{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[1]) }}{{ destinationAmount() | number:'1.2-2' }} {{ exchangeForm.value.pair?.split('/')?.[1] }}</span>
+                    </div>
                     <span class="calculation-breakdown">Rate: {{ exchangeForm.value.direction === 'Buy' ? selectedRate().buyRate : selectedRate().sellRate }} | Fee: {{ getCurrencySymbol(exchangeForm.value.pair?.split('/')?.[1]) }}{{ selectedRateFee() | number:'1.2-2' }} {{ exchangeForm.value.pair?.split('/')?.[1] }}</span>
                   </div>
                 </div>
@@ -128,7 +132,7 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Source of Funds</label>
+                  <label class="required">Source of Funds</label>
                   <select class="form-control" formControlName="sourceOfFunds">
                     <option value="Salary">Salary / Remuneration</option>
                     <option value="Business Income">Business / Trade Income</option>
@@ -139,7 +143,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Purpose of Transaction</label>
+                  <label class="required">Purpose of Transaction</label>
                   <select class="form-control" formControlName="purpose">
                     <option value="Travel">Holiday / Travel Allowance</option>
                     <option value="Medical">Medical Bills / Insurance</option>
@@ -152,7 +156,7 @@
               </div>
 
               <div class="form-group">
-                <label>Payout Settlement Mode</label>
+                <label class="required">Payout Settlement Mode</label>
                 <select class="form-control" formControlName="payoutMethod">
                   <option value="Cash">Cash Payout (ZWG Notes)</option>
                   <option value="EcoCash">EcoCash Mobile Money</option>

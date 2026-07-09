@@ -37,7 +37,7 @@
               <button 
                 type="button" 
                 class="btn-primary" 
-                [disabled]="eodState().status === 'In Progress'"
+                [disabled]="eodState().status === 'In Progress' || pendingCount() > 0"
                 (click)="triggerEodReconciliation()"
               >
                 {{ eodState().status === 'In Progress' ? 'Transmitting Data...' : 'Reconcile & Submit EOD Batch' }}

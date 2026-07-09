@@ -8,25 +8,25 @@
 
       <!-- KPI WIDGETS -->
       <div class="kpi-grid">
-        <div class="card-banking card-gradient-danger">
+        <div class="card-banking">
           <h3>Suspicious Flags</h3>
           <p class="kpi-num">{{ flaggedTxnsCount() }}</p>
           <span class="kpi-sub">Outbounds matching compliance filters</span>
         </div>
 
-        <div class="card-banking card-gradient-warning">
+        <div class="card-banking">
           <h3>Flagged Customers</h3>
           <p class="kpi-num">{{ flaggedCustomersCount() }}</p>
           <span class="kpi-sub">Accounts blocked under AML regulations</span>
         </div>
 
-        <div class="card-banking card-gradient-primary">
+        <div class="card-banking">
           <h3>Audited Logs Today</h3>
           <p class="kpi-num">{{ stateService.auditLogs().length }}</p>
           <span class="kpi-sub">System trace files written</span>
         </div>
 
-        <div class="card-banking card-gradient-success">
+        <div class="card-banking">
           <h3>Vetting Gateway</h3>
           <p class="kpi-num">99.8%</p>
           <span class="kpi-sub">LexisNexis screening uptime</span>

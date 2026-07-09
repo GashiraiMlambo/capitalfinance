@@ -8,9 +8,15 @@
   <div class="split-view">
     <!-- FORM WORKFLOW PANEL -->
     <div class="form-panel card-banking">
-      <div class="panel-header">
-        <h3>New Customer Onboarding</h3>
-        <span class="subtext">Register customer details and perform regulatory vetting</span>
+      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+        <div>
+          <h3>New Customer Onboarding</h3>
+          <span class="subtext">Register customer details and perform regulatory vetting</span>
+        </div>
+        <button type="button" class="btn-secondary" (click)="toggleViewDataModal()" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 12.5px; font-weight: 600;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>View Captured Data</span>
+        </button>
       </div>
 
       <!-- REGULATORY VETTING LOADER -->
@@ -71,7 +77,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label>First Name</label>
+              <label class="required">First Name</label>
               <input type="text" class="form-control" formControlName="firstName" placeholder="First Name" />
             </div>
             <div class="form-group">
@@ -79,7 +85,7 @@
               <input type="text" class="form-control" formControlName="middleName" placeholder="Middle Name" />
             </div>
             <div class="form-group">
-              <label>Last Name</label>
+              <label class="required">Last Name</label>
               <input type="text" class="form-control" formControlName="lastName" placeholder="Last Name" />
             </div>
             <div class="form-group">
@@ -91,25 +97,15 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Date of Birth</label>
+              <label class="required">Date of Birth</label>
               <input type="date" class="form-control" formControlName="dob" />
-            </div>
-            <div class="form-group">
-              <label>Race</label>
-              <select class="form-control" formControlName="race">
-                <option value="African">African</option>
-                <option value="Asian">Asian</option>
-                <option value="White">White</option>
-                <option value="Mixed">Mixed</option>
-                <option value="Other">Other</option>
-              </select>
             </div>
             <div class="form-group">
               <label>Country of Birth</label>
               <input type="text" class="form-control" formControlName="countryOfBirth" placeholder="e.g. Zimbabwe" />
             </div>
             <div class="form-group">
-              <label>Nationality</label>
+              <label class="required">Nationality</label>
               <input type="text" class="form-control" formControlName="nationality" placeholder="e.g. Zimbabwean" />
             </div>
             <div class="form-group">
@@ -117,8 +113,8 @@
               <input type="text" class="form-control" formControlName="citizenship" placeholder="e.g. Zimbabwean" />
             </div>
             <div class="form-group">
-              <label>National ID / Passport Number</label>
-              <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 63-123456-A-45" />
+              <label class="required">National ID / Passport Number</label>
+              <input type="text" class="form-control" formControlName="nationalId" placeholder="e.g. 18-2006339-B-07" (input)="onIdInput($event)" />
             </div>
             <div class="form-group">
               <label>Marital Status</label>
@@ -134,7 +130,7 @@
               <input type="text" class="form-control" formControlName="maidenName" placeholder="Maiden Name" />
             </div>
             <div class="form-group">
-              <label>Phone Number</label>
+              <label class="required">Phone Number</label>
               <input type="text" class="form-control" formControlName="phone" placeholder="+263 77 123 4567" />
             </div>
             <div class="form-group">
@@ -145,8 +141,14 @@
               <label>Email Address</label>
               <input type="email" class="form-control" formControlName="email" placeholder="client@domain.com" />
             </div>
+            <div class="form-group" style="display: flex; align-items: center; padding-top: 24px;">
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="isUsPersonFatca" />
+                <span>US Person Declaration (FATCA)</span>
+              </label>
+            </div>
             <div class="form-group full-width">
-              <label>Residential Address Details</label>
+              <label class="required">Residential Address Details</label>
               <input type="text" class="form-control" formControlName="residentialAddress" placeholder="Street Address, Suburb, City, Country" />
             </div>
             <div class="form-group">
@@ -420,7 +422,7 @@
               </div>
 
               <!-- 8. US FATCA documents -->
-              <div class="doc-upload-item">
+              <div class="doc-upload-item" *ngIf="onboardForm.get('isUsPersonFatca')?.value">
                 <div class="doc-meta">
                   <label>US FATCA Documents</label>
                   <div class="file-uploader-box" [class.disabled]="onboardForm.get('usFatcaLater')?.value" (click)="!onboardForm.get('usFatcaLater')?.value && usFatcaInput.click()">
@@ -529,6 +531,92 @@
       <div class="card-banking specs-card">
         <h4>RBZ Vetting Parameters</h4>
         <p class="text-sm">Operators must execute mandatory vetting protocols under RBZ directives. Non-compliant onboarding triggers compliance auditing logs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW CAPTURED DATA MODAL -->
+  <div class="modal-overlay" *ngIf="showCapturedDataModal()" (click)="toggleViewDataModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--primary);"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Captured Onboarding Data
+        </h3>
+        <button type="button" class="btn-close" (click)="toggleViewDataModal()">×</button>
+      </div>
+      <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+        <!-- Personal Details Section -->
+        <div class="modal-section-group">
+          <h4 style="border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; margin: 0 0 12px 0; color: var(--primary); font-size: 14px; font-weight: 700;">1. Personal Details</h4>
+          <div class="captured-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+            <div><span style="color: var(--text-muted);">Title:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('title')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">First Name:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('firstName')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Middle Name:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('middleName')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Last Name:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('lastName')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Gender:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('gender')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Date of Birth:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('dob')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Country of Birth:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('countryOfBirth')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Nationality:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nationality')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Citizenship:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('citizenship')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">National ID:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nationalId')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Marital Status:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('maritalStatus')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Maiden Name:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('maidenName')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Phone Number:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('phone')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Other Phone:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('otherPhone')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Email Address:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('email')?.value || 'N/A' }}</strong></div>
+            <div style="grid-column: span 2;"><span style="color: var(--text-muted);">Residential Address:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('residentialAddress')?.value || 'N/A' }}</strong></div>
+            <div style="grid-column: span 2;" *ngIf="!onboardForm.get('postalAddressSame')?.value"><span style="color: var(--text-muted);">Postal Address:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('postalAddress')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Comm Preference:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('commPreference')?.value || 'N/A' }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Next of Kin Section -->
+        <div class="modal-section-group" style="margin-top: 16px;">
+          <h4 style="border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; margin: 0 0 12px 0; color: var(--primary); font-size: 14px; font-weight: 700;">2. Next of Kin / Spouse Details</h4>
+          <div class="captured-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+            <div><span style="color: var(--text-muted);">Name:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nextOfKinName')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Relationship:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nextOfKinRel')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Phone Number:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nextOfKinPhone')?.value || 'N/A' }}</strong></div>
+            <div style="grid-column: span 2;"><span style="color: var(--text-muted);">Address:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('nextOfKinAddress')?.value || 'N/A' }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Employment Section -->
+        <div class="modal-section-group" style="margin-top: 16px;">
+          <h4 style="border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; margin: 0 0 12px 0; color: var(--primary); font-size: 14px; font-weight: 700;">3. Employment Details</h4>
+          <div class="captured-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+            <div><span style="color: var(--text-muted);">Employment Status:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('employmentStatus')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Job Title:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('jobTitle')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Industry:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('industry')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Employer:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('employer')?.value || 'N/A' }}</strong></div>
+            <div style="grid-column: span 2;"><span style="color: var(--text-muted);">Employer Address:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('employerAddress')?.value || 'N/A' }}</strong></div>
+            <div><span style="color: var(--text-muted);">Gross Income:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('grossIncome')?.value ? (onboardForm.get('grossIncome')?.value | number) : 'N/A' }} {{ onboardForm.get('currency')?.value }}</strong></div>
+            <div><span style="color: var(--text-muted);">Net Income:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('netIncome')?.value ? (onboardForm.get('netIncome')?.value | number) : 'N/A' }} {{ onboardForm.get('currency')?.value }}</strong></div>
+            <div style="grid-column: span 2;">
+              <span style="color: var(--text-muted);">Sources of Funds:</span> 
+              <ul style="margin: 4px 0 0 16px; padding: 0;">
+                <li *ngFor="let sf of onboardForm.get('sourceOfFunds')?.value" style="color: var(--text-main); font-weight: 600;">{{ sf || 'N/A' }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents Section -->
+        <div class="modal-section-group" style="margin-top: 16px;">
+          <h4 style="border-bottom: 2px solid var(--primary-light); padding-bottom: 6px; margin: 0 0 12px 0; color: var(--primary); font-size: 14px; font-weight: 700;">4. Documents & Screening</h4>
+          <div class="captured-fields-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+            <div><span style="color: var(--text-muted);">Passport Photo:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('passportPhotoLater')?.value ? 'Upload Later' : (onboardForm.get('passportPhotoName')?.value || 'Not Uploaded') }}</strong></div>
+            <div><span style="color: var(--text-muted);">National ID/Passport:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('idPassportLater')?.value ? 'Upload Later' : (onboardForm.get('idPassportName')?.value || 'Not Uploaded') }}</strong></div>
+            <div><span style="color: var(--text-muted);">Proof of Residence:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('proofResLater')?.value ? 'Upload Later' : (onboardForm.get('proofResName')?.value || 'Not Uploaded') }}</strong></div>
+            <div><span style="color: var(--text-muted);">Specimen Signature:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('specimenSigLater')?.value ? 'Upload Later' : (onboardForm.get('specimenSigName')?.value || 'Not Uploaded') }}</strong></div>
+            <div><span style="color: var(--text-muted);">OFAC Screen Verified:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('ofacVerified')?.value ? 'Yes' : 'No' }}</strong></div>
+            <div><span style="color: var(--text-muted);">PEP Checked:</span> <strong style="color: var(--text-main);">{{ onboardForm.get('pepCheck')?.value ? 'Yes' : 'No' }}</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" (click)="toggleViewDataModal()">Close Preview</button>
       </div>
     </div>
   </div>

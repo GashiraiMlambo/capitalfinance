@@ -29,6 +29,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
   // Stepper state
   activeStep = signal<number>(1);
+  showCapturedDataModal = signal<boolean>(false);
 
   // Vetting signals
   isVetting = signal<boolean>(false);
@@ -46,7 +47,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       lastName: ['', Validators.required],
       gender: ['Male'],
       dob: ['', Validators.required],
-      race: ['African'],
       countryOfBirth: ['Zimbabwe'],
       nationality: ['Zimbabwean', Validators.required],
       citizenship: ['Zimbabwean'],
@@ -138,6 +138,50 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleViewDataModal() {
+    this.showCapturedDataModal.update(v => !v);
+  }
+
+  formatIdNumber(raw: string): string {
+    let clean = raw.replace(/[^a-zA-Z0-9]/g, '');
+    let s1 = clean.substring(0, 2);
+    let rest = clean.substring(2);
+    if (!rest) return s1;
+
+    let s2 = '';
+    let letterIndex = -1;
+    for (let i = 0; i < rest.length; i++) {
+      let char = rest[i];
+      if (/[a-zA-Z]/.test(char)) {
+        letterIndex = i;
+        break;
+      }
+      if (s2.length < 7) {
+        s2 += char;
+      }
+    }
+
+    if (letterIndex === -1) {
+      return `${s1}-${s2}`;
+    }
+
+    let s3 = rest[letterIndex].toUpperCase();
+    let afterLetter = rest.substring(letterIndex + 1).replace(/[^0-9]/g, '');
+    let s4 = afterLetter.substring(0, 2);
+
+    if (!s4 && afterLetter.length === 0) {
+      return `${s1}-${s2}-${s3}`;
+    }
+    return `${s1}-${s2}-${s3}-${s4}`;
+  }
+
+  onIdInput(event: any) {
+    const input = event.target as HTMLInputElement;
+    const formatted = this.formatIdNumber(input.value);
+    this.onboardForm.get('nationalId')?.setValue(formatted, { emitEvent: false });
+    input.value = formatted;
+  }
+
   // Dynamic sources of funds FormArray getters & setters
   get sourceOfFundsArray() {
     return this.onboardForm.get('sourceOfFunds') as FormArray;
@@ -165,7 +209,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     // so we don't guard submission with this.onboardForm.invalid.
     if (!this.isOnline()) {
       this.saveLocalDraft(true);
-      alert('Offline. Saved onboarding file to your device and will sync on network restoration.');
+      this.stateService.showToast('Offline. Saved onboarding file to your device and will sync on network restoration.', 'warning');
       return;
     }
 
@@ -227,11 +271,17 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       occupation: formVal.jobTitle || 'N/A',
       kycStatus,
       documents,
-      notes
+      notes,
+      idNumber: formVal.nationalId || 'N/A',
+      idType: (formVal.nationalId && formVal.nationalId.length > 12) ? 'Passport' : 'National ID',
+      gender: formVal.gender || 'Male',
+      savingsBalance: 0,
+      walletBalance: 0,
+      loanBalance: 0
     };
 
     const newCust = this.stateService.onboardCustomer(onboardObj);
-    alert(`Customer onboarding completed! Status: ${newCust.kycStatus}`);
+    this.stateService.showToast(`Customer onboarding completed! Status: ${newCust.kycStatus}`, 'success');
     
     // Redirect to profile page
     this.router.navigate([`/teller/customers/${newCust.id}`]);
@@ -264,7 +314,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     });
 
     if (!silent) {
-      alert('Onboarding profile details saved as local draft.');
+      this.stateService.showToast('Onboarding profile details saved as local draft.', 'info');
     }
   }
 
@@ -323,7 +373,13 @@ export class OnboardingComponent implements OnInit, OnDestroy {
           { type: 'National ID Scan', url: fields.idPassportName || 'id.png', status: (fields.idPassportLater ? 'Pending' : 'Verified') as 'Pending' | 'Verified' | 'Rejected' },
           { type: 'Proof of Residence', url: fields.proofResName || 'bill.pdf', status: (fields.proofResLater ? 'Pending' : 'Verified') as 'Pending' | 'Verified' | 'Rejected' }
         ],
-        notes
+        notes,
+        idNumber: fields.nationalId || 'N/A',
+        idType: (fields.nationalId && fields.nationalId.length > 12) ? 'Passport' : 'National ID',
+        gender: fields.gender || 'Male',
+        savingsBalance: 0,
+        walletBalance: 0,
+        loanBalance: 0
       };
       this.stateService.onboardCustomer(onboardObj);
     });
@@ -331,6 +387,6 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.localDrafts.set([]);
     localStorage.removeItem('cc_onboarding_drafts');
     this.stateService.addAuditLog(`Synced ${drafts.length} offline customer profiles to server.`);
-    alert(`Connection restored! Synchronized ${drafts.length} onboarded profiles to central server.`);
+    this.stateService.showToast(`Connection restored! Synchronized ${drafts.length} onboarded profiles to central server.`, 'success');
   }
 }

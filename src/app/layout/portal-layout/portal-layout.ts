@@ -215,6 +215,23 @@ interface MenuItem {
           </div>
         </main>
       </div>
+
+      <!-- Toast Notification Container -->
+      <div class="global-toast-container">
+        <div 
+          *ngFor="let toast of stateService.toasts()" 
+          class="global-toast" 
+          [class]="toast.type"
+        >
+          <span class="toast-icon" [style.display]="'flex'" [style.align-items]="'center'">
+            <svg *ngIf="toast.type === 'success'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            <svg *ngIf="toast.type === 'error'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <svg *ngIf="toast.type === 'warning'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <svg *ngIf="toast.type === 'info'" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <span class="toast-message">{{ toast.message }}</span>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -736,6 +753,57 @@ interface MenuItem {
     .mr-2 {
       margin-right: 8px;
     }
+
+    .global-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .global-toast {
+      pointer-events: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+      max-width: 400px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+      &.success {
+        border-left: 4px solid var(--success);
+        .toast-icon { color: var(--success); }
+      }
+      &.error {
+        border-left: 4px solid var(--danger);
+        .toast-icon { color: var(--danger); }
+      }
+      &.warning {
+        border-left: 4px solid var(--warning);
+        .toast-icon { color: var(--warning); }
+      }
+      &.info {
+        border-left: 4px solid var(--info);
+        .toast-icon { color: var(--info); }
+      }
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
   `]
 })
 export class PortalLayoutComponent {
@@ -823,7 +891,7 @@ export class PortalLayoutComponent {
     // RBAC Filter: which items can this role view?
     const allowedPaths: string[] = [];
     if (userRole === 'System Admin') {
-      allowedPaths.push('/admin/users', '/admin/audit-log', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/branch/dashboard', '/branch/rates', '/compliance/dashboard', '/compliance/rbz-reporting', '/portal/home', '/portal/transactions');
+      allowedPaths.push('/admin/users', '/admin/audit-log', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/branch/dashboard', '/branch/rates', '/compliance/dashboard', '/compliance/rbz-reporting');
     } else if (userRole === 'Teller') {
       allowedPaths.push('/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new');
     } else if (userRole === 'Branch Manager') {

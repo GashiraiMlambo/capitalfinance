@@ -89,7 +89,9 @@ export class ExchangeComponent implements OnInit, OnDestroy {
   // Filter onboarded customers
   filteredCustomers = computed(() => {
     const q = this.searchQuery.toLowerCase().trim();
-    if (!q) return [];
+    if (!q) {
+      return this.stateService.customers();
+    }
     return this.stateService.customers().filter(
       c => c.name.toLowerCase().includes(q) || c.nationalId.toLowerCase().includes(q)
     );
@@ -99,6 +101,12 @@ export class ExchangeComponent implements OnInit, OnDestroy {
     this.selectedCustomer.set(c);
     this.searchQuery = c.name;
     this.showLookupDropdown.set(false);
+  }
+
+  hideDropdown() {
+    setTimeout(() => {
+      this.showLookupDropdown.set(false);
+    }, 200);
   }
 
   isKycBlocked(): boolean {
@@ -159,12 +167,12 @@ export class ExchangeComponent implements OnInit, OnDestroy {
 
     if (this.isOnline()) {
       const createdTxn = this.stateService.createTransaction(txnPackage);
-      alert(`Transaction Submitted! Status: ${createdTxn.status}`);
+      this.stateService.showToast(`Transaction Submitted! Status: ${createdTxn.status}`, 'success');
       this.router.navigate([`/teller/transaction/${createdTxn.id}/receipt`]);
     } else {
       // Save locally as draft and prompt teller
       this.saveLocalDraft(true);
-      alert('Network offline. Transaction saved to Local Drafts Queue and will be synced upon network reconnection.');
+      this.stateService.showToast('Network offline. Transaction saved to Local Drafts Queue and will be synced upon network reconnection.', 'warning');
     }
   }
 
@@ -204,7 +212,7 @@ export class ExchangeComponent implements OnInit, OnDestroy {
     });
 
     if (!silent) {
-      alert('Draft form successfully persisted locally.');
+      this.stateService.showToast('Draft form successfully persisted locally.', 'info');
     }
   }
 
@@ -264,6 +272,6 @@ export class ExchangeComponent implements OnInit, OnDestroy {
     this.localDrafts.set([]);
     localStorage.removeItem('cc_exchange_drafts');
     this.stateService.addAuditLog(`Synced ${drafts.length} offline exchange drafts to server.`);
-    alert(`Network Restored. Successfully synced ${drafts.length} offline drafts to the banking ledger!`);
+    this.stateService.showToast(`Network Restored. Successfully synced ${drafts.length} offline drafts to the banking ledger!`, 'success');
   }
 }

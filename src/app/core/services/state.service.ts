@@ -37,6 +37,13 @@ export interface Customer {
   loanBalance?: number | any;
 }
 
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  duration?: number;
+}
+
 export interface ExchangeRate {
   pair: string;
   buyRate: number;
@@ -65,6 +72,9 @@ export interface Transaction {
   recipientName?: string;
   recipientPhone?: string;
   recipientAccount?: string;
+  recipientId?: string;
+  recipientIdType?: string;
+  recipientAddress?: string;
   purpose?: string;
   sourceOfFunds?: string;
   status: 'Completed' | 'Pending' | 'Failed' | 'Reversed';
@@ -334,6 +344,27 @@ export class StateService {
       timeline: [
         { date: '2026-06-30', title: 'KYC Expired', desc: 'Passport validity date exceeded', icon: 'calendar' }
       ]
+    },
+    {
+      id: 'CUST-005',
+      name: 'Chipo Chingwaru',
+      nationality: 'Zimbabwean',
+      nationalId: '63-998877-K-45',
+      phone: '+263 77 999 8888',
+      email: 'c.chingwaru@gmail.com',
+      address: '15 Samora Machel Ave, Harare, Zimbabwe',
+      dob: '1990-08-15',
+      occupation: 'Accountant',
+      kycStatus: 'Verified',
+      documents: [
+        { type: 'National ID Scan', url: 'national_id.png', status: 'Verified' },
+        { type: 'Proof of Residence', url: 'utility_bill.png', status: 'Verified' }
+      ],
+      notes: [{ date: '2026-07-08', author: 'System', content: 'Onboarded and fully verified.' }],
+      registeredAt: '2026-07-08T10:00:00Z',
+      timeline: [
+        { date: '2026-07-08', title: 'KYC Verified', desc: 'All documents checked and approved', icon: 'shield' }
+      ]
     }
   ]);
 
@@ -534,6 +565,18 @@ export class StateService {
       ipAddress: '192.168.1.' + Math.floor(Math.random() * 200 + 1)
     };
     this.auditLogs.update(prev => [newLog, ...prev]);
+  }
+
+  // Toast Notifications
+  toasts = signal<ToastMessage[]>([]);
+
+  showToast(message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info', duration = 4000) {
+    const id = 'toast_' + Math.random().toString(36).substring(2, 9);
+    const toast: ToastMessage = { id, message, type, duration };
+    this.toasts.update(prev => [...prev, toast]);
+    setTimeout(() => {
+      this.toasts.update(prev => prev.filter(t => t.id !== id));
+    }, duration);
   }
 
   // Mutation Actions

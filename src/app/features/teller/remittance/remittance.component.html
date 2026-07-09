@@ -31,6 +31,8 @@
                     [(ngModel)]="searchQuery" 
                     [ngModelOptions]="{standalone: true}"
                     (input)="showLookupDropdown.set(true)"
+                    (focus)="showLookupDropdown.set(true)"
+                    (blur)="hideDropdown()"
                   />
                   <div class="lookup-dropdown" *ngIf="showLookupDropdown() && filteredCustomers().length > 0">
                     <button 
@@ -81,7 +83,7 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Recipient Full Name</label>
+                  <label class="required">Recipient Full Name</label>
                   <input 
                     type="text" 
                     class="form-control" 
@@ -97,7 +99,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Recipient Phone Number</label>
+                  <label class="required">Recipient Phone Number</label>
                   <input 
                     type="text" 
                     class="form-control" 
@@ -109,7 +111,47 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Remittance Route Type</label>
+                  <label class="required">Recipient ID/Passport Type</label>
+                  <select class="form-control" formControlName="recipientIdType" (change)="onIdTypeChange()">
+                    <option value="">Select Option</option>
+                    <option value="National ID">National ID Card</option>
+                    <option value="Passport">Passport</option>
+                  </select>
+                </div>
+
+                <div class="form-group" *ngIf="remitForm.get('recipientIdType')?.value">
+                  <label class="required">
+                    {{ remitForm.get('recipientIdType')?.value === 'National ID' ? 'Recipient National ID Number' : 'Recipient Passport Number' }}
+                  </label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="recipientId" 
+                    [placeholder]="remitForm.get('recipientIdType')?.value === 'National ID' ? 'e.g. 18-2006339-B-07' : 'Enter Passport Number'" 
+                    (input)="remitForm.get('recipientIdType')?.value === 'National ID' ? onIdInput($event) : null"
+                  />
+                  <div class="error-message" *ngIf="remitForm.get('recipientId')?.touched && remitForm.get('recipientId')?.invalid" style="color: var(--danger); font-size: 11.5px; margin-top: 4px; font-weight: 500;">
+                    {{ remitForm.get('recipientIdType')?.value === 'National ID' ? 'National ID number is required.' : 'Passport number is required.' }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="required">Recipient Physical Address</label>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    formControlName="recipientAddress" 
+                    placeholder="Enter physical residential address" 
+                  />
+                  <div class="error-message" *ngIf="remitForm.get('recipientAddress')?.touched && remitForm.get('recipientAddress')?.invalid" style="color: var(--danger); font-size: 11.5px; margin-top: 4px; font-weight: 500;">
+                    Recipient physical address is required.
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="required">Remittance Route Type</label>
                   <select class="form-control" formControlName="direction" (change)="updateCalculator()">
                     <option value="Local">Local (Domestic Remittance within Zimbabwe)</option>
                     <option value="International">International (Outbound Regional Corridor)</option>
@@ -117,7 +159,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Payout Settlement Mode</label>
+                  <label class="required">Payout Settlement Mode</label>
                   <select class="form-control" formControlName="payoutMethod" (change)="updateCalculator()">
                     <option value="Cash Pickup">Cash Pickup (USD Agent Counter)</option>
                     <option value="Mobile Wallet">Mobile Money Wallet (EcoCash/M-Pesa)</option>
@@ -149,14 +191,14 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Currency Pair</label>
+                  <label class="required">Currency Pair</label>
                   <select class="form-control" formControlName="pair" (change)="updateCalculator()">
                     <option *ngFor="let r of stateService.rates()" [value]="r.pair">{{ r.pair }}</option>
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <label>Principal Transfer Amount ({{ remitForm.value.pair?.split('/')?.[0] }})</label>
+                  <label class="required">Principal Transfer Amount ({{ remitForm.value.pair?.split('/')?.[0] }})</label>
                   <div class="input-addon-group">
                     <span class="addon-symbol">{{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}</span>
                     <input 
@@ -176,8 +218,10 @@
 
                 <div class="form-group">
                   <label>Total Charged Amount ({{ remitForm.value.pair?.split('/')?.[1] }} Equivalent)</label>
-                  <div class="calculated-payout-box text-gradient">
-                    {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[1]) }}{{ chargedLocalAmount() | number:'1.2-2' }} {{ remitForm.value.pair?.split('/')?.[1] }}
+                  <div class="calculated-payout-box">
+                    <div>
+                      <span class="text-gradient">{{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[1]) }}{{ chargedLocalAmount() | number:'1.2-2' }} {{ remitForm.value.pair?.split('/')?.[1] }}</span>
+                    </div>
                     <span class="rate-breakdown">Principal: {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}{{ remitForm.value.amount || 0 }} | Fee: {{ getCurrencySymbol(remitForm.value.pair?.split('/')?.[0]) }}{{ remitFee() }} | Rate: {{ usdToZwgRate() }}</span>
                   </div>
                 </div>
@@ -185,7 +229,7 @@
 
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Source of Funds</label>
+                  <label class="required">Source of Funds</label>
                   <select class="form-control" formControlName="sourceOfFunds">
                     <option value="Salary">Salary / Savings</option>
                     <option value="Business Income">Trade / Retail Income</option>
@@ -195,7 +239,7 @@
                 </div>
 
                 <div class="form-group">
-                  <label>Purpose of Remittance</label>
+                  <label class="required">Purpose of Remittance</label>
                   <select class="form-control" formControlName="purpose">
                     <option value="Family Support">Family Maintenance & Support</option>
                     <option value="Education">School Tuition Fees</option>

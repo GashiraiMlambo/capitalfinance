@@ -9,7 +9,8 @@ import { StateService, Transaction, ExchangeRate } from '../../../core/services/
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',})
+  styleUrl: './dashboard.component.scss',
+})
 export class TellerDashboardComponent implements OnInit {
   stateService = inject(StateService);
   router = inject(Router);
@@ -94,10 +95,11 @@ export class TellerDashboardComponent implements OnInit {
       }
 
       // Search match
-      const matchesSearch = !query || 
-        t.customerName.toLowerCase().includes(query) || 
-        t.customerId.toLowerCase().includes(query) || 
-        t.id.toLowerCase().includes(query);
+      const matchesSearch = !query ||
+        t.customerName.toLowerCase().includes(query) ||
+        t.customerId.toLowerCase().includes(query) ||
+        t.id.toLowerCase().includes(query) ||
+        (t.payoutPin && t.payoutPin.toLowerCase().includes(query));
 
       // Type match
       const matchesType = type === 'ALL' || t.type === type;
