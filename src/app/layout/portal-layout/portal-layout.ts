@@ -869,6 +869,12 @@ export class PortalLayoutComponent {
         const matchingItem = this.menuItems.find(item => url.includes(item.path));
         if (matchingItem) {
           this.activePageTitle.set(matchingItem.title);
+        } else if (url.includes('/receipt')) {
+          this.activePageTitle.set('Transaction Voucher');
+        } else if (url.includes('/customers/')) {
+          this.activePageTitle.set('Customer Profile');
+        } else if (url.includes('/review')) {
+          this.activePageTitle.set('Transaction Override Review');
         } else {
           this.activePageTitle.set('Portal');
         }

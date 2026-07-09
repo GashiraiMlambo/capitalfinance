@@ -71,23 +71,10 @@
           font-weight: 500;
         }
 
+        &.card-gradient-primary { border-left: 4px solid var(--primary); }
         &.card-gradient-success { border-left: 4px solid var(--success); }
         &.card-gradient-warning { border-left: 4px solid var(--warning); }
         &.card-gradient-info { border-left: 4px solid var(--info); }
-
-        &.card-gradient-primary {
-          background: var(--primary-gradient);
-          color: white;
-          border: none;
-          box-shadow: var(--shadow-primary);
-          
-          h3, .kpi-num, .kpi-sub {
-            color: white !important;
-          }
-          .kpi-sub {
-            opacity: 0.8;
-          }
-        }
       }
     }
 
