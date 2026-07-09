@@ -147,9 +147,11 @@
             </div>
           </div>
 
-          <div class="calc-result-box text-gradient" [class.calculating]="isCalculating()">
+          <div class="calc-result-box" [class.calculating]="isCalculating()">
             <ng-container *ngIf="!isCalculating()">
-              {{ getCurrencySymbol(calcPair.split('/')?.[1]) }}{{ (calcAmount ? calcResult() : 0) | number:'1.2-2' }} {{ calcPair.split('/')?.[1] }}
+              <span class="text-gradient" style="font-size: 20px; font-weight: 800; display: inline-block;">
+                {{ getCurrencySymbol(calcPair.split('/')?.[1]) }}{{ (calcAmount ? calcResult() : 0) | number:'1.2-2' }} {{ calcPair.split('/')?.[1] }}
+              </span>
               <span class="sub">Estimated net payout (Rate: {{ calcRate() }})</span>
             </ng-container>
 

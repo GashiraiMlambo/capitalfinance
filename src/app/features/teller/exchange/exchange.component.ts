@@ -27,7 +27,7 @@ export class ExchangeComponent implements OnInit, OnDestroy {
 
   exchangeForm!: FormGroup;
   
-  searchQuery = '';
+  searchQuery = signal('');
   showLookupDropdown = signal(false);
   selectedCustomer = signal<Customer | null>(null);
 
@@ -88,7 +88,7 @@ export class ExchangeComponent implements OnInit, OnDestroy {
 
   // Filter onboarded customers
   filteredCustomers = computed(() => {
-    const q = this.searchQuery.toLowerCase().trim();
+    const q = this.searchQuery().toLowerCase().trim();
     if (!q) {
       return this.stateService.customers();
     }
@@ -99,7 +99,7 @@ export class ExchangeComponent implements OnInit, OnDestroy {
 
   selectCustomer(c: Customer) {
     this.selectedCustomer.set(c);
-    this.searchQuery = c.name;
+    this.searchQuery.set(c.name);
     this.showLookupDropdown.set(false);
   }
 
@@ -219,7 +219,7 @@ export class ExchangeComponent implements OnInit, OnDestroy {
   restoreDraft(d: LocalDraft) {
     const data = d.formData;
     this.selectedCustomer.set(data.customer);
-    this.searchQuery = data.customer.name;
+    this.searchQuery.set(data.customer.name);
     
     this.exchangeForm.patchValue({
       direction: data.fields.direction,

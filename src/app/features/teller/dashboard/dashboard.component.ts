@@ -26,10 +26,10 @@ export class TellerDashboardComponent implements OnInit {
     }
   }
 
-  searchQuery = '';
-  filterType = 'ALL';
-  filterStatus = 'ALL';
-  showAllBranchTxns = false;
+  searchQuery = signal('');
+  filterType = signal('ALL');
+  filterStatus = signal('ALL');
+  showAllBranchTxns = signal(false);
 
   isRefreshingRates = signal<boolean>(false);
   tickerAlert = signal<boolean>(false);
@@ -82,10 +82,10 @@ export class TellerDashboardComponent implements OnInit {
   });
 
   filteredTransactions = computed(() => {
-    const query = this.searchQuery.toLowerCase().trim();
-    const type = this.filterType;
-    const status = this.filterStatus;
-    const allBranch = this.showAllBranchTxns;
+    const query = this.searchQuery().toLowerCase().trim();
+    const type = this.filterType();
+    const status = this.filterStatus();
+    const allBranch = this.showAllBranchTxns();
     const curUser = this.stateService.currentUser();
 
     return this.stateService.transactions().filter(t => {

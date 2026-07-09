@@ -100,23 +100,24 @@
                   type="text" 
                   class="form-control" 
                   placeholder="Search by customer name or ID..." 
-                  [(ngModel)]="searchQuery" 
+                  [ngModel]="searchQuery()"
+                  (ngModelChange)="searchQuery.set($event)"
                 />
               </div>
               <div class="selectors">
-                <select class="form-control" [(ngModel)]="filterType">
+                <select class="form-control" [ngModel]="filterType()" (ngModelChange)="filterType.set($event)">
                   <option value="ALL">All Types</option>
                   <option value="Exchange">Exchange Only</option>
                   <option value="Remittance">Remittance Only</option>
                 </select>
-                <select class="form-control" [(ngModel)]="filterStatus">
+                <select class="form-control" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
                   <option value="ALL">All Statuses</option>
                   <option value="Completed">Completed</option>
                   <option value="Pending">Pending Review</option>
                   <option value="Failed">Failed / Rejected</option>
                 </select>
                 <label class="scope-toggle" *ngIf="canToggleScope()">
-                  <input type="checkbox" [(ngModel)]="showAllBranchTxns" />
+                  <input type="checkbox" [ngModel]="showAllBranchTxns()" (ngModelChange)="showAllBranchTxns.set($event)" />
                   <span>Show All Tellers</span>
                 </label>
               </div>

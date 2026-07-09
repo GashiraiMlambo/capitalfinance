@@ -27,7 +27,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
 
   remitForm!: FormGroup;
 
-  searchQuery = '';
+  searchQuery = signal('');
   showLookupDropdown = signal(false);
   selectedSender = signal<Customer | null>(null);
 
@@ -124,7 +124,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
 
   // Filter onboarded customers
   filteredCustomers = computed(() => {
-    const q = this.searchQuery.toLowerCase().trim();
+    const q = this.searchQuery().toLowerCase().trim();
     if (!q) {
       return this.stateService.customers();
     }
@@ -135,7 +135,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
 
   selectSender(c: Customer) {
     this.selectedSender.set(c);
-    this.searchQuery = c.name;
+    this.searchQuery.set(c.name);
     this.showLookupDropdown.set(false);
   }
 
@@ -319,7 +319,7 @@ export class RemittanceComponent implements OnInit, OnDestroy {
   restoreDraft(d: LocalRemitDraft) {
     const data = d.formData;
     this.selectedSender.set(data.sender);
-    this.searchQuery = data.sender.name;
+    this.searchQuery.set(data.sender.name);
 
     this.remitForm.patchValue({
       recipientName: data.fields.recipientName,
