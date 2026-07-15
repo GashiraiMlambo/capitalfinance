@@ -283,3 +283,64 @@
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  span {
+    padding: 0 10px;
+  }
+}
+
+.oauth-buttons-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  .btn-oauth {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--bg-base);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .oauth-logo {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+    }
+
+    .oauth-logo-svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

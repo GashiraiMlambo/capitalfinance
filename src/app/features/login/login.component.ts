@@ -105,6 +105,25 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  signInWithGoogle() {
+    // Disabled for now
+  }
+
+  signInWithMicrosoft() {
+    this.stateService.showToast('Connecting to Microsoft Azure AD...', 'info');
+    setTimeout(() => {
+      // Find a staff user like System Admin
+      const adminUser = this.stateService.users().find(u => u.role === 'System Admin');
+      if (adminUser) {
+        this.stateService.currentUser.set(adminUser);
+        localStorage.setItem('ccf_active_user_role', adminUser.role);
+        this.stateService.addAuditLog(`User logged in via Microsoft Azure AD: ${adminUser.name}`);
+        this.stateService.showToast(`Logged in with Microsoft as ${adminUser.name}`, 'success');
+        this.router.navigate(['/portal/home']);
+      }
+    }, 800);
+  }
+
   private redirectUserByRole(role: string) {
     switch (role) {
       case 'Teller':

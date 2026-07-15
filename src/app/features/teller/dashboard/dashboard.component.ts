@@ -136,4 +136,48 @@ export class TellerDashboardComponent implements OnInit {
   viewReceipt(id: string) {
     this.router.navigate([`/teller/transaction/${id}/receipt`]);
   }
+
+  payoutRef = signal('');
+  foundPayout = signal<Transaction | null>(null);
+  payoutSearchError = signal('');
+  payoutSuccessMsg = signal('');
+
+  lookupPayout() {
+    this.payoutSearchError.set('');
+    this.payoutSuccessMsg.set('');
+    const ref = this.payoutRef().trim().toUpperCase();
+    if (!ref) {
+      this.payoutSearchError.set('Please enter a reference ID or PIN.');
+      this.foundPayout.set(null);
+      return;
+    }
+    const txn = this.stateService.transactions().find(t => 
+      t.id.toUpperCase() === ref || 
+      (t.payoutPin && t.payoutPin.toUpperCase() === ref)
+    );
+    if (!txn) {
+      this.payoutSearchError.set('No booking found with this reference ID or PIN.');
+      this.foundPayout.set(null);
+    } else {
+      this.foundPayout.set(txn);
+    }
+  }
+
+  releasePayout() {
+    const txn = this.foundPayout();
+    if (!txn) return;
+
+    this.stateService.transactions.update(list => list.map(t => {
+      if (t.id === txn.id) {
+        return { ...t, status: 'Completed' };
+      }
+      return t;
+    }));
+
+    // Update local state
+    this.foundPayout.set({ ...txn, status: 'Completed' });
+    this.payoutSuccessMsg.set(`Payout for reference ${txn.id} has been successfully released and marked as Completed.`);
+    this.stateService.addAuditLog(`Teller processed and released payout for reference ID: ${txn.id}`, 'INFO');
+    this.stateService.showToast(`Payout released successfully: ${txn.id}`, 'success');
+  }
 }

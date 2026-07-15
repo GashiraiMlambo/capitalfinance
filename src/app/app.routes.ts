@@ -104,16 +104,15 @@ export const routes: Routes = [
   // 5. Customer Self-Service Portal
   {
     path: 'portal',
-    loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),
     canActivate: [authGuard],
     children: [
       {
         path: 'home',
-        loadComponent: () => import('./features/customer-portal/home/home.component').then(m => m.PortalHomeComponent)
+        loadComponent: () => import('./components/customer-portal/customer-portal.component').then(m => m.CustomerPortalComponent)
       },
       {
         path: 'transactions',
-        loadComponent: () => import('./features/customer-portal/home/home.component').then(m => m.PortalHomeComponent)
+        loadComponent: () => import('./components/customer-portal/customer-portal.component').then(m => m.CustomerPortalComponent)
       },
       {
         path: '',

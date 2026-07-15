@@ -1,0 +1,1462 @@
+<div class="portal-wrapper" [class.dark-theme]="isDarkMode">
+  <!-- TOAST ALERTS -->
+  <div class="global-toast glass-card" *ngFor="let toast of stateService.toasts()" [ngClass]="toast.type" style="top: 1rem; right: 1rem; left: auto; transform: none; position: fixed; z-index: 2000; min-width: 250px;">
+    <span class="material-icons toast-icon" *ngIf="toast.type === 'success'">check_circle</span>
+    <span class="material-icons toast-icon" *ngIf="toast.type === 'warning'">warning</span>
+    <span class="material-icons toast-icon" *ngIf="toast.type === 'error'">error</span>
+    <span class="material-icons toast-icon" *ngIf="toast.type === 'info'">info</span>
+    <span class="toast-message">{{ toast.message }}</span>
+  </div>
+
+  <!-- BLURRED LANDING PAGE BACKGROUND FOR AUTH STAGES -->
+  <div class="blurred-bg-underlay" *ngIf="portalStage === 'LOGIN' || portalStage === 'OTP'">
+    <div class="landing-header-dummy">
+      <div class="header-container-dummy">
+        <h2 style="color: #ffffff; font-weight: 800; letter-spacing: -1px; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="material-icons" style="font-size: 2.2rem; color: #3B82F6;">shield</span> CCF Admin Console
+        </h2>
+        <div class="nav-links-dummy">
+          <span class="portal-badge-dummy">Restricted Access</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="landing-main-dummy">
+      <div class="hero-layout-dummy">
+        <div class="hero-text-dummy">
+          <h1 class="hero-title-dummy">Internal <span>Admin Console</span></h1>
+          <p class="hero-description-dummy">Authorized personnel only. Sessions are fully audited and monitored by CCF Compliance.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAGE: LOGIN -->
+  <div class="auth-container" *ngIf="portalStage === 'LOGIN'">
+    <div class="auth-card glass-card">
+      <div class="auth-logo-img">
+        <span class="material-icons" style="font-size: 3.5rem; color: #0A58CA;">admin_panel_settings</span>
+      </div>
+      <h2>Staff Authentication</h2>
+      <p class="auth-subtitle">Verify your identity to open the secure administrator console.</p>
+
+      <form (submit)="handleLoginSubmit(); $event.preventDefault();">
+        <div class="form-group">
+          <label>Staff Username or Email</label>
+          <input type="text" [(ngModel)]="loginSurname" name="loginSurname" placeholder="e.g. teller@ccfinance.co.zw" required autocomplete="off"/>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" [(ngModel)]="loginPassword" name="loginPassword" placeholder="••••••••" required/>
+        </div>
+
+        <div class="auth-error" *ngIf="authError">
+          <span class="material-icons" style="font-size: 1.1rem; vertical-align: middle; margin-right: 0.25rem;">warning</span>
+          {{ authError }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Authenticate &amp; Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STAGE: OTP CHALLENGE -->
+  <div class="auth-container" *ngIf="portalStage === 'OTP'">
+    <div class="auth-card glass-card">
+      <div class="auth-logo-img">
+        <span class="material-icons" style="font-size: 3.5rem; color: #f59e0b;">security</span>
+      </div>
+      <h2>2FA Security Challenge</h2>
+      <p class="auth-subtitle">A verification code has been dispatched to <strong>{{ otpPhoneTarget }}</strong>. Check the toast message for testing.</p>
+
+      <form (submit)="handleOtpSubmit(); $event.preventDefault();">
+        <div class="form-group">
+          <label>Enter 6-Digit OTP</label>
+          <input type="text" [(ngModel)]="otpInput" name="otpInput" maxlength="6" placeholder="000000" style="text-align: center; letter-spacing: 6px; font-size: 1.25rem;" required autocomplete="off"/>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-bottom: 0.75rem;">Verify Code</button>
+        <button type="button" class="btn btn-secondary btn-block" (click)="cancelOtpStage()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STAGE: DASHBOARD -->
+  <div class="dashboard-shell" *ngIf="portalStage === 'DASHBOARD'">
+    <!-- TOP NAVBAR -->
+    <header class="top-navbar">
+      <div class="logo-section">
+        <span class="material-icons" style="font-size: 1.8rem; color: #0A58CA;">security</span>
+        <span class="logo-text">CCF Admin <span style="font-weight: 300; opacity: 0.8;">Console</span></span>
+      </div>
+
+      <div class="nav-actions">
+        <!-- ROLE SELECTOR DROPDOWN -->
+        <div style="position: relative;">
+          <button class="profile-nav-trigger" (click)="toggleRoleDropdown()" style="border: 1px solid rgba(10, 88, 202, 0.4); background: rgba(10, 88, 202, 0.08); display: flex; align-items: center; gap: 0.25rem;">
+            <span class="material-icons" style="font-size: 1.1rem; color: #0A58CA;">supervised_user_circle</span>
+            <span>Role: {{ stateService.currentUser()?.role }}</span>
+            <span class="material-icons" style="font-size: 1.1rem;">arrow_drop_down</span>
+          </button>
+          <div class="nav-dropdown glass-card" *ngIf="showRoleDropdown" style="width: 220px; top: 45px; right: 0;">
+            <div class="dropdown-header">Switch User Role</div>
+            <div class="profile-dropdown-body">
+              <a href="javascript:void(0)" class="dropdown-link" *ngFor="let role of adminRoles" (click)="selectRole(role)">
+                {{ role }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- THEME TOGGLE -->
+        <button class="icon-nav-btn" (click)="isDarkMode = !isDarkMode" title="Toggle UI Theme">
+          <span class="material-icons">{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
+
+        <!-- ALERTS DROPDOWN -->
+        <div class="badge-wrapper" style="position: relative;">
+          <button class="icon-nav-btn" (click)="showNotifMenu = !showNotifMenu; showProfileMenu = false;" title="System Alerts">
+            <span class="material-icons">notifications</span>
+            <span class="badge" *ngIf="notificationList.length > 0">{{ notificationList.length }}</span>
+          </button>
+
+          <div class="nav-dropdown notifications-dropdown glass-card" *ngIf="showNotifMenu">
+            <div class="dropdown-header">
+              <span>Security &amp; AML Alerts</span>
+              <button class="btn-link" style="padding: 0; font-size: 0.75rem;" (click)="readAllNotifications()">Clear All</button>
+            </div>
+            <div class="dropdown-body">
+              <div class="empty-notif" *ngIf="notificationList.length === 0">No critical alerts detected.</div>
+              <div class="notification-item" *ngFor="let notif of notificationList">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <strong style="font-size: 0.8rem; color: #f87171; display: flex; align-items: center; gap: 0.25rem;">
+                    <span class="material-icons" style="font-size: 0.95rem;">error</span> {{ notif.title }}
+                  </strong>
+                  <button class="btn-link" (click)="removeNotification(notif.id)" style="padding: 0; color: var(--text-color-secondary); font-size: 0.8rem;">&times;</button>
+                </div>
+                <p style="margin-top: 0.25rem; font-size: 0.8rem;">{{ notif.body }}</p>
+                <span class="time">{{ notif.date | date:'shortTime' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE DROPDOWN -->
+        <div style="position: relative;">
+          <div class="profile-nav-trigger" (click)="showProfileMenu = !showProfileMenu; showNotifMenu = false;">
+            <div class="avatar-circle">{{ stateService.currentUser()?.name?.charAt(0) }}</div>
+            <span>{{ stateService.currentUser()?.name }}</span>
+            <span class="material-icons">arrow_drop_down</span>
+          </div>
+
+          <div class="nav-dropdown profile-dropdown glass-card" *ngIf="showProfileMenu">
+            <div class="profile-dropdown-header">
+              <strong>{{ stateService.currentUser()?.name }}</strong>
+              <span>{{ stateService.currentUser()?.email }}</span>
+              <span style="font-size: 0.75rem; color: #3B82F6; font-weight: bold; margin-top: 0.25rem;">{{ stateService.currentUser()?.role }}</span>
+            </div>
+            <div class="profile-dropdown-body">
+              <a href="javascript:void(0)" class="dropdown-link signout-link" (click)="handleLogout()">
+                <span class="material-icons" style="font-size: 1.1rem; margin-right: 0.5rem; vertical-align: middle;">logout</span> Sign Out
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PORTAL BODY LAYOUT -->
+    <div class="portal-body-layout">
+      <!-- SIDEBAR NAV -->
+      <aside class="portal-sidebar">
+        <div class="sidebar-menu">
+          <!-- CUSTOMER MENU COMMENTED OUT / REMOVED -->
+
+          <!-- TELLER MENU -->
+          <ng-container *ngIf="stateService.currentUser()?.role === 'Teller'">
+            <button class="sidebar-link" [class.active]="activeView === 'teller'" (click)="activeView = 'teller'">
+              <span class="material-icons">point_of_sale</span> Teller Desk
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'rates'" (click)="activeView = 'rates'">
+              <span class="material-icons">trending_up</span> Live Rates
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
+              <span class="material-icons">receipt_long</span> Payout Ledger
+            </button>
+          </ng-container>
+
+          <!-- COMPLIANCE MENU -->
+          <ng-container *ngIf="stateService.currentUser()?.role === 'Compliance Officer'">
+            <button class="sidebar-link" [class.active]="activeView === 'compliance'" (click)="activeView = 'compliance'">
+              <span class="material-icons">gavel</span> Compliance Queue
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
+              <span class="material-icons">policy</span> Audit Transactions
+            </button>
+          </ng-container>
+
+          <!-- MANAGER MENU -->
+          <ng-container *ngIf="stateService.currentUser()?.role === 'Branch Manager'">
+            <button class="sidebar-link" [class.active]="activeView === 'branch'" (click)="activeView = 'branch'">
+              <span class="material-icons">storefront</span> Manager Desk
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
+              <span class="material-icons">history</span> Branch History
+            </button>
+          </ng-container>
+
+          <!-- SYSTEM ADMIN MENU -->
+          <ng-container *ngIf="stateService.currentUser()?.role === 'System Admin'">
+            <button class="sidebar-link" [class.active]="activeView === 'system'" (click)="activeView = 'system'">
+              <span class="material-icons">settings</span> Admin Panel
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
+              <span class="material-icons">database</span> System Ledger
+            </button>
+          </ng-container>
+
+          <!-- FIELD AGENT MENU -->
+          <ng-container *ngIf="stateService.currentUser()?.role === 'Field Agent'">
+            <button class="sidebar-link" [class.active]="activeView === 'field'" (click)="activeView = 'field'">
+              <span class="material-icons">explore</span> Field Desk
+            </button>
+            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
+              <span class="material-icons">history</span> Field Payouts
+            </button>
+          </ng-container>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT WINDOW -->
+      <main class="dashboard-main">
+        
+        <!-- HERO BANNER SUMMARY CARD -->
+        <div class="hero-banner glass-card">
+          <div class="hero-text-content">
+            <h1>Welcome back, {{ stateService.currentUser()?.name }}</h1>
+            <p>Internal Admin Console &mdash; Active Role: <strong>{{ stateService.currentUser()?.role }}</strong>. Session fully logged under compliance protocols.</p>
+          </div>
+          <div class="kyc-badge-status verified" style="background: rgba(10, 88, 202, 0.15); color: #60a5fa;">
+            <span class="kyc-dot" style="background-color: #60a5fa;"></span> Staff ID: {{ stateService.currentUser()?.id }}
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: TELLER DESK                       -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'teller'" class="teller-desk-view">
+          <div style="margin-bottom: 1.5rem;">
+            <h2>Teller Operations Desk</h2>
+            <p>Process cash payouts, load pre-funded balances, and handle in-person customer document checks.</p>
+          </div>
+
+          <div class="split-pane-grid">
+            <!-- Left panel: Cash payout and pre-funded deposit -->
+            <div class="left-pane-column">
+              <!-- PIN Lookup / Payout -->
+              <div class="dashboard-section-header">
+                <h3>Voucher Cash Payout Release</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+                <div class="form-group">
+                  <label>Enter Voucher PIN or Reference</label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" [(ngModel)]="tellerSearchPin" placeholder="e.g. REM-8893-XWZ" class="form-input-modern" style="flex: 1;"/>
+                    <button class="btn btn-primary" (click)="tellerLookupPin()" style="padding: 0.5rem 1rem;">Lookup</button>
+                  </div>
+                </div>
+
+                <div class="auth-error" *ngIf="tellerSearchError">{{ tellerSearchError }}</div>
+
+                <!-- Found Txn details -->
+                <div *ngIf="tellerFoundTxn" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                  <h4 style="margin: 0 0 0.75rem 0;">Transaction details</h4>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between;"><span>Voucher ID:</span><strong>{{ tellerFoundTxn.id }}</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Customer:</span><strong>{{ tellerFoundTxn.customerName }}</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Payout Amount:</span><strong style="color: #22c55e;">${{ tellerFoundTxn.amount | number:'1.2-2' }} USD</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span>ZWG Equivalent:</span><strong>{{ tellerFoundTxn.amountLocal | number:'1.2-2' }} ZWG</strong></div>
+                    <div style="display: flex; justify-content: space-between;"><span>Payout Method:</span><strong>{{ tellerFoundTxn.payoutMethod }}</strong></div>
+                    <div style="display: flex; justify-content: space-between;">
+                      <span>Status:</span>
+                      <span class="status-chip" [ngClass]="tellerFoundTxn.status.toLowerCase()">{{ tellerFoundTxn.status }}</span>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 1.25rem;" *ngIf="tellerFoundTxn.status !== 'Completed' && tellerFoundTxn.status !== 'Failed'">
+                    <button class="btn btn-primary btn-block" (click)="tellerReleasePayout(tellerFoundTxn.id)">
+                      <span class="material-icons" style="font-size: 1.1rem; margin-right: 0.25rem;">payments</span> Release Cash Payout
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Deposit Form -->
+              <div class="dashboard-section-header">
+                <h3>Deposit to Customer Wallet</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="form-group">
+                  <label>Select Customer Profile</label>
+                  <select [(ngModel)]="tellerDepositCustomerId" class="form-select">
+                    <option *ngFor="let c of customers" [value]="c.id">{{ c.id }} &mdash; {{ c.name }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Amount to Deposit ($ USD)</label>
+                  <input type="number" [(ngModel)]="tellerDepositAmount" placeholder="e.g. 500" class="form-input-modern"/>
+                </div>
+                <button class="btn btn-secondary btn-block" (click)="tellerProcessDeposit()" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                  <span class="material-icons">add_circle</span> Process Deposit
+                </button>
+              </div>
+            </div>
+
+            <!-- Right panel: In-person verification -->
+            <div class="right-pane-column">
+              <div class="dashboard-section-header">
+                <h3>In-Person KYC Document Checklist</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="form-group">
+                  <label>Select Customer Profile</label>
+                  <select [(ngModel)]="tellerKycCustomerId" class="form-select">
+                    <option *ngFor="let c of customers" [value]="c.id">{{ c.id }} &mdash; {{ c.name }} (KYC: {{ c.kycStatus }})</option>
+                  </select>
+                </div>
+
+                <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                  <label class="payment-option" style="cursor: pointer; display: flex; align-items: center;">
+                    <input type="checkbox" [(ngModel)]="tellerKycChecklist.idVerified" style="margin-right: 0.75rem; width: 18px; height: 18px;"/>
+                    <div class="payment-option-text">
+                      <strong>Verify Original National ID/Passport</strong>
+                      <span>Check photo clarity and ensure document expiry is valid</span>
+                    </div>
+                  </label>
+
+                  <label class="payment-option" style="cursor: pointer; display: flex; align-items: center;">
+                    <input type="checkbox" [(ngModel)]="tellerKycChecklist.addressVerified" style="margin-right: 0.75rem; width: 18px; height: 18px;"/>
+                    <div class="payment-option-text">
+                      <strong>Verify Original Proof of Residence</strong>
+                      <span>Utility bill / lease agreement dated within last 3 months</span>
+                    </div>
+                  </label>
+
+                  <label class="payment-option" style="cursor: pointer; display: flex; align-items: center;">
+                    <input type="checkbox" [(ngModel)]="tellerKycChecklist.selfieVerified" style="margin-right: 0.75rem; width: 18px; height: 18px;"/>
+                    <div class="payment-option-text">
+                      <strong>Verify Face Match (Biometrics Scan)</strong>
+                      <span>Perform physical match check with document photo</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                  <button class="btn btn-primary btn-block" (click)="tellerSubmitKycVerification()">
+                    Submit Verification &amp; Approve KYC
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: COMPLIANCE QUEUE                  -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'compliance'" class="compliance-view">
+          <div style="margin-bottom: 1.5rem;">
+            <h2>Compliance &amp; AML Approvals Queue</h2>
+            <p>Perform sanctions matches vetting, review customer KYC documents, and override AML flags.</p>
+          </div>
+
+          <!-- Document Approvals list -->
+          <div class="dashboard-section-header">
+            <h3>Pending KYC Document Audits</h3>
+          </div>
+          <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); padding: 1.5rem; margin-bottom: 2rem;">
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name</th>
+                    <th>KYC Status</th>
+                    <th>Document Type</th>
+                    <th>Document View</th>
+                    <th>Document Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let c of customers">
+                    <tr *ngFor="let doc of c.documents">
+                      <td><strong>{{ c.name }}</strong> (ID: {{ c.id }})</td>
+                      <td>
+                        <span class="status-chip" [ngClass]="c.kycStatus.toLowerCase()">{{ c.kycStatus }}</span>
+                      </td>
+                      <td>{{ doc.type }}</td>
+                      <td>
+                        <a href="javascript:void(0)" class="btn-link" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                          <span class="material-icons" style="font-size: 1rem;">visibility</span> {{ doc.url }}
+                        </a>
+                      </td>
+                      <td>
+                        <span class="status-chip" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
+                      </td>
+                      <td>
+                        <div style="display: flex; gap: 0.25rem;" *ngIf="doc.status === 'Pending'">
+                          <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: rgba(34, 197, 94, 0.15); color: #4ade80;" (click)="complianceApproveDoc(c.id, doc.type)">Approve</button>
+                          <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.15); color: #f87171;" (click)="complianceRejectDoc(c.id, doc.type)">Reject</button>
+                        </div>
+                        <div *ngIf="doc.status !== 'Pending'">
+                          <span style="font-size: 0.75rem; opacity: 0.6;">Audited</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="split-pane-grid">
+            <!-- Sanctions Screening Form -->
+            <div class="left-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Sanctions Screening Search</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+                <div class="form-group">
+                  <label>Query Individual Name</label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" [(ngModel)]="complianceSearchName" placeholder="e.g. Edward Chimunasha" class="form-input-modern" style="flex: 1;"/>
+                    <button class="btn btn-primary" (click)="complianceScreenName()">Screen</button>
+                  </div>
+                </div>
+
+                <div class="skeleton-loader-wrapper" *ngIf="complianceVettingStatus === 'searching'" style="margin-top: 1rem;">
+                  <div class="skeleton-line" style="width: 100%;"></div>
+                </div>
+
+                <div *ngIf="complianceVettingStatus === 'match'" style="margin-top: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; font-size: 0.85rem; color: #f87171;">
+                  {{ complianceVettingResult }}
+                </div>
+                <div *ngIf="complianceVettingStatus === 'clear'" style="margin-top: 1rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 1rem; font-size: 0.85rem; color: #4ade80;">
+                  {{ complianceVettingResult }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Hold Release queue -->
+            <div class="right-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Hold Release &amp; AML Exceptions</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="table-responsive">
+                  <table class="ledger-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Amount</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let txn of transactions">
+                        <ng-container *ngIf="txn.status === 'Pending' || txn.flagReason">
+                          <td>{{ txn.id }}</td>
+                          <td>{{ txn.customerName }}</td>
+                          <td>${{ txn.amount }}</td>
+                          <td><span style="color: #f87171; font-size: 0.75rem;">{{ txn.flagReason || 'Daily Limit' }}</span></td>
+                          <td>
+                            <div style="display: flex; gap: 0.25rem;">
+                              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(34, 197, 94, 0.15); color: #4ade80;" (click)="complianceReleaseHold(txn.id)">Release</button>
+                              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(239, 68, 68, 0.15); color: #f87171;" (click)="complianceDeclineTxn(txn.id)">Block</button>
+                            </div>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: MANAGER DESK                      -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'branch'" class="manager-view">
+          <div style="margin-bottom: 1.5rem;">
+            <h2>Branch Manager Console</h2>
+            <p>Approve client refunds, verify daily limit overrides, and monitor branch cash vault liquidity levels.</p>
+          </div>
+
+          <div class="split-pane-grid">
+            <!-- Left panel: Refunds and Overrides -->
+            <div class="left-pane-column">
+              <!-- Refund Requests Queue -->
+              <div class="dashboard-section-header">
+                <h3>Refund Requests Queue</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+                <div class="table-responsive">
+                  <table class="ledger-table">
+                    <thead>
+                      <tr>
+                        <th>Client</th>
+                        <th>Refund</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let req of managerRefundRequests">
+                        <td>{{ req.customerName }}</td>
+                        <td><strong>${{ req.amount }}</strong></td>
+                        <td style="font-size: 0.75rem; opacity: 0.8;">{{ req.reason }}</td>
+                        <td>
+                          <span class="status-chip" [ngClass]="req.status.toLowerCase()">{{ req.status }}</span>
+                        </td>
+                        <td>
+                          <div style="display: flex; gap: 0.25rem;" *ngIf="req.status === 'Pending Approval'">
+                            <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(34, 197, 94, 0.15); color: #4ade80;" (click)="managerApproveRefund(req)">Approve</button>
+                            <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(239, 68, 68, 0.15); color: #f87171;" (click)="managerDeclineRefund(req)">Decline</button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Teller Limit Overrides -->
+              <div class="dashboard-section-header">
+                <h3>Daily Limit Overrides Queue</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="table-responsive">
+                  <table class="ledger-table">
+                    <thead>
+                      <tr>
+                        <th>Txn ID</th>
+                        <th>Client</th>
+                        <th>Amount</th>
+                        <th>Teller</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let txn of transactions">
+                        <ng-container *ngIf="txn.status === 'Pending' && txn.flagReason === 'Exceeds daily KYC limit'">
+                          <td>{{ txn.id }}</td>
+                          <td>{{ txn.customerName }}</td>
+                          <td><strong>${{ txn.amount | number:'1.2-2' }}</strong></td>
+                          <td>{{ txn.tellerId }}</td>
+                          <td>
+                            <div style="display: flex; gap: 0.25rem;">
+                              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(34, 197, 94, 0.15); color: #4ade80;" (click)="managerApproveOverride(txn.id)">Approve</button>
+                              <button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: rgba(239, 68, 68, 0.15); color: #f87171;" (click)="managerDeclineOverride(txn.id)">Reject</button>
+                            </div>
+                          </td>
+                        </ng-container>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right panel: Liquidity Monitor -->
+            <div class="right-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Branch Vault Liquidity levels</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="table-responsive">
+                  <table class="ledger-table">
+                    <thead>
+                      <tr>
+                        <th>Currency</th>
+                        <th>Balance</th>
+                        <th>Safety Threshold</th>
+                        <th>Status</th>
+                        <th>Replenish</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let l of stateService.branchLiquidity()">
+                        <td><strong>{{ l.currency }}</strong></td>
+                        <td [style.color]="l.balance < l.threshold ? '#f87171' : 'inherit'"><strong>{{ l.balance | number:'1.0-0' }}</strong></td>
+                        <td>{{ l.threshold | number:'1.0-0' }}</td>
+                        <td>
+                          <span class="status-chip" [ngClass]="l.balance < l.threshold ? 'failed' : 'completed'">
+                            {{ l.balance < l.threshold ? 'Critically Low' : 'Adequate' }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;" (click)="managerReplenishVault(l.currency)">
+                            <span class="material-icons" style="font-size: 0.9rem; vertical-align: middle;">download</span> Load
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: SYSTEM ADMIN PANEL                -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'system'" class="system-view">
+          <div style="margin-bottom: 1.5rem;">
+            <h2>System Administration Panel</h2>
+            <p>Update live interbank currency rates, edit transactional parameters, and override staff two-factor configurations.</p>
+          </div>
+
+          <!-- Forex rates board editor -->
+          <div class="dashboard-section-header">
+            <h3>Live Exchange Rate Board Editor</h3>
+          </div>
+          <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>Currency Pair</th>
+                    <th>Buy Rate</th>
+                    <th>Sell Rate</th>
+                    <th>Spread (%)</th>
+                    <th>Status</th>
+                    <th>Save Changes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let r of exchangeRates">
+                    <td><strong>{{ r.pair }}</strong></td>
+                    <td>
+                      <input type="number" [(ngModel)]="r.buyRate" step="0.01" class="form-input-modern" style="width: 100px; padding: 0.35rem; font-size: 0.85rem; text-align: center;"/>
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="r.sellRate" step="0.01" class="form-input-modern" style="width: 100px; padding: 0.35rem; font-size: 0.85rem; text-align: center;"/>
+                    </td>
+                    <td>
+                      <input type="number" [(ngModel)]="r.spread" step="0.1" class="form-input-modern" style="width: 80px; padding: 0.35rem; font-size: 0.85rem; text-align: center;"/>
+                    </td>
+                    <td>
+                      <span class="status-chip" [ngClass]="r.status === 'Live' ? 'completed' : 'pending'">{{ r.status }}</span>
+                    </td>
+                    <td>
+                      <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" (click)="saveRateUpdate(r, r.buyRate, r.sellRate, r.spread)">
+                        <span class="material-icons" style="font-size: 0.95rem; vertical-align: middle; margin-right: 0.25rem;">save</span> Save
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="split-pane-grid">
+            <!-- Global config configs -->
+            <div class="left-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Global Fees &amp; Taxes config</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="form-group">
+                  <label>Transaction Service Fee (%)</label>
+                  <input type="number" [(ngModel)]="sysConfigFeePct" step="0.05" class="form-input-modern"/>
+                </div>
+                <div class="form-group">
+                  <label>Minimum Flat Fee (ZWG)</label>
+                  <input type="number" [(ngModel)]="sysConfigMinFee" class="form-input-modern"/>
+                </div>
+                <div class="form-group">
+                  <label>RBZ Remittance Tax Rate (%)</label>
+                  <input type="number" [(ngModel)]="sysConfigTaxPct" step="0.05" class="form-input-modern"/>
+                </div>
+                <button class="btn btn-primary btn-block" (click)="sysSaveConfig()">
+                  Save Configuration parameters
+                </button>
+              </div>
+            </div>
+
+            <!-- Staff Recovery & 2fa overrides -->
+            <div class="right-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Staff Account Override Desk</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="table-responsive">
+                  <table class="ledger-table">
+                    <thead>
+                      <tr>
+                        <th>Staff Profile</th>
+                        <th>Role</th>
+                        <th>2FA Status</th>
+                        <th>Action Override</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let s of sysStaffUsers">
+                        <td><strong>{{ s.name }}</strong><br/><span style="font-size: 0.75rem; opacity: 0.7;">{{ s.email }}</span></td>
+                        <td style="font-size: 0.8rem;">{{ s.role }}</td>
+                        <td>
+                          <span class="status-chip completed" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;">Active</span>
+                        </td>
+                        <td>
+                          <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: rgba(245, 158, 11, 0.15); color: #fbbf24;" (click)="sysOverride2fa(s.id)">
+                            Reset Credentials
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: FIELD AGENT DESK                  -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'field'" class="field-view">
+          <div style="margin-bottom: 1.5rem;">
+            <h2>Field Agent Mobile Desk</h2>
+            <p>Register client profiles offline, cash-out vouchers, and sync cached entries when internet service is available.</p>
+          </div>
+
+          <div class="split-pane-grid">
+            <!-- Left panel: remote onboarding form -->
+            <div class="left-pane-column">
+              <div class="dashboard-section-header">
+                <h3>Remote Client Registration</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+                <div class="form-group-row">
+                  <div class="form-group">
+                    <label>Full Customer Name</label>
+                    <input type="text" [(ngModel)]="fieldOnboardingName" placeholder="e.g. Wellington Mutasa" class="form-input-modern"/>
+                  </div>
+                </div>
+
+                <div class="form-group-row two-col" style="display: flex; gap: 1rem;">
+                  <div class="form-group" style="flex: 1;">
+                    <label>Nationality</label>
+                    <input type="text" [(ngModel)]="fieldOnboardingNationality" placeholder="e.g. Zimbabwean" class="form-input-modern"/>
+                  </div>
+                  <div class="form-group" style="flex: 1;">
+                    <label>National ID Number</label>
+                    <input type="text" [(ngModel)]="fieldOnboardingId" placeholder="e.g. 63-998822-H-42" class="form-input-modern"/>
+                  </div>
+                </div>
+
+                <div class="form-group-row two-col" style="display: flex; gap: 1rem;">
+                  <div class="form-group" style="flex: 1;">
+                    <label>Phone Number</label>
+                    <input type="text" [(ngModel)]="fieldOnboardingPhone" placeholder="e.g. +263 77 999 8888" class="form-input-modern"/>
+                  </div>
+                  <div class="form-group" style="flex: 1;">
+                    <label>Occupation</label>
+                    <input type="text" [(ngModel)]="fieldOnboardingOccupation" placeholder="e.g. Agronomist" class="form-input-modern"/>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" (click)="fieldOnboardSubmit()">
+                  {{ isOfflineMode ? 'Queue Registration (Offline)' : 'Register Customer Profile' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Right panel: offline mode & voucher payout -->
+            <div class="right-pane-column">
+              <!-- Offline Mode Simulation -->
+              <div class="dashboard-section-header">
+                <h3>Offline Mode Sync Panel</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                  <div>
+                    <h4 style="margin: 0;">Connection Status</h4>
+                    <span style="font-size: 0.8rem; opacity: 0.8;">{{ isOfflineMode ? 'OFFLINE (Caching local profiles)' : 'ONLINE (Direct database connections)' }}</span>
+                  </div>
+                  <button class="btn" [ngClass]="isOfflineMode ? 'btn-primary' : 'btn-secondary'" (click)="fieldToggleOfflineMode()" style="padding: 0.4rem 0.8rem;">
+                    {{ isOfflineMode ? 'Go Online' : 'Go Offline' }}
+                  </button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                  <div>
+                    <h5 style="margin: 0; font-size: 0.85rem;">Cached Profile Registry Queue</h5>
+                    <span style="font-size: 0.80rem; opacity: 0.75;">{{ offlineOnboardingQueue.length }} client records pending synchronization</span>
+                  </div>
+                  <button class="btn btn-secondary" [disabled]="offlineOnboardingQueue.length === 0 || isOfflineMode" (click)="fieldSyncQueue()" style="padding: 0.4rem 0.8rem;">
+                    Sync Database
+                  </button>
+                </div>
+              </div>
+
+              <!-- Rural voucher payout lookup -->
+              <div class="dashboard-section-header">
+                <h3>Remote Payout Voucher Cash-Out</h3>
+              </div>
+              <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color);">
+                <div class="form-group">
+                  <label>Voucher Code Reference</label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" [(ngModel)]="fieldVoucherId" placeholder="e.g. REM-8893-XWZ" class="form-input-modern" style="flex: 1;"/>
+                    <button class="btn btn-primary" (click)="fieldLookupVoucher()" style="padding: 0.5rem 1rem;">Lookup</button>
+                  </div>
+                </div>
+
+                <div class="auth-error" *ngIf="fieldVoucherError">{{ fieldVoucherError }}</div>
+
+                <div *ngIf="fieldFoundTxn" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; margin-bottom: 1rem;">
+                    <div>Voucher ID: <strong>{{ fieldFoundTxn.id }}</strong></div>
+                    <div>Recipient: <strong>{{ fieldFoundTxn.customerName }}</strong></div>
+                    <div>Amount: <strong style="color: #22c55e;">${{ fieldFoundTxn.amount }} USD</strong></div>
+                    <div>Status: <span class="status-chip" [ngClass]="fieldFoundTxn.status.toLowerCase()">{{ fieldFoundTxn.status }}</span></div>
+                  </div>
+                  <button class="btn btn-primary btn-block" *ngIf="fieldFoundTxn.status !== 'Completed'" (click)="fieldReleasePayout(fieldFoundTxn.id)">
+                    Release Field Payout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: CUSTOMER MANAGEMENT SYSTEM (HOME) -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'home'" class="customers-wrapper anim-fade-in" style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
+          <!-- HEADER ACTIONS -->
+          <div class="page-actions-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--card-border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">Customer Management System</h2>
+            <div class="tabs-banking" style="display: flex; gap: 0.5rem;">
+              <div class="tab-item" [class.active]="activeCustomerTab() === 'list'" (click)="setCustomerTab('list')" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600;">Customer Directory</div>
+              <div class="tab-item" [class.active]="activeCustomerTab() === 'register'" (click)="setCustomerTab('register')" style="cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600;">Register New Customer</div>
+            </div>
+          </div>
+
+          <!-- TAB 1: CUSTOMER DIRECTORY LIST -->
+          <div class="tab-content" *ngIf="activeCustomerTab() === 'list'">
+            <!-- SEARCH & FILTER BAR -->
+            <div class="directory-filter-bar card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); margin-bottom: 1.5rem; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-radius: 8px;">
+              <div class="search-box" style="position: relative; display: flex; align-items: center; width: 320px;">
+                <span class="material-icons" style="position: absolute; left: 12px; color: var(--text-color-secondary);">search</span>
+                <input type="text" placeholder="Search by name, ID, email..." [(ngModel)]="searchQuery" class="form-input-modern" style="padding-left: 2.5rem; width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color);"/>
+              </div>
+              
+              <div class="filters" style="display: flex; gap: 1rem;">
+                <select class="form-select" [(ngModel)]="filterKyc" style="width: 180px; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color);">
+                  <option value="ALL">All KYC Statuses</option>
+                  <option value="Approved">Approved Only</option>
+                  <option value="Pending">Pending Only</option>
+                  <option value="Rejected">Rejected Only</option>
+                </select>
+
+                <select class="form-select" [(ngModel)]="sortField" style="width: 180px; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color);">
+                  <option value="name">Sort by Name</option>
+                  <option value="date">Sort by Reg Date</option>
+                  <option value="balance">Sort by Savings Balance</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- ENTERPRISE CUSTOMERS TABLE -->
+            <div class="table-container card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); padding: 0.5rem; border-radius: 8px;">
+              <div class="table-responsive">
+                <table class="ledger-table" style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="border-bottom: 2px solid var(--card-border); text-align: left;">
+                      <th style="padding: 0.75rem;">Customer ID</th>
+                      <th style="padding: 0.75rem;">Full Name</th>
+                      <th style="padding: 0.75rem;">Contact Info</th>
+                      <th style="padding: 0.75rem;">ID Number</th>
+                      <th style="padding: 0.75rem;">KYC Status</th>
+                      <th style="padding: 0.75rem;">Savings Balance</th>
+                      <th style="padding: 0.75rem;">Loan Balance</th>
+                      <th style="padding: 0.75rem;">Reg Date</th>
+                      <th style="padding: 0.75rem;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let cust of filteredCustomersList" (click)="selectCustomer(cust)" style="cursor: pointer; border-bottom: 1px solid var(--card-border);" class="table-row-hover">
+                      <td style="padding: 0.75rem;"><strong>{{ cust.id }}</strong></td>
+                      <td style="padding: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <div class="avatar-circle" style="width: 28px; height: 28px; font-size: 0.8rem; margin: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #3B82F6; color: #ffffff; font-weight: bold;">{{ cust.name.charAt(0) }}</div>
+                          <span>{{ cust.name }}</span>
+                        </div>
+                      </td>
+                      <td style="padding: 0.75rem;">
+                        <div style="display: flex; flex-direction: column; font-size: 0.8rem;">
+                          <strong>{{ cust.phone }}</strong>
+                          <span style="opacity: 0.7;">{{ cust.email }}</span>
+                        </div>
+                      </td>
+                      <td style="padding: 0.75rem;">{{ cust.idNumber }} <small style="opacity: 0.7;">({{ cust.idType }})</small></td>
+                      <td style="padding: 0.75rem;">
+                        <span class="status-chip" [ngClass]="cust.kycStatus.toLowerCase()">
+                          {{ cust.kycStatus }}
+                        </span>
+                      </td>
+                      <td style="padding: 0.75rem;"><strong>$ {{ cust.savingsBalance | number:'1.2-2' }}</strong></td>
+                      <td style="padding: 0.75rem;"><strong style="color: #ef4444;">$ {{ cust.loanBalance | number:'1.2-2' }}</strong></td>
+                      <td style="padding: 0.75rem;">{{ cust.registeredAt | date:'mediumDate' }}</td>
+                      <td style="padding: 0.75rem;">
+                        <button class="btn btn-secondary btn-sm" (click)="selectCustomer(cust); $event.stopPropagation()">
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="filteredCustomersList.length === 0">
+                      <td colspan="9" style="text-align: center; padding: 2rem;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0.7;">
+                          <span class="material-icons" style="font-size: 3rem;">info</span>
+                          <p>No customers found matching the parameters</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: STEPPER REGISTRATION WIZARD -->
+          <div class="tab-content" *ngIf="activeCustomerTab() === 'register'">
+            <div class="card-banking glass-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); padding: 2rem; border-radius: 8px;">
+              <!-- Stepper Header -->
+              <div class="progress-timeline" style="display: flex; justify-content: space-around; margin-bottom: 2rem; border-bottom: 1px solid var(--card-border); padding-bottom: 1.5rem;">
+                <div class="timeline-node" [class.active]="wizardStep() === 1" [class.completed]="wizardStep() > 1" (click)="goToStep(1)" style="cursor: pointer; text-align: center; flex: 1;">
+                  <div class="node-circle" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: bold; background: #3B82F6; color: #ffffff;">1</div>
+                  <span>Personal Details</span>
+                </div>
+                <div class="timeline-node" [class.active]="wizardStep() === 2" [class.completed]="wizardStep() > 2" (click)="goToStep(2)" style="cursor: pointer; text-align: center; flex: 1;">
+                  <div class="node-circle" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: bold; background: #94A3B8; color: #ffffff;">2</div>
+                  <span>KYC Documents</span>
+                </div>
+                <div class="timeline-node" [class.active]="wizardStep() === 3" [class.completed]="wizardStep() > 3" (click)="goToStep(3)" style="cursor: pointer; text-align: center; flex: 1;">
+                  <div class="node-circle" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: bold; background: #94A3B8; color: #ffffff;">3</div>
+                  <span>Review &amp; Submit</span>
+                </div>
+              </div>
+
+              <!-- Auto-Save Ticker Indicator -->
+              <div class="autosave-ticker" *ngIf="isFormAutosaving()" style="color: #22c55e; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.25rem; font-size: 0.85rem;">
+                <span class="live-dot" style="background-color: #22c55e; width: 6px; height: 6px; border-radius: 50%; display: inline-block;"></span>
+                <span>Saving draft...</span>
+              </div>
+
+              <!-- Wizard Step Content -->
+              <div class="wizard-step-content">
+                <!-- Step 1: Personal Details Form -->
+                <form [formGroup]="personalForm" *ngIf="wizardStep() === 1" (submit)="$event.preventDefault();">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Full Name *</label>
+                      <input type="text" class="form-input-modern" formControlName="name" placeholder="Tawanda Chiimbira" (input)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;"/>
+                      <div style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" *ngIf="personalForm.get('name')?.touched && personalForm.get('name')?.invalid">Name is required</div>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Email Address *</label>
+                      <input type="email" class="form-input-modern" formControlName="email" placeholder="t.chiimbira@gmail.com" (input)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;"/>
+                      <div style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" *ngIf="personalForm.get('email')?.touched && personalForm.get('email')?.invalid">Valid email is required</div>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Phone Number *</label>
+                      <input type="text" class="form-input-modern" formControlName="phone" placeholder="+263 77 123 4567" (input)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Gender *</label>
+                      <select class="form-select" formControlName="gender" (change)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Date of Birth *</label>
+                      <input type="date" class="form-input-modern" formControlName="dob" (change)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">ID Document Type *</label>
+                      <select class="form-select" formControlName="idType" (change)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;">
+                        <option value="National ID">National ID Card</option>
+                        <option value="Passport">International Passport</option>
+                        <option value="Driver License">Driver's License</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">ID Document Number *</label>
+                      <input type="text" class="form-input-modern" formControlName="idNumber" placeholder="e.g. 18-2006339-B-07" (input)="onIdInput($event)" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;"/>
+                    </div>
+
+                    <div class="form-group">
+                      <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Branch Assignment *</label>
+                      <select class="form-select" formControlName="branchId" (change)="triggerAutoSave()" style="width: 100%; height: 38px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0 0.75rem;">
+                        <option value="BR-101">Harare Central Branch</option>
+                        <option value="BR-102">Bulawayo Branch</option>
+                        <option value="BR-103">Mutare Branch</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Residential / Business Address *</label>
+                    <textarea class="form-input-modern" formControlName="address" rows="3" placeholder="74 Borrowdale Rd, Harare..." (input)="triggerAutoSave()" style="width: 100%; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0.5rem 0.75rem; resize: none;"></textarea>
+                  </div>
+
+                  <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                    <button type="button" class="btn btn-primary" [disabled]="personalForm.invalid" (click)="goToStep(2)">
+                      Continue to KYC
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Step 2: KYC Documents Upload -->
+                <div *ngIf="wizardStep() === 2">
+                  <p style="opacity: 0.8; font-size: 0.9rem; margin-bottom: 1.5rem;">Please upload verification scans of the registration documents. Supports PDF, JPEG, PNG.</p>
+                  
+                  <div style="border: 2px dashed var(--card-border); background: rgba(0,0,0,0.02); border-radius: 8px; padding: 2.5rem; text-align: center; cursor: pointer; position: relative;">
+                    <span class="material-icons" style="font-size: 3rem; color: var(--text-color-secondary); margin-bottom: 0.75rem;">cloud_upload</span>
+                    <h4>Drag and drop ID Scan files here</h4>
+                    <p style="opacity: 0.7; font-size: 0.85rem;">or click to browse your desktop computer</p>
+                    <input type="file" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" (change)="onFileUploaded($event)" />
+                  </div>
+
+                  <!-- Uploaded files list -->
+                  <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div *ngFor="let f of uploadedFiles()" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 0.75rem 1rem; border-radius: 6px;">
+                      <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-icons" style="font-size: 1.2rem;">description</span>
+                        <strong>{{ f.name }}</strong>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-size: 0.8rem; opacity: 0.7;">{{ f.size }}</span>
+                        <button class="btn btn-secondary btn-sm" (click)="removeUploadedFile(f.name)" style="color: #ef4444;">Remove</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                    <button type="button" class="btn btn-secondary" (click)="goToStep(1)">Back</button>
+                    <button type="button" class="btn btn-primary" (click)="goToStep(3)">Continue to Review</button>
+                  </div>
+                </div>
+
+                <!-- Step 3: Review & Submit -->
+                <div *ngIf="wizardStep() === 3">
+                  <h4 style="margin-bottom: 1rem;">Review Customer Profile Information</h4>
+                  
+                  <div style="background: rgba(0,0,0,0.02); padding: 1.5rem; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    <div><span style="opacity: 0.7;">Name:</span> <strong>{{ personalForm.value.name }}</strong></div>
+                    <div><span style="opacity: 0.7;">Email:</span> <strong>{{ personalForm.value.email }}</strong></div>
+                    <div><span style="opacity: 0.7;">Phone:</span> <strong>{{ personalForm.value.phone }}</strong></div>
+                    <div><span style="opacity: 0.7;">Gender:</span> <strong>{{ personalForm.value.gender }}</strong></div>
+                    <div><span style="opacity: 0.7;">Date of Birth:</span> <strong>{{ personalForm.value.dob }}</strong></div>
+                    <div><span style="opacity: 0.7;">ID Details:</span> <strong>{{ personalForm.value.idType }} - {{ personalForm.value.idNumber }}</strong></div>
+                    <div style="grid-column: span 2;"><span style="opacity: 0.7;">Address:</span> <strong>{{ personalForm.value.address }}</strong></div>
+                  </div>
+
+                  <div style="margin-bottom: 1.5rem;">
+                    <h5 style="margin-bottom: 0.5rem;">Uploaded KYC Files:</h5>
+                    <ul style="padding-left: 1.5rem; font-size: 0.9rem;">
+                      <li *ngFor="let f of uploadedFiles()">{{ f.name }} ({{ f.size }})</li>
+                      <li *ngIf="uploadedFiles().length === 0" style="opacity: 0.6; list-style-type: none;">No documents uploaded. Profile KYC status will default to "Pending".</li>
+                    </ul>
+                  </div>
+
+                  <div style="display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border);">
+                    <button type="button" class="btn btn-secondary" (click)="goToStep(2)">Back</button>
+                    <button type="button" class="btn btn-primary" (click)="submitCustomer()">Complete Registration</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: MY TRANSACTIONS                   -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'transactions'" class="transactions-view">
+          <div class="transactions-view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+              <h2>Transactional History Ledger</h2>
+              <p>Complete historical ledger of all customer exchange and remittance operations.</p>
+            </div>
+            <button class="btn btn-secondary btn-sm" (click)="generatePdfReport()" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+              <span class="material-icons" style="font-size: 1.1rem;">description</span> Export PDF Report
+            </button>
+          </div>
+
+          <div class="card-banking glass-card ledger-card" style="background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-color); padding: 0.5rem;">
+            <div class="table-responsive">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>Voucher ID</th>
+                    <th>Type</th>
+                    <th>Customer Name</th>
+                    <th>Sent Amount</th>
+                    <th>Payout Amount</th>
+                    <th>Rate</th>
+                    <th>Fees Paid</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let txn of transactions">
+                    <td class="voucher-id">{{ txn.id }}</td>
+                    <td>
+                      <span class="txn-type-cell">
+                        <span class="material-icons txn-icon exchange-icon" *ngIf="txn.type === 'Exchange'" style="font-size: 1.1rem; margin-right: 0.25rem; vertical-align: middle;">currency_exchange</span>
+                        <span class="material-icons txn-icon remittance-icon" *ngIf="txn.type === 'Remittance'" style="font-size: 1.1rem; margin-right: 0.25rem; vertical-align: middle;">send</span>
+                        {{ txn.type }}
+                      </span>
+                    </td>
+                    <td>{{ txn.customerName }}</td>
+                    <td>{{ getCurrencySymbol(txn.currencyPair || '') }}{{ txn.amount | number:'1.2-2' }}</td>
+                    <td class="local-amount">{{ txn.amountLocal | number:'1.2-2' }}</td>
+                    <td>{{ txn.rate }}</td>
+                    <td>{{ txn.fee | number:'1.2-2' }}</td>
+                    <td class="date-col">{{ txn.timestamp | date:'short' }}</td>
+                    <td>
+                      <span class="status-chip" [ngClass]="txn.status.toLowerCase()">{{ txn.status }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: EXCHANGE MONEY (DISABLED)         -->
+        <!-- ======================================= -->
+        <div *ngIf="false && activeView === 'exchange'" class="module-view">
+          <div class="module-view-header" style="margin-bottom: 1.5rem;">
+            <h2>Wallet Currency Exchange</h2>
+            <p>Perform real-time wallet conversions between USD, ZAR and ZWG instantly.</p>
+          </div>
+
+          <div class="receipt-card glass-card" *ngIf="exConfirmed" style="max-width: 500px; margin: 0 auto; padding: 2rem; text-align: center;">
+            <div class="receipt-icon success" style="margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+              <span class="material-icons" style="font-size: 2.2rem;">check_circle</span>
+            </div>
+            <h3>Exchange Transaction Confirmed!</h3>
+            <p style="opacity: 0.8; font-size: 0.9rem; margin-bottom: 1.5rem;">Wallet balance updated and conversion posted to ledger.</p>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Receipt ID:</span><strong>{{ exReceiptId }}</strong></div>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Converted Amount:</span><strong>{{ exAmount | number:'1.2-2' }} {{ exFromCurrency }}</strong></div>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Received Payout:</span><strong>{{ exResult?.net | number:'1.2-2' }} {{ exToCurrency }}</strong></div>
+            <button class="btn btn-primary btn-block" style="margin-top: 1.5rem;" (click)="resetExchange()">New Exchange Conversion</button>
+          </div>
+
+          <div class="exchange-form-card glass-card" *ngIf="!exConfirmed" style="max-width: 550px; margin: 0 auto; padding: 2rem;">
+            <div class="ex-currency-row" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+              <div class="ex-currency-block" style="flex: 1;">
+                <label>From Currency</label>
+                <select [(ngModel)]="exFromCurrency" class="form-select">
+                  <option *ngFor="let c of currencies" [value]="c.code">{{ c.code }} &mdash; {{ c.name }}</option>
+                </select>
+              </div>
+              <button class="swap-btn" (click)="swapExCurrencies()" style="margin-top: 1.5rem; padding: 0.5rem;" title="Swap Currencies">
+                <span class="material-icons">swap_horiz</span>
+              </button>
+              <div class="ex-currency-block" style="flex: 1;">
+                <label>To Currency</label>
+                <select [(ngModel)]="exToCurrency" class="form-select">
+                  <option *ngFor="let c of currencies" [value]="c.code">{{ c.code }} &mdash; {{ c.name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Amount to Exchange</label>
+              <input type="number" [(ngModel)]="exAmount" placeholder="100.00" class="form-input-modern"/>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; font-size: 0.85rem; opacity: 0.9; display: flex; align-items: center; gap: 0.25rem;">
+              <span class="material-icons" style="font-size: 1.1rem; color: #3B82F6;">info</span>
+              Live market conversion: 1 {{ exFromCurrency }} = {{ exComputedRate | number:'1.4-4' }} {{ exToCurrency }}
+            </div>
+
+            <button class="btn btn-primary btn-block" (click)="previewExchange()" *ngIf="!exResult">Preview Exchange</button>
+
+            <div class="ex-result-panel" *ngIf="exResult" style="background: rgba(255,255,255,0.03); padding: 1.25rem; border-radius: 8px; margin-top: 1.5rem;">
+              <div class="ex-result-headline" style="text-align: center; font-size: 1.1rem; font-weight: bold; margin-bottom: 1rem;">
+                Receive Payout: <span style="color: #3B82F6;">{{ exResult.net | number:'1.2-2' }} {{ exToCurrency }}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+                <div style="display: flex; justify-content: space-between;"><span>Conversion Rate:</span><span>1 {{ exFromCurrency }} = {{ exResult.rate | number:'1.4-4' }} {{ exToCurrency }}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Service Charge (0.5%):</span><span>&minus; {{ exResult.fee | number:'1.2-2' }} {{ exToCurrency }}</span></div>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem;">
+                <button class="btn btn-secondary" style="flex: 1;" (click)="exResult = null">Edit</button>
+                <button class="btn btn-primary" style="flex: 1;" (click)="confirmExchange()">Confirm conversion</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: TRANSFER MONEY (DISABLED)         -->
+        <!-- ======================================= -->
+        <div *ngIf="false && activeView === 'transfer'" class="module-view">
+          <div class="module-view-header" style="margin-bottom: 1.5rem;">
+            <h2>Wallet Remittance Transfer</h2>
+            <p>Send funds to registered CCF accounts or schedule voucher pickups at branch locations.</p>
+          </div>
+
+          <div class="receipt-card glass-card" *ngIf="transferConfirmed" style="max-width: 500px; margin: 0 auto; padding: 2rem; text-align: center;">
+            <div class="receipt-icon success" style="margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+              <span class="material-icons" style="font-size: 2.2rem;">check_circle</span>
+            </div>
+            <h3>Remittance Sent successfully!</h3>
+            <p style="opacity: 0.8; font-size: 0.9rem; margin-bottom: 1.5rem;">The recipient can claim payout using the voucher reference below.</p>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Voucher Code:</span><strong>{{ transferReceiptId }}</strong></div>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Recipient ID:</span><strong>{{ transferRecipientId }}</strong></div>
+            <div class="receipt-detail-row" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;"><span>Sent Amount:</span><strong>{{ transferAmount | number:'1.2-2' }} {{ transferCurrency }}</strong></div>
+            <button class="btn btn-primary btn-block" style="margin-top: 1.5rem;" (click)="resetTransfer()">Submit New Transfer</button>
+          </div>
+
+          <div class="exchange-form-card glass-card" *ngIf="!transferConfirmed" style="max-width: 550px; margin: 0 auto; padding: 2rem;">
+            <div class="form-group">
+              <label>Recipient ID or Phone Number</label>
+              <input type="text" [(ngModel)]="transferRecipientId" placeholder="e.g. CUST-002 or +263 77 999 8888" class="form-input-modern"/>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+              <div class="form-group" style="flex: 1;">
+                <label>Amount to Send</label>
+                <input type="number" [(ngModel)]="transferAmount" placeholder="100.00" class="form-input-modern"/>
+              </div>
+              <div class="form-group" style="flex: 1;">
+                <label>Currency</label>
+                <select [(ngModel)]="transferCurrency" class="form-select">
+                  <option *ngFor="let c of currencies" [value]="c.code">{{ c.code }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Notes (optional)</label>
+              <input type="text" [(ngModel)]="transferNote" placeholder="e.g. School fees" class="form-input-modern"/>
+            </div>
+
+            <div class="auth-error" *ngIf="transferError">{{ transferError }}</div>
+
+            <button class="btn btn-primary btn-block" (click)="submitTransfer()">Send Remittance</button>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: RECEIVE MONEY (DISABLED)          -->
+        <!-- ======================================= -->
+        <div *ngIf="false && activeView === 'receive'" class="module-view">
+          <div class="module-view-header" style="margin-bottom: 1.5rem;">
+            <h2>Inbound Remittance Transfers</h2>
+            <p>Monitor pending inbound transfers and claim voucher payouts.</p>
+          </div>
+
+          <div class="regulatory-disclaimer-banner" style="background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+            <span class="material-icons" style="color: #f59e0b; font-size: 1.4rem; margin-top: 0.1rem;">gavel</span>
+            <div style="font-size: 0.825rem; line-height: 1.45; color: var(--text-color-primary);">
+              <strong style="color: #f59e0b;">Compliance Notice:</strong> This portal displays inbound remittance bookings routed via our foreign exchange platform. Direct customer-to-customer peer-to-peer (P2P) transfers are flagged as a future payments service capability, subject to receiving a Payment Service Provider (PSP) license and regulatory approval from the RBZ.
+            </div>
+          </div>
+
+          <div class="incoming-list">
+            <div class="incoming-empty" *ngIf="incomingTransfers.length === 0" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 2rem;">
+              <span class="material-icons" style="font-size: 3rem; color: #94a3b8;">info</span>
+              <p>No incoming transfers at the moment.</p>
+            </div>
+
+            <div class="incoming-card glass-card" *ngFor="let t of incomingTransfers" style="margin-bottom: 1rem; padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h4 style="margin: 0;">Inbound Transfer Code: {{ t.id }}</h4>
+                  <span style="font-size: 0.8rem; opacity: 0.8;">From Sender ID: {{ t.tellerId }} (Harare Central)</span>
+                </div>
+                <div style="text-align: right;">
+                  <strong style="font-size: 1.25rem; color: #22c55e;">${{ t.amount | number:'1.2-2' }} USD</strong>
+                  <div style="font-size: 0.75rem; opacity: 0.7;">Payout: {{ t.amountLocal | number:'1.2-2' }} ZWG</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem; display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.9;">
+                <span>Timestamp: {{ t.timestamp | date:'short' }}</span>
+                <span>Status: <span class="status-chip" [ngClass]="t.status.toLowerCase()">{{ t.status }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- VIEW: LIVE RATES                        -->
+        <!-- ======================================= -->
+        <div *ngIf="activeView === 'rates'" class="module-view">
+          <div class="module-view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+              <h2>Live Forex Conversion Rates</h2>
+              <p>Official interbank exchange rates updated in real time by System Admin.</p>
+            </div>
+            <span class="live-rates-badge" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+              <span class="live-dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; margin-right: 0.25rem; animation: pulse 1.5s infinite;"></span> Live Rates Active
+            </span>
+          </div>
+
+          <div class="rates-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="rate-card glass-card" *ngFor="let rate of exchangeRates" style="padding: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <strong style="font-size: 1.1rem; letter-spacing: 0.5px;">{{ rate.pair }}</strong>
+                <span class="status-chip completed" style="font-size: 0.75rem;">{{ rate.status }}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <span>Teller Buying Rate:</span>
+                <strong>{{ rate.buyRate | number:'1.2-4' }}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                <span>Teller Selling Rate:</span>
+                <strong>{{ rate.sellRate | number:'1.2-4' }}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <span>Interbank Spread:</span>
+                <strong>{{ rate.spread }}%</strong>
+              </div>
+              <span style="display: block; font-size: 0.7rem; opacity: 0.6; margin-top: 1rem; text-align: right;">Updated: {{ rate.lastUpdated | date:'shortTime' }}</span>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- CUSTOMER DETAIL SLIDE-OUT DRAWER -->
+  <div class="modal-overlay" *ngIf="selectedCustomer()" (click)="closeCustomerDetails()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1500; display: flex; justify-content: flex-end;">
+    <div class="drawer-content glass-card" (click)="$event.stopPropagation()" style="width: 500px; height: 100%; background: var(--card-bg); border-left: 1px solid var(--card-border); color: var(--text-color); display: flex; flex-direction: column; animation: slideInLeft 0.3s ease; padding: 0;">
+      <div class="drawer-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--card-border);">
+        <h3 style="margin: 0;">Customer Folder</h3>
+        <button class="btn-close" (click)="closeCustomerDetails()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color);">&times;</button>
+      </div>
+
+      <div class="drawer-body" *ngIf="selectedCustomer() as cust" style="flex: 1; overflow-y: auto; padding: 1.5rem;">
+        <!-- Summary Banner -->
+        <div class="customer-banner" style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); margin-bottom: 1.5rem;">
+          <div class="avatar-circle" style="width: 48px; height: 48px; font-size: 1.25rem; margin: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #3B82F6; color: #ffffff; font-weight: bold;">{{ cust.name.charAt(0) }}</div>
+          <div class="meta">
+            <h4 style="margin: 0 0 0.25rem 0;">{{ cust.name }}</h4>
+            <span style="font-size: 0.8rem; opacity: 0.8;">
+              {{ cust.id }} &bull; 
+              <span class="status-chip" [ngClass]="cust.kycStatus.toLowerCase()">{{ cust.kycStatus }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Balances Widgets -->
+        <div class="drawer-section" style="margin-bottom: 1.5rem;">
+          <h5 style="margin-top: 0; margin-bottom: 0.75rem;">Financial Portfolio</h5>
+          <div class="financial-widgets" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+            <div class="widget bg-light" style="background: rgba(0,0,0,0.02); padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column;">
+              <span style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase;">Savings Deposits</span>
+              <strong style="font-size: 0.9rem; margin-top: 0.25rem;">$ {{ cust.savingsBalance | number:'1.2-2' }}</strong>
+            </div>
+            <div class="widget bg-light" style="background: rgba(0,0,0,0.02); padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column;">
+              <span style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase;">Outstanding Loan</span>
+              <strong style="font-size: 0.9rem; margin-top: 0.25rem; color: #ef4444;">$ {{ cust.loanBalance | number:'1.2-2' }}</strong>
+            </div>
+            <div class="widget bg-light" style="background: rgba(0,0,0,0.02); padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column;">
+              <span style="font-size: 0.65rem; opacity: 0.7; text-transform: uppercase;">Wallet Balance</span>
+              <strong style="font-size: 0.9rem; margin-top: 0.25rem;">$ {{ (cust.walletBalance || 0) | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab details inside Drawer -->
+        <div class="tabs-banking" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">
+          <div class="tab-item" [class.active]="drawerTab() === 'profile'" (click)="drawerTab.set('profile')" style="cursor: pointer; padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">Details</div>
+          <div class="tab-item" [class.active]="drawerTab() === 'kyc'" (click)="drawerTab.set('kyc')" style="cursor: pointer; padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">KYC Docs</div>
+          <div class="tab-item" [class.active]="drawerTab() === 'notes'" (click)="drawerTab.set('notes')" style="cursor: pointer; padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">Notes ({{ cust.notes?.length || 0 }})</div>
+          <div class="tab-item" [class.active]="drawerTab() === 'timeline'" (click)="drawerTab.set('timeline')" style="cursor: pointer; padding: 0.25rem 0.5rem; font-size: 0.85rem; font-weight: 600;">Timeline</div>
+        </div>
+
+        <div class="drawer-tab-content" style="font-size: 0.9rem;">
+          <!-- PROFILE DETAILS -->
+          <div *ngIf="drawerTab() === 'profile'" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">Phone:</span> <strong>{{ cust.phone }}</strong></div>
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">Email:</span> <strong>{{ cust.email }}</strong></div>
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">ID Card:</span> <strong>{{ cust.idType }} ({{ cust.idNumber }})</strong></div>
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">Gender/DOB:</span> <strong>{{ cust.gender }} / {{ cust.dob }}</strong></div>
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">Address:</span> <strong>{{ cust.address }}</strong></div>
+            <div><span style="opacity: 0.7; width: 120px; display: inline-block;">Registered At:</span> <strong>{{ cust.registeredAt | date:'medium' }}</strong></div>
+          </div>
+
+          <!-- KYC DOCS -->
+          <div *ngIf="drawerTab() === 'kyc'" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div *ngFor="let doc of cust.documents" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02); padding: 0.5rem 0.75rem; border-radius: 6px;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="material-icons" style="font-size: 1.1rem;">description</span>
+                <span>{{ doc.type }}</span>
+              </div>
+              <span class="status-chip" [ngClass]="doc.status.toLowerCase()">{{ doc.status }}</span>
+            </div>
+            <div *ngIf="!cust.documents || cust.documents.length === 0" style="opacity: 0.6; padding: 1rem; text-align: center;">No documents uploaded.</div>
+          </div>
+
+          <!-- NOTES -->
+          <div *ngIf="drawerTab() === 'notes'" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <textarea class="form-input-modern" placeholder="Write banking note..." rows="2" [(ngModel)]="newNoteContent" style="resize: none; width: 100%; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); padding: 0.5rem;"></textarea>
+              <button class="btn btn-primary btn-sm" (click)="addCustomerNote()" style="align-self: flex-end;">Add Note</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding-right: 0.25rem;">
+              <div *ngFor="let note of cust.notes" style="background: rgba(0,0,0,0.02); padding: 0.75rem; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.7; margin-bottom: 0.25rem;">
+                  <strong>{{ note.author }}</strong>
+                  <span>{{ note.date | date:'shortDate' }}</span>
+                </div>
+                <p style="margin: 0; font-size: 0.85rem;">{{ note.content }}</p>
+              </div>
+              <div *ngIf="!cust.notes || cust.notes.length === 0" style="opacity: 0.6; text-align: center; padding: 1rem;">No notes recorded yet.</div>
+            </div>
+          </div>
+
+          <!-- TIMELINE -->
+          <div *ngIf="drawerTab() === 'timeline'" style="display: flex; flex-direction: column; gap: 1rem; padding-left: 1rem; border-left: 2px solid var(--card-border);">
+            <div *ngFor="let event of cust.timeline" style="position: relative;">
+              <div style="position: absolute; left: -21px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: #3B82F6;"></div>
+              <div style="font-size: 0.75rem; opacity: 0.7;">{{ event.date | date:'mediumDate' }}</div>
+              <strong style="font-size: 0.85rem; display: block; margin-top: 0.15rem;">{{ event.title }}</strong>
+              <span style="font-size: 0.8rem; opacity: 0.8; display: block; margin-top: 0.1rem;">{{ event.desc }}</span>
+            </div>
+            <div *ngIf="!cust.timeline || cust.timeline.length === 0" style="opacity: 0.6; text-align: center; padding: 1rem;">No timeline events.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

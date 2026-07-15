@@ -108,7 +108,8 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 5. Customer Self-Service: /portal/**
   if (url.includes('/portal/')) {
-    if (role === 'Customer (Self-Service)') {
+    const permittedRoles = ['Teller', 'Branch Manager', 'Compliance Officer', 'System Admin', 'Field Agent', 'Customer (Self-Service)'];
+    if (permittedRoles.includes(role)) {
       return true;
     }
     return failRedirect(role, router);

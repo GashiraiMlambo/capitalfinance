@@ -1,6 +1,7 @@
-<div class="portal-home-container anim-fade-in">
+<!--
+<div class="portal-home-container anim-fade-in" *ngIf="false">
   
-  <!-- 1. DEDICATED FULL-PAGE TRANSACTION HISTORY VIEW -->
+  [COMMENT: 1. DEDICATED FULL-PAGE TRANSACTION HISTORY VIEW]
   <div class="full-page-history-view" *ngIf="isHistoryView()">
     <div class="card-banking table-container">
       <div class="table-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-light);">
@@ -58,9 +59,9 @@
     </div>
   </div>
 
-  <!-- 2. PORTAL HOME VIEW -->
+  [COMMENT: 2. PORTAL HOME VIEW]
   <div class="portal-home-main-view" *ngIf="!isHistoryView()">
-    <!-- WELCOME HERO BLOCK -->
+    [COMMENT: WELCOME HERO BLOCK]
     <div class="portal-hero-banner card-banking">
       <div class="hero-content">
         <h2>Welcome back, {{ customerName() }}</h2>
@@ -73,9 +74,9 @@
     </div>
 
     <div class="split-view">
-      <!-- LEFT: TRACK REMITTANCE & CALCULATOR -->
+      [COMMENT: LEFT: TRACK REMITTANCE & CALCULATOR]
       <div class="left-pane">
-        <!-- Track Remittance Widget -->
+        [COMMENT: Track Remittance Widget]
         <div class="card-banking tracking-card">
           <h4>Track Remittance Transfer</h4>
           <p class="text-sm">Enter your 12-digit transaction PIN code to trace the payout status of your outbound transfer.</p>
@@ -90,7 +91,7 @@
             <button type="button" class="btn-primary" (click)="trackTransaction()">Track</button>
           </div>
 
-          <!-- Tracking Result Wizard Timeline -->
+          [COMMENT: Tracking Result Wizard Timeline]
           <div class="tracking-results" *ngIf="trackingResult().searched">
             <div class="error-msg" *ngIf="trackingResult().error">
               ⚠️ {{ trackingResult().error }}
@@ -127,7 +128,7 @@
           </div>
         </div>
 
-        <!-- Quick Calculator Widget -->
+        [COMMENT: Quick Calculator Widget]
         <div class="card-banking calc-card">
           <h4>Live Exchange Calculator</h4>
           <div class="calc-grid">
@@ -163,7 +164,7 @@
         </div>
       </div>
 
-      <!-- RIGHT: PERSONAL LEDGER HISTORY -->
+      [COMMENT: RIGHT: PERSONAL LEDGER HISTORY]
       <div class="right-pane table-container">
         <div class="table-header-bar">
           <h4>My Recent Transactions</h4>
@@ -209,3 +210,4 @@
   </div>
 
 </div>
+-->

@@ -77,7 +77,7 @@ export interface Transaction {
   recipientAddress?: string;
   purpose?: string;
   sourceOfFunds?: string;
-  status: 'Completed' | 'Pending' | 'Failed' | 'Reversed';
+  status: 'Completed' | 'Pending' | 'Failed' | 'Reversed' | 'Pending Agent' | 'Pending Branch';
   notes?: string;
   timestamp: string;
   branchId: string;
@@ -381,6 +381,28 @@ export class StateService {
   ]);
 
   transactions = signal<Transaction[]>([
+    {
+      id: 'TRF-2026-5CW1',
+      customerId: 'CUST-001',
+      customerName: 'Sakhe Ndlovu',
+      type: 'Remittance',
+      currencyPair: 'USD/ZWG',
+      direction: 'Local',
+      amount: 350,
+      amountLocal: 8925,
+      rate: 25.50,
+      fee: 10,
+      payoutMethod: 'Cash',
+      recipientName: 'Albert Ndlovu',
+      recipientPhone: '+263 77 112 2334',
+      purpose: 'Family Support',
+      sourceOfFunds: 'Savings',
+      status: 'Pending Agent',
+      timestamp: new Date().toISOString(),
+      branchId: 'BR-101',
+      tellerId: 'USR-001',
+      payoutPin: 'REM-9912-XYZ'
+    },
     {
       id: 'TXN-001',
       customerId: 'CUST-001',
