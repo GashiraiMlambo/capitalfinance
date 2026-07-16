@@ -102,9 +102,11 @@
           <div class="nav-dropdown glass-card" *ngIf="showRoleDropdown" style="width: 220px; top: 45px; right: 0;">
             <div class="dropdown-header">Switch User Role</div>
             <div class="profile-dropdown-body">
-              <a href="javascript:void(0)" class="dropdown-link" *ngFor="let role of adminRoles" (click)="selectRole(role)">
-                {{ role }}
-              </a>
+              <ng-container *ngFor="let role of adminRoles">
+                <a href="javascript:void(0)" class="dropdown-link" *ngIf="role !== 'Customer (Self-Service)'" (click)="selectRole(role)">
+                  {{ role }}
+                </a>
+              </ng-container>
             </div>
           </div>
         </div>

@@ -31,9 +31,11 @@
             <div class="quick-login-box">
               <label class="quick-label">Select Persona for Quick Login:</label>
               <div class="quick-roles-grid">
-                <button type="button" class="btn-role" *ngFor="let u of stateService.users()" (click)="quickSelectUser(u)">
-                  {{ u.role.split(' ')[0] }}
-                </button>
+                <ng-container *ngFor="let u of stateService.users()">
+                  <button type="button" class="btn-role" *ngIf="u.role !== 'Customer (Self-Service)'" (click)="quickSelectUser(u)">
+                    {{ u.role.split(' ')[0] }}
+                  </button>
+                </ng-container>
               </div>
             </div>
 

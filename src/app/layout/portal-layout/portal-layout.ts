@@ -115,12 +115,14 @@ interface MenuItem {
               
               <div class="header-dropdown role-dropdown" *ngIf="showRoleDropdown()">
                 <div class="dropdown-header">Interactive Testing Roles</div>
-                <button class="dropdown-item" *ngFor="let u of stateService.users()" (click)="selectRole(u)">
-                  <div class="role-desc">
-                    <p class="role-name">{{ u.name }}</p>
-                    <p class="role-title">{{ u.role }}</p>
-                  </div>
-                </button>
+                <ng-container *ngFor="let u of stateService.users()">
+                  <button class="dropdown-item" *ngIf="u.role !== 'Customer (Self-Service)'" (click)="selectRole(u)">
+                    <div class="role-desc">
+                      <p class="role-name">{{ u.name }}</p>
+                      <p class="role-title">{{ u.role }}</p>
+                    </div>
+                  </button>
+                </ng-container>
               </div>
             </div>
 

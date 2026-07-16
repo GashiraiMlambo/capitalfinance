@@ -243,8 +243,7 @@ export class StateService {
     { id: 'USR-002', name: 'George Chikopa', email: 'manager@ccfinance.co.zw', role: 'Branch Manager', branchId: 'BR-101', active: true, avatar: 'assets/avatars/manager.png' },
     { id: 'USR-003', name: 'Tedias Chikore', email: 'compliance@ccfinance.co.zw', role: 'Compliance Officer', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/compliance.png' },
     { id: 'USR-004', name: 'Chemunofira Chikosi', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' },
-    { id: 'USR-005', name: 'Magret Chimbewa', email: 'agent@ccfinance.co.zw', role: 'Field Agent', branchId: 'BR-102', active: true, avatar: 'assets/avatars/agent.png' },
-    { id: 'USR-006', name: 'Noah Chimboza', email: 'customer@ccfinance.co.zw', role: 'Customer (Self-Service)', branchId: 'BR-PORTAL', active: true, avatar: 'assets/avatars/customer.png' }
+    { id: 'USR-005', name: 'Magret Chimbewa', email: 'agent@ccfinance.co.zw', role: 'Field Agent', branchId: 'BR-102', active: true, avatar: 'assets/avatars/agent.png' }
   ]);
 
   savingsAccounts = signal<SavingsAccount[]>([

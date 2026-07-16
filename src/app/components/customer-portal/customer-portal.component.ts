@@ -58,8 +58,7 @@ export class CustomerPortalComponent implements OnInit {
     'Compliance Officer',
     'Branch Manager',
     'System Admin',
-    'Field Agent',
-    'Customer (Self-Service)'
+    'Field Agent'
   ];
 
   // System Configurations (Editable by System Admin)
