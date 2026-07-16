@@ -26,36 +26,35 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 1. Teller Routes: /teller/**
   if (url.includes('/teller/dashboard')) {
-    if (role === 'Teller' || role === 'Branch Manager') {
+    if (role === 'Teller') {
       return true;
     }
     return failRedirect(role, router);
   }
 
   if (url.includes('/teller/exchange/new')) {
-    if (role === 'Teller' || role === 'Branch Manager') {
+    if (role === 'Teller') {
       return true;
     }
     return failRedirect(role, router);
   }
 
   if (url.includes('/teller/remittance/new')) {
-    if (role === 'Teller' || role === 'Branch Manager' || role === 'Field Agent') {
+    if (role === 'Teller') {
       return true;
     }
     return failRedirect(role, router);
   }
 
   if (url.includes('/teller/transaction') && url.includes('/receipt')) {
-    // Receipt page is read-only or full access for teller, manager, agent, customer (if own)
-    if (role === 'Teller' || role === 'Branch Manager' || role === 'Field Agent' || role === 'Compliance Officer' || role === 'Customer (Self-Service)') {
+    if (role === 'Teller' || role === 'Compliance Officer') {
       return true;
     }
     return failRedirect(role, router);
   }
 
-  if (url.includes('/teller/customers/')) {
-    if (role === 'Teller' || role === 'Branch Manager' || role === 'Compliance Officer' || role === 'Field Agent' || role === 'Customer (Self-Service)') {
+  if (url.includes('/teller/customers')) {
+    if (role === 'Teller' || role === 'Compliance Officer') {
       return true;
     }
     return failRedirect(role, router);
@@ -63,7 +62,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 2. Onboarding Routes: /onboarding/new
   if (url.includes('/onboarding/new')) {
-    if (role !== 'Compliance Officer') {
+    if (role === 'Teller') {
       return true;
     }
     return failRedirect(role, router);
@@ -71,36 +70,29 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 3. Branch Routes: /branch/**
   if (url.includes('/branch/dashboard')) {
-    if (role === 'Branch Manager' || role === 'Compliance Officer') {
-      return true;
-    }
-    return failRedirect(role, router);
-  }
-
-  if (url.includes('/branch/transactions') && url.includes('/review')) {
-    if (role === 'Branch Manager' || role === 'Compliance Officer') {
-      return true;
-    }
-    return failRedirect(role, router);
-  }
-
-  if (url.includes('/branch/rates')) {
-    if (role === 'Branch Manager' || role === 'Teller') {
-      return true;
-    }
-    return failRedirect(role, router);
-  }
-
-  // 4. Compliance Routes: /compliance/**
-  if (url.includes('/compliance/dashboard')) {
     if (role === 'Compliance Officer') {
       return true;
     }
     return failRedirect(role, router);
   }
 
-  if (url.includes('/compliance/rbz-reporting')) {
-    if (role === 'Compliance Officer' || role === 'Branch Manager') {
+  if (url.includes('/branch/transactions') && url.includes('/review')) {
+    if (role === 'Compliance Officer') {
+      return true;
+    }
+    return failRedirect(role, router);
+  }
+
+  if (url.includes('/branch/rates')) {
+    if (role === 'Teller') {
+      return true;
+    }
+    return failRedirect(role, router);
+  }
+
+  // 4. Compliance Routes: /compliance/**
+  if (url.includes('/compliance/')) {
+    if (role === 'Compliance Officer') {
       return true;
     }
     return failRedirect(role, router);
@@ -108,7 +100,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 5. Customer Self-Service: /portal/**
   if (url.includes('/portal/')) {
-    const permittedRoles = ['Teller', 'Branch Manager', 'Compliance Officer', 'System Admin', 'Field Agent', 'Customer (Self-Service)'];
+    const permittedRoles = ['Teller', 'Compliance Officer', 'System Admin'];
     if (permittedRoles.includes(role)) {
       return true;
     }
@@ -132,20 +124,11 @@ function failRedirect(role: string, router: Router): boolean {
     case 'Teller':
       router.navigate(['/teller/dashboard']);
       break;
-    case 'Branch Manager':
-      router.navigate(['/branch/dashboard']);
-      break;
     case 'Compliance Officer':
       router.navigate(['/compliance/dashboard']);
       break;
     case 'System Admin':
-      router.navigate(['/admin/users']);
-      break;
-    case 'Field Agent':
-      router.navigate(['/onboarding/new']);
-      break;
-    case 'Customer (Self-Service)':
-      router.navigate(['/portal/home']);
+      router.navigate(['/branch/dashboard']);
       break;
     default:
       router.navigate(['/auth/login']);

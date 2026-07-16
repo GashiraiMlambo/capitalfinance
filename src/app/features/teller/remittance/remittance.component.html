@@ -35,21 +35,29 @@
                     (focus)="showLookupDropdown.set(true)"
                     (blur)="hideDropdown()"
                   />
-                  <div class="lookup-dropdown" *ngIf="showLookupDropdown() && filteredCustomers().length > 0">
-                    <button 
-                      type="button" 
-                      class="dropdown-item" 
-                      *ngFor="let c of filteredCustomers()"
-                      (click)="selectSender(c)"
-                    >
-                      <div class="cust-row-info">
-                        <span class="name">{{ c.name }}</span>
-                        <span class="passport">{{ c.nationalId }} ({{ c.nationality }})</span>
-                      </div>
-                      <span class="kyc-badge" [class]="c.kycStatus.toLowerCase()">
-                        {{ c.kycStatus }}
-                      </span>
-                    </button>
+                  <div class="lookup-dropdown" *ngIf="showLookupDropdown()">
+                    <ng-container *ngIf="filteredCustomers().length > 0">
+                      <button 
+                        type="button" 
+                        class="dropdown-item" 
+                        *ngFor="let c of filteredCustomers()"
+                        (click)="selectSender(c)"
+                      >
+                        <div class="cust-row-info">
+                          <span class="name">{{ c.name }}</span>
+                          <span class="passport">{{ c.nationalId }} ({{ c.nationality }})</span>
+                        </div>
+                        <span class="kyc-badge" [class]="c.kycStatus.toLowerCase()">
+                          {{ c.kycStatus }}
+                        </span>
+                      </button>
+                    </ng-container>
+                    <div class="no-results-dropdown" *ngIf="filteredCustomers().length === 0 && searchQuery().trim() !== ''">
+                      <p class="no-results-text">No registered customer matches "{{ searchQuery() }}"</p>
+                      <button type="button" class="btn-onboard-quick" (click)="onboardNewCustomerFromSearch()">
+                        Onboard "{{ searchQuery() }}" Now
+                      </button>
+                    </div>
                   </div>
                 </div>
 

@@ -139,6 +139,11 @@ export class RemittanceComponent implements OnInit, OnDestroy {
     this.showLookupDropdown.set(false);
   }
 
+  onboardNewCustomerFromSearch() {
+    const q = this.searchQuery().trim();
+    this.router.navigate(['/onboarding/new'], { queryParams: { name: q } });
+  }
+
   hideDropdown() {
     setTimeout(() => {
       this.showLookupDropdown.set(false);

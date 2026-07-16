@@ -4,7 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'Teller' | 'Branch Manager' | 'Compliance Officer' | 'System Admin' | 'Field Agent' | 'Customer (Self-Service)' | string;
+  role: 'Teller' | 'Compliance Officer' | 'System Admin' | string;
   branchId: string;
   active: boolean;
   avatar?: string;
@@ -85,6 +85,7 @@ export interface Transaction {
   payoutPin?: string;
   flagReason?: string;
   vettingResult?: string;
+  openedByTeller?: boolean;
 }
 
 export interface AuditLog {
@@ -240,10 +241,8 @@ export class StateService {
   // Pre-configured mock staff & customers
   users = signal<User[]>([
     { id: 'USR-001', name: 'Tawanda Chiimbira', email: 'teller@ccfinance.co.zw', role: 'Teller', branchId: 'BR-101', active: true, avatar: 'assets/avatars/teller.png' },
-    { id: 'USR-002', name: 'George Chikopa', email: 'manager@ccfinance.co.zw', role: 'Branch Manager', branchId: 'BR-101', active: true, avatar: 'assets/avatars/manager.png' },
     { id: 'USR-003', name: 'Tedias Chikore', email: 'compliance@ccfinance.co.zw', role: 'Compliance Officer', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/compliance.png' },
-    { id: 'USR-004', name: 'Chemunofira Chikosi', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' },
-    { id: 'USR-005', name: 'Magret Chimbewa', email: 'agent@ccfinance.co.zw', role: 'Field Agent', branchId: 'BR-102', active: true, avatar: 'assets/avatars/agent.png' }
+    { id: 'USR-004', name: 'Chemunofira Chikosi', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' }
   ]);
 
   savingsAccounts = signal<SavingsAccount[]>([
@@ -618,8 +617,9 @@ export class StateService {
 
   createTransaction(txn: Omit<Transaction, 'id' | 'timestamp' | 'branchId' | 'tellerId' | 'status'> & { status?: 'Completed' | 'Pending' | 'Failed' | 'Reversed' }) {
     const newId = `TXN-${String(this.transactions().length + 1).padStart(3, '0')}`;
+    const defaultStatus = txn.type === 'Remittance' ? 'Pending' : 'Completed';
     const newTxn: Transaction = {
-      status: 'Completed',
+      status: defaultStatus,
       ...txn,
       id: newId,
       timestamp: new Date().toISOString(),
@@ -861,5 +861,13 @@ export class StateService {
   makeRepayment(id: string, amount: number) {}
   registerCustomer(payload: any) {
     return this.onboardCustomer(payload);
+  }
+  markReceiptAsOpened(id: string) {
+    this.transactions.update(prev => prev.map(t => {
+      if (t.id === id) {
+        return { ...t, openedByTeller: true };
+      }
+      return t;
+    }));
   }
 }

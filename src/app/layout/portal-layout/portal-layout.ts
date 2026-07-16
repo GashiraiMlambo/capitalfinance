@@ -830,21 +830,25 @@ export class PortalLayoutComponent {
   ];
 
   menuItems: MenuItem[] = [
-    // Teller / Branch Manager
+    // Teller
     { title: 'Dashboard', translateKey: 'nav.dashboard', path: '/teller/dashboard', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
     { title: 'Currency Exchange', translateKey: 'nav.exchange', path: '/teller/exchange/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
     { title: 'New Remittance', translateKey: 'nav.remittance', path: '/teller/remittance/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>' },
     { title: 'Customer Onboarding', translateKey: 'nav.onboarding', path: '/onboarding/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>' },
+    { title: 'Customer Registry', translateKey: 'nav.customers', path: '/teller/customers', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>' },
 
-    // Branch Manager
-    { title: 'Manager Dashboard', translateKey: 'nav.manager_dash', path: '/branch/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>' },
-    { title: 'Rate Management', translateKey: 'nav.rates', path: '/branch/rates', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>' },
+    // Branch & Rates
+    { title: 'Admin & Branch Dashboard', translateKey: 'nav.manager_dash', path: '/admin/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>' },
+    { title: 'Rate Management', translateKey: 'nav.rates', path: '/admin/rates', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>' },
+    { title: 'Transactions Ledger', translateKey: 'nav.admin_txns', path: '/admin/transactions', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
 
     // Compliance
     { title: 'Compliance Dashboard', translateKey: 'nav.compliance_dash', path: '/compliance/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>' },
+    { title: 'Compliance Audits', translateKey: 'nav.compliance_txns', path: '/compliance/transactions', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M9 8h6"/></svg>' },
+    { title: 'KYC Queue', translateKey: 'nav.kyc_queue', path: '/compliance/kyc', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>' },
     { title: 'RBZ Reporting & EOD', translateKey: 'nav.rbz', path: '/compliance/rbz-reporting', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>' },
 
-    // Admin
+    // Admin & System
     { title: 'User Management', translateKey: 'nav.users', path: '/admin/users', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>' },
     { title: 'Audit Log', translateKey: 'nav.audit', path: '/admin/audit-log', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' },
 
@@ -899,17 +903,18 @@ export class PortalLayoutComponent {
     // RBAC Filter: which items can this role view?
     const allowedPaths: string[] = [];
     if (userRole === 'System Admin') {
-      allowedPaths.push('/admin/users', '/admin/audit-log', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/branch/dashboard', '/branch/rates', '/compliance/dashboard', '/compliance/rbz-reporting');
+      allowedPaths.push(
+        '/admin/dashboard', '/admin/rates', '/admin/transactions', '/admin/users', '/admin/audit-log',
+        '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/teller/customers',
+        '/compliance/dashboard', '/compliance/transactions', '/compliance/kyc', '/compliance/rbz-reporting'
+      );
     } else if (userRole === 'Teller') {
-      allowedPaths.push('/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new');
-    } else if (userRole === 'Branch Manager') {
-      allowedPaths.push('/branch/dashboard', '/branch/rates', '/onboarding/new', '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new');
+      allowedPaths.push('/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/teller/customers');
     } else if (userRole === 'Compliance Officer') {
-      allowedPaths.push('/compliance/dashboard', '/compliance/rbz-reporting', '/branch/dashboard');
-    } else if (userRole === 'Field Agent') {
-      allowedPaths.push('/onboarding/new', '/teller/remittance/new');
-    } else if (userRole === 'Customer (Self-Service)') {
-      allowedPaths.push('/portal/home', '/portal/transactions');
+      allowedPaths.push(
+        '/compliance/dashboard', '/compliance/transactions', '/compliance/kyc', '/compliance/rbz-reporting',
+        '/teller/customers', '/admin/dashboard'
+      );
     }
 
     const items = this.menuItems.filter(item => 
@@ -925,15 +930,25 @@ export class PortalLayoutComponent {
 
   isManagerOrCompliance(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Branch Manager' || role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'System Admin';
   }
 
   navigateToReview() {
     const pendingTxn = this.stateService.transactions().find(t => t.status === 'Pending');
     if (pendingTxn) {
-      this.router.navigate([`/branch/transactions/${pendingTxn.id}/review`]);
+      const role = this.stateService.currentUser()?.role;
+      if (role === 'Compliance Officer') {
+        this.router.navigate([`/compliance/transactions/${pendingTxn.id}`]);
+      } else {
+        this.router.navigate([`/admin/transactions/${pendingTxn.id}/review`]);
+      }
     } else {
-      this.router.navigate(['/branch/dashboard']);
+      const role = this.stateService.currentUser()?.role;
+      if (role === 'Compliance Officer') {
+        this.router.navigate(['/compliance/dashboard']);
+      } else {
+        this.router.navigate(['/admin/dashboard']);
+      }
     }
   }
 
@@ -975,20 +990,11 @@ export class PortalLayoutComponent {
       case 'Teller':
         this.router.navigate(['/teller/dashboard']);
         break;
-      case 'Branch Manager':
-        this.router.navigate(['/branch/dashboard']);
-        break;
       case 'Compliance Officer':
         this.router.navigate(['/compliance/dashboard']);
         break;
       case 'System Admin':
-        this.router.navigate(['/admin/users']);
-        break;
-      case 'Field Agent':
-        this.router.navigate(['/onboarding/new']);
-        break;
-      case 'Customer (Self-Service)':
-        this.router.navigate(['/portal/home']);
+        this.router.navigate(['/admin/dashboard']);
         break;
     }
   }

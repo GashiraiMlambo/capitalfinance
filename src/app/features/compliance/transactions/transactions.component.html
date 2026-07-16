@@ -1,0 +1,101 @@
+<div class="transactions-container anim-fade-in">
+  <div class="header-section">
+    <div>
+      <div class="breadcrumb">Compliance &bull; Audits</div>
+      <h2>Compliance Vetting Queue</h2>
+    </div>
+  </div>
+
+  <div class="card-banking filter-card">
+    <div class="filter-inputs">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search by ID, customer name, flagging reason..." 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)"
+          class="input-banking"
+        />
+      </div>
+      <div class="selectors">
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="ALL">All Statuses</option>
+          <option value="Pending">Pending Review</option>
+          <option value="Completed">Done / Approved</option>
+          <option value="Failed">Failed / Rejected</option>
+          <option value="Reversed">Reversed</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header-bar">
+      <h4>Compliance Audited Transactions</h4>
+      <span class="txn-count">{{ filteredTransactions().length }} Total</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table-enterprise">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Type</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Flagging Category</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTransactions()">
+            <td class="font-mono"><strong>{{ t.id }}</strong></td>
+            <td>
+              <span class="badge-type" [class.exchange]="t.type === 'Exchange'" [class.remit]="t.type === 'Remittance'">
+                {{ t.type }}
+              </span>
+            </td>
+            <td>
+              <div class="cust-info">
+                <strong>{{ t.customerName }}</strong>
+                <span class="subtext">ID: {{ t.customerId }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="amount-info">
+                <span class="txn-amount">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</span>
+                <span class="subtext">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge-reason" [class.sanctions]="t.flagReason === 'Sanctions hit'">
+                {{ t.flagReason || 'Standard AML limits check' }}
+              </span>
+            </td>
+            <td>
+              <span class="chip-status" 
+                [class.status-approved]="t.status === 'Completed'" 
+                [class.status-pending]="t.status === 'Pending'" 
+                [class.status-rejected]="t.status === 'Failed'"
+                [class.status-reversed]="t.status === 'Reversed'"
+              >
+                {{ t.status === 'Completed' ? 'Done' : t.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-action-inspect" (click)="inspectTransaction(t.id)">
+                Inspect Vetting
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredTransactions().length === 0">
+            <td colspan="7" class="no-records">
+              No transactions currently match the criteria.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

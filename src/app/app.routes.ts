@@ -44,6 +44,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/teller/receipt/receipt.component').then(m => m.ReceiptComponent)
       },
       {
+        path: 'customers',
+        loadComponent: () => import('./features/teller/customers/customers.component').then(m => m.CustomersComponent)
+      },
+      {
         path: 'customers/:id',
         loadComponent: () => import('./features/teller/customers/profile.component').then(m => m.CustomerProfileComponent)
       }
@@ -95,6 +99,22 @@ export const routes: Routes = [
         loadComponent: () => import('./features/compliance/dashboard/dashboard.component').then(m => m.ComplianceDashboardComponent)
       },
       {
+        path: 'transactions',
+        loadComponent: () => import('./features/compliance/transactions/transactions.component').then(m => m.ComplianceTransactionsComponent)
+      },
+      {
+        path: 'transactions/:id',
+        loadComponent: () => import('./features/branch/review/review.component').then(m => m.BranchReviewComponent)
+      },
+      {
+        path: 'kyc',
+        loadComponent: () => import('./features/compliance/kyc/kyc.component').then(m => m.KycComponent)
+      },
+      {
+        path: 'customers/:id',
+        loadComponent: () => import('./features/teller/customers/profile.component').then(m => m.CustomerProfileComponent)
+      },
+      {
         path: 'rbz-reporting',
         loadComponent: () => import('./features/compliance/reporting/reporting.component').then(m => m.RbzReportingComponent)
       }
@@ -115,6 +135,18 @@ export const routes: Routes = [
         loadComponent: () => import('./components/customer-portal/customer-portal.component').then(m => m.CustomerPortalComponent)
       },
       {
+        path: 'transactions/:id/receipt',
+        loadComponent: () => import('./features/teller/receipt/receipt.component').then(m => m.ReceiptComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./components/customer-portal/customer-portal.component').then(m => m.CustomerPortalComponent)
+      },
+      {
+        path: 'track',
+        loadComponent: () => import('./components/customer-portal/customer-portal.component').then(m => m.CustomerPortalComponent)
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
@@ -129,7 +161,31 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'dashboard',
+        loadComponent: () => import('./features/branch/dashboard/dashboard.component').then(m => m.BranchDashboardComponent)
+      },
+      {
+        path: 'transactions',
+        loadComponent: () => import('./features/admin/transactions/transactions.component').then(m => m.AdminTransactionsComponent)
+      },
+      {
+        path: 'transactions/:id/review',
+        loadComponent: () => import('./features/branch/review/review.component').then(m => m.BranchReviewComponent)
+      },
+      {
+        path: 'rates',
+        loadComponent: () => import('./features/branch/rates/rates.component').then(m => m.RateManagementComponent)
+      },
+      {
         path: 'users',
+        loadComponent: () => import('./features/admin/users/users.component').then(m => m.UserManagementComponent)
+      },
+      {
+        path: 'users/new',
+        loadComponent: () => import('./features/admin/users/users.component').then(m => m.UserManagementComponent)
+      },
+      {
+        path: 'users/:id',
         loadComponent: () => import('./features/admin/users/users.component').then(m => m.UserManagementComponent)
       },
       {

@@ -113,7 +113,7 @@
                 <span style="padding: 0.15rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;"
                   [style.background]="foundPayout()?.status === 'Completed' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)'"
                   [style.color]="foundPayout()?.status === 'Completed' ? '#10b981' : '#f59e0b'">
-                  {{ foundPayout()?.status }}
+                  {{ foundPayout()?.status === 'Completed' ? 'Done' : foundPayout()?.status }}
                 </span>
               </div>
               <button 
@@ -237,7 +237,7 @@
                     </td>
                     <td>
                       <span class="chip-status" [class.status-approved]="t.status === 'Completed'" [class.status-pending]="t.status === 'Pending'" [class.status-rejected]="t.status === 'Failed'">
-                        {{ t.status }}
+                        {{ t.status === 'Completed' ? 'Done' : t.status }}
                       </span>
                     </td>
                     <td>

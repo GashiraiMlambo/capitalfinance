@@ -1,0 +1,88 @@
+<div class="customers-container anim-fade-in">
+  <div class="header-section">
+    <div>
+      <div class="breadcrumb">Registry &bull; Customers</div>
+      <h2>Customer Registry</h2>
+    </div>
+    <button class="btn-primary" (click)="onboardCustomer()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right: 6px; display: inline-block; vertical-align: text-top;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M20 8v6M23 11h-6"/><circle cx="9" cy="7" r="4"/></svg>
+      Onboard New Customer
+    </button>
+  </div>
+
+  <div class="card-banking filter-card">
+    <div class="filter-inputs">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search by name, national ID, phone number..." 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)"
+          class="input-banking"
+        />
+      </div>
+      <div class="selectors">
+        <select [ngModel]="kycFilter()" (ngModelChange)="kycFilter.set($event)">
+          <option value="ALL">All KYC Statuses</option>
+          <option value="Verified">Verified</option>
+          <option value="Pending">Pending</option>
+          <option value="Flagged">Flagged</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header-bar">
+      <h4>Registered Customer Accounts</h4>
+      <span class="txn-count">{{ filteredCustomers().length }} Total</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table-enterprise">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Full Name</th>
+            <th>National ID / passport</th>
+            <th>Phone Number</th>
+            <th>KYC Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredCustomers()">
+            <td class="font-mono"><strong>{{ c.id }}</strong></td>
+            <td>
+              <div class="cust-info">
+                <strong>{{ c.name }}</strong>
+                <span class="subtext">{{ c.email || 'No email registered' }}</span>
+              </div>
+            </td>
+            <td>{{ c.idNumber }}</td>
+            <td>{{ c.phone }}</td>
+            <td>
+              <span class="chip-status" 
+                [class.status-approved]="c.kycStatus === 'Verified'" 
+                [class.status-pending]="c.kycStatus === 'Pending'" 
+                [class.status-rejected]="c.kycStatus === 'Flagged'"
+              >
+                {{ c.kycStatus }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-action-view" (click)="viewProfile(c.id)">
+                View Profile
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredCustomers().length === 0">
+            <td colspan="6" class="no-records">
+              No matching customer records located.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -16,6 +16,7 @@ export class ReceiptComponent implements OnInit {
 
   transactionId = signal<string>('');
   copied = signal<boolean>(false);
+  wasAlreadyOpened = signal<boolean>(false);
 
   transaction = computed(() => {
     const id = this.transactionId();
@@ -41,6 +42,18 @@ export class ReceiptComponent implements OnInit {
       const id = params.get('id');
       if (id) {
         this.transactionId.set(id);
+        
+        const user = this.stateService.currentUser();
+        const txn = this.stateService.transactions().find(t => t.id === id);
+        if (txn) {
+          if (txn.status === 'Completed' && user?.role === 'Teller') {
+            if (txn.openedByTeller) {
+              this.wasAlreadyOpened.set(true);
+            } else {
+              this.stateService.markReceiptAsOpened(id);
+            }
+          }
+        }
       }
     });
   }
@@ -56,18 +69,13 @@ export class ReceiptComponent implements OnInit {
   }
 
   closeVoucher() {
-    const userRole = this.stateService.currentUser()?.role;
-    if (userRole === 'Customer (Self-Service)') {
-      this.router.navigate(['/portal/home']);
-    } else {
-      this.router.navigate(['/teller/dashboard']);
-    }
+    this.router.navigate(['/teller/dashboard']);
   }
 
   canReverseTransaction(): boolean {
     const userRole = this.stateService.currentUser()?.role;
     const status = this.transaction()?.status;
-    return (userRole === 'Branch Manager' || userRole === 'System Admin') && status === 'Completed';
+    return (userRole === 'System Admin') && status === 'Completed';
   }
 
   reverseTransaction() {
@@ -83,5 +91,17 @@ export class ReceiptComponent implements OnInit {
       }));
       alert('Transaction reversed successfully.');
     }
+  }
+
+  clearTransaction() {
+    const id = this.transactionId();
+    this.stateService.transactions.update(prev => prev.map(t => {
+      if (t.id === id) {
+        this.stateService.addAuditLog(`Teller cleared remittance transaction: ${id}`, 'INFO');
+        return { ...t, status: 'Completed', openedByTeller: true };
+      }
+      return t;
+    }));
+    this.stateService.showToast(`Transaction ${id} has been cleared and completed.`, 'success');
   }
 }

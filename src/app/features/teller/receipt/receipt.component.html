@@ -1,5 +1,10 @@
 <div class="receipt-container anim-fade-in" *ngIf="transaction()">
-      <div class="receipt-card" id="printable-receipt">
+      <!-- GREYED-OUT WARNING BANNER -->
+      <div class="greyed-out-alert" *ngIf="wasAlreadyOpened() && stateService.currentUser()?.role === 'Teller'" style="margin-bottom: 1rem; width: 100%; max-width: 440px;">
+        <strong>Receipt Reprint Restricted:</strong> This receipt has already been opened/printed once by a Teller. To prevent duplicate prints, it has been locked. Please contact a System Administrator if a reprint is required.
+      </div>
+
+      <div class="receipt-card" id="printable-receipt" [class.greyed-out-container]="wasAlreadyOpened() && stateService.currentUser()?.role === 'Teller'">
         <!-- BRANDING HEADER -->
         <div class="receipt-header">
           <div class="logo">
@@ -37,7 +42,7 @@
           <div class="meta-row">
             <span class="label">Status:</span>
             <span class="chip-status" [class.status-approved]="transaction()?.status === 'Completed'" [class.status-pending]="transaction()?.status === 'Pending'" [class.status-rejected]="transaction()?.status === 'Failed'">
-              {{ transaction()?.status }}
+              {{ transaction()?.status === 'Completed' ? 'Done' : transaction()?.status }}
             </span>
           </div>
         </div>
@@ -156,9 +161,18 @@
 
       <!-- RECEIPT BUTTON ACTIONS -->
       <div class="receipt-actions no-print">
-        <button class="btn-secondary" (click)="printReceipt()">Print Receipt Voucher</button>
+        <button class="btn-secondary" [disabled]="wasAlreadyOpened() && stateService.currentUser()?.role === 'Teller'" (click)="printReceipt()">Print Receipt Voucher</button>
         <button class="btn-primary" (click)="closeVoucher()">Done & Return</button>
         
+        <!-- Teller Clear Action -->
+        <button 
+          *ngIf="transaction()?.status === 'Pending' && stateService.currentUser()?.role === 'Teller'" 
+          class="btn-primary" 
+          (click)="clearTransaction()"
+        >
+          Clear Transaction
+        </button>
+
         <!-- Manager / Admin Reversal Action -->
         <button 
           *ngIf="canReverseTransaction()" 

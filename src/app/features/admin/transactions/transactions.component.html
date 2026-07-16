@@ -1,0 +1,120 @@
+<div class="transactions-container anim-fade-in">
+  <div class="header-section">
+    <div>
+      <div class="breadcrumb">Registry &bull; Ledgers</div>
+      <h2>System Transaction Registry</h2>
+    </div>
+  </div>
+
+  <div class="card-banking filter-card">
+    <div class="filter-inputs">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search by ID, customer name, recipient, PIN..." 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)"
+          class="input-banking"
+        />
+      </div>
+      <div class="selectors">
+        <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+          <option value="ALL">All Types</option>
+          <option value="Exchange">Exchange Only</option>
+          <option value="Remittance">Remittance Only</option>
+        </select>
+
+        <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+          <option value="ALL">All Statuses</option>
+          <option value="Completed">Done</option>
+          <option value="Pending">Pending</option>
+          <option value="Failed">Failed</option>
+          <option value="Reversed">Reversed</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header-bar">
+      <h4>System Transactions Ledger</h4>
+      <span class="txn-count">{{ filteredTransactions().length }} Recorded</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table-enterprise">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Customer</th>
+            <th>Recipient / Destination</th>
+            <th>Amount (USD / ZWG)</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTransactions()">
+            <td class="font-mono"><strong>{{ t.id }}</strong></td>
+            <td>
+              <span class="badge-type" [class.exchange]="t.type === 'Exchange'" [class.remit]="t.type === 'Remittance'">
+                {{ t.type }}
+              </span>
+            </td>
+            <td>
+              <div class="cust-info">
+                <strong>{{ t.customerName }}</strong>
+                <span class="subtext">ID: {{ t.customerId }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="cust-info" *ngIf="t.type === 'Remittance'">
+                <strong>{{ t.recipientName }}</strong>
+                <span class="subtext">PIN: {{ t.payoutPin || 'N/A' }}</span>
+              </div>
+              <span *ngIf="t.type === 'Exchange'" style="color: var(--text-muted); font-size: 13px;">Bureau Exchange</span>
+            </td>
+            <td>
+              <div class="amount-info">
+                <span class="txn-amount">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</span>
+                <span class="subtext">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="chip-status" 
+                [class.status-approved]="t.status === 'Completed'" 
+                [class.status-pending]="t.status === 'Pending'" 
+                [class.status-rejected]="t.status === 'Failed'"
+                [class.status-reversed]="t.status === 'Reversed'"
+              >
+                {{ t.status === 'Completed' ? 'Done' : t.status }}
+              </span>
+            </td>
+            <td>
+              <button 
+                *ngIf="t.status === 'Pending'" 
+                class="btn-action-review" 
+                (click)="reviewTransaction(t.id)"
+              >
+                Review & Approve
+              </button>
+              <button 
+                *ngIf="t.status !== 'Pending'" 
+                class="btn-action-view" 
+                (click)="viewReceipt(t.id)"
+              >
+                View Receipt
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredTransactions().length === 0">
+            <td colspan="7" class="no-records">
+              No transactions match the search filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

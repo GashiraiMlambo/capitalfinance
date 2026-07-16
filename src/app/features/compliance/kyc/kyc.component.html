@@ -1,0 +1,96 @@
+<div class="kyc-container anim-fade-in">
+  <div class="header-section">
+    <div>
+      <div class="breadcrumb">Compliance &bull; Identity</div>
+      <h2>KYC Verification Queue</h2>
+    </div>
+  </div>
+
+  <div class="card-banking filter-card">
+    <div class="filter-inputs">
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search by name, national ID, phone number..." 
+          [ngModel]="searchQuery()" 
+          (ngModelChange)="searchQuery.set($event)"
+          class="input-banking"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header-bar">
+      <h4>Pending Identity & Sanctions Checks</h4>
+      <span class="txn-count">{{ kycQueue().length }} Awaiting Review</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table-enterprise">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>ID Number</th>
+            <th>KYC Status</th>
+            <th>Uploaded Credentials & Actions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of kycQueue()">
+            <td>
+              <div class="cust-info">
+                <strong>{{ c.name }}</strong>
+                <span class="subtext">{{ c.phone }}</span>
+              </div>
+            </td>
+            <td><strong>{{ c.idNumber }}</strong></td>
+            <td>
+              <span class="chip-status" 
+                [class.status-pending]="c.kycStatus === 'Pending'" 
+                [class.status-rejected]="c.kycStatus === 'Flagged'"
+              >
+                {{ c.kycStatus }}
+              </span>
+            </td>
+            <td>
+              <div class="docs-list">
+                <div class="doc-item" *ngFor="let d of c.documents">
+                  <span class="doc-name">
+                    📄 {{ d.type }} 
+                    <span class="doc-status" [class.verified]="d.status === 'Verified'" [class.pending]="d.status === 'Pending'" [class.rejected]="d.status === 'Rejected'">
+                      ({{ d.status }})
+                    </span>
+                  </span>
+                  <div class="doc-actions" *ngIf="d.status === 'Pending'">
+                    <button class="btn-doc-verify" (click)="approveDocument(c.id, d.type)">Verify</button>
+                    <button class="btn-doc-reject" (click)="rejectDocument(c.id, d.type)">Reject</button>
+                  </div>
+                </div>
+                <div *ngIf="!c.documents || c.documents.length === 0" style="color: var(--text-muted); font-size: 12px;">
+                  No scanned credentials uploaded yet.
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-action-view" (click)="viewCustomerProfile(c.id)">
+                  Inspect Profile
+                </button>
+                <button class="btn-action-approve" (click)="manuallyVerifyKyc(c.id)">
+                  Approve KYC
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="kycQueue().length === 0">
+            <td colspan="5" class="no-records">
+              No customer records currently require compliance documents vetting.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

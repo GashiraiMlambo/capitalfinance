@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { StateService } from '../../core/services/state.service';
 
 interface LocalOnboardingDraft {
@@ -23,6 +23,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   fb = inject(FormBuilder);
   stateService = inject(StateService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
 
   onboardForm!: FormGroup;
   isOnline = signal<boolean>(true);
@@ -107,6 +108,19 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.isOnline.set(navigator.onLine);
     window.addEventListener('online', this.handleOnline.bind(this));
     window.addEventListener('offline', this.handleOffline.bind(this));
+
+    // Read query parameters to prefill name if coming from remittance lookup
+    this.route.queryParams.subscribe(params => {
+      if (params['name']) {
+        const parts = params['name'].trim().split(/\s+/);
+        const firstName = parts[0] || '';
+        const lastName = parts.slice(1).join(' ') || '';
+        this.onboardForm.patchValue({
+          firstName,
+          lastName
+        });
+      }
+    });
 
     this.loadDraftsFromStorage();
   }

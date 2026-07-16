@@ -1,0 +1,160 @@
+.transactions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.breadcrumb {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.filter-card {
+  padding: 16px;
+
+  .filter-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+
+    .search-box {
+      flex: 1;
+      min-width: 280px;
+
+      input {
+        width: 100%;
+      }
+    }
+
+    .selectors {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+
+      select {
+        padding: 10px 14px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        background: var(--bg-surface);
+        outline: none;
+        color: var(--text-main);
+        font-weight: 500;
+        min-width: 150px;
+      }
+    }
+  }
+}
+
+.table-container {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+
+  .table-header-bar {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h4 {
+      margin: 0;
+    }
+
+    .txn-count {
+      font-size: 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+  }
+
+  .cust-info, .amount-info {
+    display: flex;
+    flex-direction: column;
+    
+    .subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  }
+
+  .badge-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    
+    &.exchange {
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--info);
+    }
+
+    &.remit {
+      background: rgba(82, 79, 255, 0.1);
+      color: var(--primary);
+    }
+  }
+
+  .btn-action-view {
+    background: var(--primary-light);
+    color: var(--primary);
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--primary);
+      color: white;
+    }
+  }
+
+  .btn-action-review {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #d97706;
+      color: white;
+    }
+  }
+
+  .no-records {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+  }
+}

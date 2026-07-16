@@ -119,7 +119,7 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('ccf_active_user_role', adminUser.role);
         this.stateService.addAuditLog(`User logged in via Microsoft Azure AD: ${adminUser.name}`);
         this.stateService.showToast(`Logged in with Microsoft as ${adminUser.name}`, 'success');
-        this.router.navigate(['/portal/home']);
+        this.router.navigate(['/admin/dashboard']);
       }
     }, 800);
   }
@@ -129,20 +129,11 @@ export class LoginComponent implements OnInit {
       case 'Teller':
         this.router.navigate(['/teller/dashboard']);
         break;
-      case 'Branch Manager':
-        this.router.navigate(['/branch/dashboard']);
-        break;
       case 'Compliance Officer':
         this.router.navigate(['/compliance/dashboard']);
         break;
       case 'System Admin':
-        this.router.navigate(['/admin/users']);
-        break;
-      case 'Field Agent':
-        this.router.navigate(['/onboarding/new']);
-        break;
-      case 'Customer (Self-Service)':
-        this.router.navigate(['/portal/home']);
+        this.router.navigate(['/admin/dashboard']);
         break;
       default:
         this.router.navigate(['/auth/login']);

@@ -56,12 +56,12 @@ export class CustomerProfileComponent implements OnInit {
 
   hasComplianceAccess(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'Branch Manager' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'System Admin';
   }
 
   canFlagCustomer(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'Branch Manager' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'System Admin';
   }
 
   canUnflagCustomer(): boolean {
@@ -71,7 +71,7 @@ export class CustomerProfileComponent implements OnInit {
 
   canVerifyDocs(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'Branch Manager' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'System Admin';
   }
 
   flagCustomer() {

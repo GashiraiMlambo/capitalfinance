@@ -60,7 +60,7 @@ export class BranchReviewComponent implements OnInit {
     const id = this.transactionId();
     
     this.stateService.approveTransaction(id, this.reviewNotes);
-    alert('Transaction approved and released successfully! Redirecting to receipt.');
+    this.stateService.showToast('Transaction approved and released successfully.', 'success');
     
     this.router.navigate([`/teller/transaction/${id}/receipt`]);
   }
@@ -70,8 +70,13 @@ export class BranchReviewComponent implements OnInit {
     const id = this.transactionId();
 
     this.stateService.rejectTransaction(id, this.reviewNotes);
-    alert('Transaction flagged override rejected. Status set to Failed.');
+    this.stateService.showToast('Transaction override rejected. Status set to Failed.', 'error');
 
-    this.router.navigate(['/branch/dashboard']);
+    const role = this.stateService.currentUser()?.role;
+    if (role === 'Compliance Officer') {
+      this.router.navigate(['/compliance/dashboard']);
+    } else {
+      this.router.navigate(['/branch/dashboard']);
+    }
   }
 }
