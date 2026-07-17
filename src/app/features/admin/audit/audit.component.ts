@@ -81,6 +81,6 @@ export class AuditLogComponent implements OnInit, OnDestroy {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    this.stateService.addAuditLog('System Admin executed CSV export of system audit logs.', 'CRITICAL');
+    this.stateService.addAuditLog('Branch Manager executed CSV export of system audit logs.', 'CRITICAL');
   }
 }

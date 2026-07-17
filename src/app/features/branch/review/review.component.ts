@@ -52,7 +52,7 @@ export class BranchReviewComponent implements OnInit {
     // In our spec, Compliance can approve sanctions, Manager approves limits.
     // Let's check: if role is Teller or Field Agent or Customer, they are completely blocked (guarded by routes).
     // Let's only allow managers and compliance officers and admins.
-    return role !== 'Branch Manager' && role !== 'Compliance Officer' && role !== 'System Admin';
+    return role !== 'Branch Manager' && role !== 'Compliance Officer';
   }
 
   approveOverride() {

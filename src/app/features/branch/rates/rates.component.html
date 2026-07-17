@@ -57,7 +57,7 @@
                   <button type="button" class="btn-verify-approve" (click)="approveRate(p.pair)">Approve & Publish</button>
                 </div>
                 <div class="prop-waiting" *ngIf="!isAdmin()">
-                  <span class="waiting-tag">Awaiting Admin Sign-off</span>
+                  <span class="waiting-tag">Awaiting Manager Sign-off</span>
                 </div>
               </div>
             </div>
@@ -68,7 +68,7 @@
         <div class="right-pane">
           <div class="card-banking propose-card" *ngIf="canPropose()">
             <h4>Propose Rate Override</h4>
-            <p class="text-sm">Branch Managers may propose adjustments to exchange rate margins. Submissions require System Admin approval before going live.</p>
+            <p class="text-sm">Branch Tellers may propose adjustments to exchange rate margins. Submissions require Branch Manager approval before going live.</p>
 
             <form [formGroup]="rateForm" (ngSubmit)="submitProposal()">
               <div class="form-group">

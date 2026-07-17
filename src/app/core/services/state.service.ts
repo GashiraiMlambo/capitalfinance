@@ -4,7 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'Teller' | 'Compliance Officer' | 'System Admin' | string;
+  role: 'Teller' | 'Compliance Officer' | 'Branch Manager' | string;
   branchId: string;
   active: boolean;
   avatar?: string;
@@ -242,7 +242,7 @@ export class StateService {
   users = signal<User[]>([
     { id: 'USR-001', name: 'Tawanda Chiimbira', email: 'teller@ccfinance.co.zw', role: 'Teller', branchId: 'BR-101', active: true, avatar: 'assets/avatars/teller.png' },
     { id: 'USR-003', name: 'Tedias Chikore', email: 'compliance@ccfinance.co.zw', role: 'Compliance Officer', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/compliance.png' },
-    { id: 'USR-004', name: 'Chemunofira Chikosi', email: 'admin@ccfinance.co.zw', role: 'System Admin', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' }
+    { id: 'USR-004', name: 'Chemunofira Chikosi', email: 'admin@ccfinance.co.zw', role: 'Branch Manager', branchId: 'BR-ALL', active: true, avatar: 'assets/avatars/admin.png' }
   ]);
 
   savingsAccounts = signal<SavingsAccount[]>([

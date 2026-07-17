@@ -74,7 +74,7 @@ export class TellerDashboardComponent implements OnInit {
 
   canToggleScope(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Branch Manager' || role === 'System Admin' || role === 'Compliance Officer';
+    return role === 'Branch Manager' || role === 'Compliance Officer';
   }
 
   sessionStats = computed(() => {

@@ -26,12 +26,12 @@ export class RateManagementComponent {
 
   canPropose(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Branch Manager' || role === 'System Admin';
+    return role === 'Branch Manager';
   }
 
   isAdmin(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'System Admin';
+    return role === 'Branch Manager';
   }
 
   pendingProposals = computed(() => {
@@ -44,7 +44,7 @@ export class RateManagementComponent {
     const val = this.rateForm.value;
     this.stateService.proposeRate(val.pair, val.proposedBuy, val.proposedSell, val.justification);
     
-    alert(`Rate override proposal submitted for pair ${val.pair}. Awaiting System Admin authorization.`);
+    alert(`Rate override proposal submitted for pair ${val.pair}. Awaiting Branch Manager authorization.`);
     this.rateForm.reset({ pair: 'USD/ZWG' });
   }
 

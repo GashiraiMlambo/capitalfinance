@@ -22,11 +22,11 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     const role = this.stateService.currentUser()?.role || 'Admin';
-    if (role === 'Teller' || role === 'Field Agent' || role === 'Branch Manager') {
+    if (role === 'Teller' || role === 'Field Agent') {
       this.activeRole.set('Operations');
     } else if (role === 'Compliance Officer') {
       this.activeRole.set('Risk');
-    } else if (role === 'System Admin') {
+    } else if (role === 'Branch Manager') {
       this.activeRole.set('Admin');
     } else {
       this.activeRole.set('Admin');

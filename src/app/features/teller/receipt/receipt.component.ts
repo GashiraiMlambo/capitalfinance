@@ -75,7 +75,7 @@ export class ReceiptComponent implements OnInit {
   canReverseTransaction(): boolean {
     const userRole = this.stateService.currentUser()?.role;
     const status = this.transaction()?.status;
-    return (userRole === 'System Admin') && status === 'Completed';
+    return (userRole === 'Branch Manager') && status === 'Completed';
   }
 
   reverseTransaction() {

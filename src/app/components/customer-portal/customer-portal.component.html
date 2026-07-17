@@ -203,18 +203,11 @@
             <button class="sidebar-link" [class.active]="activeView === 'branch'" (click)="activeView = 'branch'">
               <span class="material-icons">storefront</span> Manager Desk
             </button>
-            <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
-              <span class="material-icons">history</span> Branch History
-            </button>
-          </ng-container>
-
-          <!-- SYSTEM ADMIN MENU -->
-          <ng-container *ngIf="stateService.currentUser()?.role === 'System Admin'">
             <button class="sidebar-link" [class.active]="activeView === 'system'" (click)="activeView = 'system'">
               <span class="material-icons">settings</span> Admin Panel
             </button>
             <button class="sidebar-link" [class.active]="activeView === 'transactions'" (click)="activeView = 'transactions'">
-              <span class="material-icons">database</span> System Ledger
+              <span class="material-icons">history</span> Branch History
             </button>
           </ng-container>
 
@@ -617,11 +610,11 @@
         </div>
 
         <!-- ======================================= -->
-        <!-- VIEW: SYSTEM ADMIN PANEL                -->
+        <!-- VIEW: BRANCH MANAGER PANEL              -->
         <!-- ======================================= -->
         <div *ngIf="activeView === 'system'" class="system-view">
           <div style="margin-bottom: 1.5rem;">
-            <h2>System Administration Panel</h2>
+            <h2>Branch Manager Panel</h2>
             <p>Update live interbank currency rates, edit transactional parameters, and override staff two-factor configurations.</p>
           </div>
 
@@ -1323,7 +1316,7 @@
           <div class="module-view-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <div>
               <h2>Live Forex Conversion Rates</h2>
-              <p>Official interbank exchange rates updated in real time by System Admin.</p>
+              <p>Official interbank exchange rates updated in real time by Branch Manager.</p>
             </div>
             <span class="live-rates-badge" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
               <span class="live-dot" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; margin-right: 0.25rem; animation: pulse 1.5s infinite;"></span> Live Rates Active

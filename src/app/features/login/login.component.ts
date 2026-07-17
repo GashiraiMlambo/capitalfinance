@@ -112,8 +112,8 @@ export class LoginComponent implements OnInit {
   signInWithMicrosoft() {
     this.stateService.showToast('Connecting to Microsoft Azure AD...', 'info');
     setTimeout(() => {
-      // Find a staff user like System Admin
-      const adminUser = this.stateService.users().find(u => u.role === 'System Admin');
+      // Find a staff user like Branch Manager
+      const adminUser = this.stateService.users().find(u => u.role === 'Branch Manager');
       if (adminUser) {
         this.stateService.currentUser.set(adminUser);
         localStorage.setItem('ccf_active_user_role', adminUser.role);
@@ -132,7 +132,7 @@ export class LoginComponent implements OnInit {
       case 'Compliance Officer':
         this.router.navigate(['/compliance/dashboard']);
         break;
-      case 'System Admin':
+      case 'Branch Manager':
         this.router.navigate(['/admin/dashboard']);
         break;
       default:

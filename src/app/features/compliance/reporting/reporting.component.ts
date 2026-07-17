@@ -55,7 +55,7 @@ export class RbzReportingComponent implements OnInit, OnDestroy {
 
   canSubmitEod(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   triggerEodReconciliation() {

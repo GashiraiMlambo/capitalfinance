@@ -17,7 +17,7 @@ export const authGuard: CanActivateFn = (route, state) => {
   const url = state.url;
 
   // Global Admin Bypass (except for Customer Portal)
-  if (role === 'System Admin') {
+  if (role === 'Branch Manager') {
     if (url.includes('/portal/')) {
       return failRedirect(role, router);
     }
@@ -100,7 +100,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 5. Customer Self-Service: /portal/**
   if (url.includes('/portal/')) {
-    const permittedRoles = ['Teller', 'Compliance Officer', 'System Admin'];
+    const permittedRoles = ['Teller', 'Compliance Officer', 'Branch Manager'];
     if (permittedRoles.includes(role)) {
       return true;
     }
@@ -109,7 +109,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // 6. Admin Routes: /admin/**
   if (url.includes('/admin/')) {
-    if (role === 'System Admin') {
+    if (role === 'Branch Manager') {
       return true;
     }
     return failRedirect(role, router);
@@ -127,8 +127,8 @@ function failRedirect(role: string, router: Router): boolean {
     case 'Compliance Officer':
       router.navigate(['/compliance/dashboard']);
       break;
-    case 'System Admin':
-      router.navigate(['/branch/dashboard']);
+    case 'Branch Manager':
+      router.navigate(['/admin/dashboard']);
       break;
     default:
       router.navigate(['/auth/login']);

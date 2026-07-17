@@ -56,22 +56,22 @@ export class CustomerProfileComponent implements OnInit {
 
   hasComplianceAccess(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   canFlagCustomer(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   canUnflagCustomer(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   canVerifyDocs(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   flagCustomer() {

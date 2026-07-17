@@ -57,11 +57,10 @@ export class CustomerPortalComponent implements OnInit {
     'Teller',
     'Compliance Officer',
     'Branch Manager',
-    'System Admin',
     'Field Agent'
   ];
 
-  // System Configurations (Editable by System Admin)
+  // System Configurations (Editable by Branch Manager)
   sysConfigFeePct = 0.5;
   sysConfigMinFee = 10;
   sysConfigTaxPct = 0.25;
@@ -397,9 +396,6 @@ export class CustomerPortalComponent implements OnInit {
         break;
       case 'Branch Manager':
         this.activeView = 'branch';
-        break;
-      case 'System Admin':
-        this.activeView = 'system';
         break;
       case 'Field Agent':
         this.activeView = 'field';
@@ -831,11 +827,11 @@ export class CustomerPortalComponent implements OnInit {
     this.displayToast(`Vault replenished (+15,000 ${curr}) successfully.`, 'success');
   }
 
-  // SYSTEM ADMIN METHODS
+  // BRANCH MANAGER METHODS
   saveRateUpdate(rate: ExchangeRate, newBuy: number, newSell: number, newSpread: number): void {
     this.stateService.rates.update(prev => prev.map(r => {
       if (r.pair === rate.pair) {
-        this.stateService.addAuditLog(`System Admin updated Forex rates for ${rate.pair} (Buy: ${newBuy}, Sell: ${newSell}, Spread: ${newSpread}%)`);
+        this.stateService.addAuditLog(`Branch Manager updated Forex rates for ${rate.pair} (Buy: ${newBuy}, Sell: ${newSell}, Spread: ${newSpread}%)`);
         return {
           ...r,
           buyRate: newBuy,
@@ -855,13 +851,13 @@ export class CustomerPortalComponent implements OnInit {
     localStorage.setItem('ccf_sys_config_fee_pct', String(this.sysConfigFeePct));
     localStorage.setItem('ccf_sys_config_min_fee', String(this.sysConfigMinFee));
     localStorage.setItem('ccf_sys_config_tax_pct', String(this.sysConfigTaxPct));
-    this.stateService.addAuditLog(`System Admin modified configuration parameters (Fee: ${this.sysConfigFeePct}%, Min: ${this.sysConfigMinFee} ZWG, Tax: ${this.sysConfigTaxPct}%)`);
+    this.stateService.addAuditLog(`Branch Manager modified configuration parameters (Fee: ${this.sysConfigFeePct}%, Min: ${this.sysConfigMinFee} ZWG, Tax: ${this.sysConfigTaxPct}%)`);
     this.displayToast('System configurations updated successfully.', 'success');
     this.runCalculator();
   }
 
   sysOverride2fa(userId: string): void {
-    this.stateService.addAuditLog(`System Admin bypassed 2FA challenge and unlocked account for staff user ID ${userId}`);
+    this.stateService.addAuditLog(`Branch Manager bypassed 2FA challenge and unlocked account for staff user ID ${userId}`);
     this.displayToast(`2FA and password requirements reset for user ID: ${userId}`, 'success');
   }
 

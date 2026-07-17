@@ -154,7 +154,7 @@ export const routes: Routes = [
     ]
   },
 
-  // 6. System Administration
+  // 6. Branch Management / Admin
   {
     path: 'admin',
     loadComponent: () => import('./layout/portal-layout/portal-layout').then(m => m.PortalLayoutComponent),

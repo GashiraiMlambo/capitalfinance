@@ -898,11 +898,11 @@ export class PortalLayoutComponent {
 
   getFilteredItemsByCategory(categoryId: string): MenuItem[] {
     const term = this.menuSearchTerm().toLowerCase().trim();
-    const userRole = this.stateService.currentUser()?.role || 'System Admin';
+    const userRole = this.stateService.currentUser()?.role || 'Branch Manager';
 
     // RBAC Filter: which items can this role view?
     const allowedPaths: string[] = [];
-    if (userRole === 'System Admin') {
+    if (userRole === 'Branch Manager') {
       allowedPaths.push(
         '/admin/dashboard', '/admin/rates', '/admin/transactions', '/admin/users', '/admin/audit-log',
         '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/teller/customers',
@@ -930,7 +930,7 @@ export class PortalLayoutComponent {
 
   isManagerOrCompliance(): boolean {
     const role = this.stateService.currentUser()?.role;
-    return role === 'Compliance Officer' || role === 'System Admin';
+    return role === 'Compliance Officer' || role === 'Branch Manager';
   }
 
   navigateToReview() {
@@ -993,7 +993,7 @@ export class PortalLayoutComponent {
       case 'Compliance Officer':
         this.router.navigate(['/compliance/dashboard']);
         break;
-      case 'System Admin':
+      case 'Branch Manager':
         this.router.navigate(['/admin/dashboard']);
         break;
     }

@@ -1,7 +1,7 @@
 <div class="receipt-container anim-fade-in" *ngIf="transaction()">
       <!-- GREYED-OUT WARNING BANNER -->
       <div class="greyed-out-alert" *ngIf="wasAlreadyOpened() && stateService.currentUser()?.role === 'Teller'" style="margin-bottom: 1rem; width: 100%; max-width: 440px;">
-        <strong>Receipt Reprint Restricted:</strong> This receipt has already been opened/printed once by a Teller. To prevent duplicate prints, it has been locked. Please contact a System Administrator if a reprint is required.
+        <strong>Receipt Reprint Restricted:</strong> This receipt has already been opened/printed once by a Teller. To prevent duplicate prints, it has been locked. Please contact a Branch Manager if a reprint is required.
       </div>
 
       <div class="receipt-card" id="printable-receipt" [class.greyed-out-container]="wasAlreadyOpened() && stateService.currentUser()?.role === 'Teller'">
