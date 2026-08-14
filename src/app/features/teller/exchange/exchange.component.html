@@ -201,7 +201,7 @@
               <div class="draft-item" *ngFor="let d of localDrafts()">
                 <div class="draft-brief">
                   <p class="cust-name"><strong>{{ d.customerName }}</strong></p>
-                  <p class="details">{{ d.pair }} | {{ d.direction }} | {{ getCurrencySymbol(d.pair?.split('/')?.[0]) }}{{ d.amount }}</p>
+                  <p class="details">{{ d.pair }} | {{ d.direction }} | {{ getCurrencySymbol(d.pair.split('/')[0]) }}{{ d.amount }}</p>
                 </div>
                 <div class="draft-actions">
                   <button type="button" class="btn-action-restore" (click)="restoreDraft(d)">Restore</button>

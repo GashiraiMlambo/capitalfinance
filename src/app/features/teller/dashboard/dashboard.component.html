@@ -231,8 +231,8 @@
                     </td>
                     <td>
                       <div class="amount-info">
-                        <strong class="txn-amount">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[0]) }}{{ t.amount | number:'1.2-2' }}</strong>
-                        <span class="subtext">{{ getCurrencySymbol(t.currencyPair?.split('/')?.[1]) }}{{ t.amountLocal | number:'1.2-2' }} {{ t.currencyPair?.split('/')?.[1] }}</span>
+                        <strong class="txn-amount">{{ getCurrencySymbol(t.currencyPair.split('/')[0]) }}{{ t.amount | number:'1.2-2' }}</strong>
+                        <span class="subtext">{{ getCurrencySymbol(t.currencyPair.split('/')[1]) }}{{ t.amountLocal | number:'1.2-2' }} {{ t.currencyPair.split('/')[1] }}</span>
                       </div>
                     </td>
                     <td>

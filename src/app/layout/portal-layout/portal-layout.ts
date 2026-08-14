@@ -5,23 +5,34 @@ import { FormsModule } from '@angular/forms';
 import { StateService, User } from '../../core/services/state.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { TranslationService, Language } from '../../core/services/translation.service';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { filter } from 'rxjs/operators';
+import { NAV_CATEGORIES } from './nav-config';
 
-interface MenuItem {
+export interface SubMenuItem {
   title: string;
-  translateKey: string;
   path: string;
+}
+
+export interface MenuItem {
+  title: string;
+  path?: string;
   icon: string;
-  badge?: string;
-  badgeType?: 'success' | 'warning' | 'danger' | 'info';
-  category: 'core' | 'operations' | 'management' | 'system';
+  type: 'link' | 'dropdown';
+  expanded?: boolean;
+  roles?: string[];
+  children?: SubMenuItem[];
+}
+
+export interface NavCategory {
+  id: string;
+  title: string;
+  items: MenuItem[];
 }
 
 @Component({
   selector: 'app-portal-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, FormsModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, FormsModule],
   template: `
     <div class="portal-container" [class.sidebar-collapsed]="isSidebarCollapsed()">
       <!-- SIDEBAR -->
@@ -52,28 +63,55 @@ interface MenuItem {
 
         <!-- Sidebar Menu Items -->
         <nav class="sidebar-nav">
-          <div *ngFor="let cat of categories">
-            <div class="nav-category-header" *ngIf="!isSidebarCollapsed() && getFilteredItemsByCategory(cat.id).length > 0">
-              {{ cat.label }}
+          <div *ngFor="let cat of navCategories" class="nav-category-block">
+            <div class="nav-category-header" *ngIf="!isSidebarCollapsed() && getFilteredItemsByCategory(cat).length > 0">
+              {{ cat.title }}
             </div>
             
-            <a 
-              *ngFor="let item of getFilteredItemsByCategory(cat.id)" 
-              [routerLink]="item.path" 
-              routerLinkActive="active-link"
-              class="nav-item"
-              [title]="item.title"
-            >
-              <span class="nav-item-icon" [innerHTML]="item.icon"></span>
-              <span class="nav-item-title" *ngIf="!isSidebarCollapsed()">{{ item.translateKey | translate }}</span>
-              <span 
-                *ngIf="!isSidebarCollapsed() && item.badge" 
-                class="nav-item-badge" 
-                [class]="'badge-' + item.badgeType"
+            <div *ngFor="let item of getFilteredItemsByCategory(cat)" class="nav-item-wrapper">
+              <!-- Direct Link Item -->
+              <a 
+                *ngIf="item.type === 'link'"
+                [routerLink]="item.path" 
+                routerLinkActive="active-link"
+                class="nav-item"
+                [title]="item.title"
               >
-                {{ item.badge }}
-              </span>
-            </a>
+                <span class="nav-item-icon" [innerHTML]="item.icon"></span>
+                <span class="nav-item-title" *ngIf="!isSidebarCollapsed()">{{ item.title }}</span>
+                <span class="chevron-icon" *ngIf="!isSidebarCollapsed()">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                </span>
+              </a>
+
+              <!-- Accordion Parent Item (v chevron) -->
+              <div 
+                *ngIf="item.type === 'dropdown'"
+                class="nav-item nav-item-dropdown"
+                [class.is-expanded]="item.expanded"
+                (click)="toggleSubmenu(item)"
+                [title]="item.title"
+              >
+                <span class="nav-item-icon" [innerHTML]="item.icon"></span>
+                <span class="nav-item-title" *ngIf="!isSidebarCollapsed()">{{ item.title }}</span>
+                <span class="chevron-icon" *ngIf="!isSidebarCollapsed()">
+                  <svg [class.rotated]="item.expanded" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+                </span>
+              </div>
+
+              <!-- Accordion Submenu Children -->
+              <div class="submenu-container" *ngIf="item.type === 'dropdown' && item.expanded && !isSidebarCollapsed()">
+                <a 
+                  *ngFor="let child of item.children"
+                  [routerLink]="child.path"
+                  routerLinkActive="active-link"
+                  class="submenu-item"
+                >
+                  <span class="submenu-dot"></span>
+                  <span class="submenu-title">{{ child.title }}</span>
+                </a>
+              </div>
+            </div>
           </div>
         </nav>
 
@@ -239,12 +277,16 @@ interface MenuItem {
   styles: [`
     .portal-container {
       display: flex;
-      min-height: 100vh;
+      height: 100vh;
+      max-height: 100vh;
+      width: 100vw;
+      overflow: hidden;
       background-color: var(--bg-base);
     }
 
     .portal-sidebar {
       width: 260px;
+      height: 100vh;
       background-color: var(--bg-sidebar);
       display: flex;
       flex-direction: column;
@@ -254,6 +296,7 @@ interface MenuItem {
       z-index: 100;
       transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+      overflow: hidden;
     }
 
     .portal-container.sidebar-collapsed .portal-sidebar {
@@ -268,6 +311,7 @@ interface MenuItem {
 
     .sidebar-brand {
       height: 70px;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -316,6 +360,7 @@ interface MenuItem {
 
     .sidebar-search {
       padding: 12px 16px;
+      flex-shrink: 0;
 
       .search-input-wrapper {
         position: relative;
@@ -349,26 +394,35 @@ interface MenuItem {
     .sidebar-nav {
       flex-grow: 1;
       overflow-y: auto;
+      overscroll-behavior: contain;
       padding: 12px 8px;
+
+      .nav-category-block {
+        margin-bottom: 12px;
+      }
 
       .nav-category-header {
         font-size: 11px;
+        font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: rgba(255, 255, 255, 0.4);
-        padding: 12px 12px 6px 12px;
+        color: #b91c1c;
+        padding: 14px 12px 6px 12px;
         font-family: 'Outfit', sans-serif;
+      }
+
+      .nav-item-wrapper {
+        margin-bottom: 2px;
       }
 
       .nav-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
-        color: rgba(255, 255, 255, 0.7);
+        gap: 10px;
+        padding: 9px 12px;
+        color: rgba(255, 255, 255, 0.85);
         text-decoration: none;
         border-radius: var(--radius-md);
-        margin-bottom: 2px;
         font-size: 13.5px;
         transition: all 0.2s;
         cursor: pointer;
@@ -376,39 +430,47 @@ interface MenuItem {
         .nav-item-icon {
           display: flex;
           align-items: center;
-          color: rgba(255, 255, 255, 0.6);
+          color: rgba(255, 255, 255, 0.65);
+          width: 18px;
+          height: 18px;
         }
 
         .nav-item-title {
           flex-grow: 1;
+          font-weight: 500;
         }
 
-        .nav-item-badge {
-          font-size: 10.5px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 9999px;
-          
-          &.badge-success { background: var(--success); color: white; }
-          &.badge-warning { background: var(--warning); color: var(--text-inverse); }
-          &.badge-danger { background: var(--danger); color: white; }
-          &.badge-info { background: var(--info); color: white; }
+        .chevron-icon {
+          display: flex;
+          align-items: center;
+          color: rgba(255, 255, 255, 0.4);
+          transition: transform 0.2s;
+
+          svg.rotated {
+            transform: rotate(180deg);
+          }
         }
 
         &:hover {
           color: white;
           background-color: var(--bg-sidebar-hover);
           .nav-item-icon { color: white; }
+          .chevron-icon { color: white; }
+        }
+
+        &.active-link, &.is-expanded {
+          color: white;
+          background-color: var(--bg-sidebar-hover);
+          font-weight: 600;
+
+          .nav-item-icon { color: white; }
         }
 
         &.active-link {
-          color: white;
           background-color: var(--bg-sidebar-active);
-          font-weight: 600;
           position: relative;
-          padding-left: 16px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-          
+
           &::before {
             content: '';
             position: absolute;
@@ -419,14 +481,55 @@ interface MenuItem {
             background-color: white;
             border-radius: 0 4px 4px 0;
           }
+        }
+      }
 
-          .nav-item-icon { color: white; }
+      .submenu-container {
+        display: flex;
+        flex-direction: column;
+        padding-left: 28px;
+        margin-top: 2px;
+        margin-bottom: 6px;
+        gap: 2px;
+        animation: fadeIn 0.2s ease;
+
+        .submenu-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 10px;
+          color: rgba(255, 255, 255, 0.7);
+          text-decoration: none;
+          font-size: 12.5px;
+          border-radius: var(--radius-sm);
+          transition: all 0.2s;
+
+          .submenu-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+          }
+
+          &:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.08);
+            .submenu-dot { background-color: white; }
+          }
+
+          &.active-link {
+            color: white;
+            font-weight: 600;
+            background-color: var(--primary);
+            .submenu-dot { background-color: white; }
+          }
         }
       }
     }
 
     .sidebar-footer {
       padding: 16px;
+      flex-shrink: 0;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
 
       .user-brief {
@@ -728,6 +831,7 @@ interface MenuItem {
       flex-grow: 1;
       padding: 24px;
       overflow-y: auto;
+      overscroll-behavior: contain;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -823,39 +927,7 @@ export class PortalLayoutComponent {
   showProfileDropdown = signal(false);
   showRoleDropdown = signal(false);
 
-  categories = [
-    { id: 'core', label: 'Core Bureau' },
-    { id: 'operations', label: 'Operations & Management' },
-    { id: 'system', label: 'System & Ledger' }
-  ];
-
-  menuItems: MenuItem[] = [
-    // Teller
-    { title: 'Dashboard', translateKey: 'nav.dashboard', path: '/teller/dashboard', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>' },
-    { title: 'Currency Exchange', translateKey: 'nav.exchange', path: '/teller/exchange/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>' },
-    { title: 'New Remittance', translateKey: 'nav.remittance', path: '/teller/remittance/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>' },
-    { title: 'Customer Onboarding', translateKey: 'nav.onboarding', path: '/onboarding/new', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>' },
-    { title: 'Customer Registry', translateKey: 'nav.customers', path: '/teller/customers', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>' },
-
-    // Branch & Rates
-    { title: 'Admin & Branch Dashboard', translateKey: 'nav.manager_dash', path: '/admin/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>' },
-    { title: 'Rate Management', translateKey: 'nav.rates', path: '/admin/rates', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>' },
-    { title: 'Transactions Ledger', translateKey: 'nav.admin_txns', path: '/admin/transactions', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' },
-
-    // Compliance
-    { title: 'Compliance Dashboard', translateKey: 'nav.compliance_dash', path: '/compliance/dashboard', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>' },
-    { title: 'Compliance Audits', translateKey: 'nav.compliance_txns', path: '/compliance/transactions', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6M9 16h6M9 8h6"/></svg>' },
-    { title: 'KYC Queue', translateKey: 'nav.kyc_queue', path: '/compliance/kyc', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>' },
-    { title: 'RBZ Reporting & EOD', translateKey: 'nav.rbz', path: '/compliance/rbz-reporting', category: 'operations', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>' },
-
-    // Admin & System
-    { title: 'User Management', translateKey: 'nav.users', path: '/admin/users', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>' },
-    { title: 'Audit Log', translateKey: 'nav.audit', path: '/admin/audit-log', category: 'system', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' },
-
-    // Customer
-    { title: 'Portal Home', translateKey: 'nav.portal_home', path: '/portal/home', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>' },
-    { title: 'My Transactions', translateKey: 'nav.portal_txns', path: '/portal/transactions', category: 'core', icon: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' }
-  ];
+  navCategories = NAV_CATEGORIES;
 
   activePageTitle = signal<string>('Teller Dashboard');
 
@@ -872,20 +944,44 @@ export class PortalLayoutComponent {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects;
-        const matchingItem = this.menuItems.find(item => url.includes(item.path));
-        if (matchingItem) {
-          this.activePageTitle.set(matchingItem.title);
-        } else if (url.includes('/receipt')) {
-          this.activePageTitle.set('Transaction Voucher');
-        } else if (url.includes('/customers/')) {
-          this.activePageTitle.set('Customer Profile');
-        } else if (url.includes('/review')) {
-          this.activePageTitle.set('Transaction Override Review');
-        } else {
-          this.activePageTitle.set('Portal');
-        }
+        this.updateActiveTitleByUrl(url);
         this.closeAllDropdowns();
       });
+  }
+
+  toggleSubmenu(item: MenuItem) {
+    if (item.type === 'dropdown') {
+      item.expanded = !item.expanded;
+    }
+  }
+
+  updateActiveTitleByUrl(url: string) {
+    for (const cat of this.navCategories) {
+      for (const item of cat.items) {
+        if (item.type === 'link' && item.path && url.includes(item.path)) {
+          this.activePageTitle.set(item.title);
+          return;
+        }
+        if (item.type === 'dropdown' && item.children) {
+          for (const child of item.children) {
+            if (url.includes(child.path)) {
+              this.activePageTitle.set(child.title);
+              item.expanded = true; // Auto expand parent accordion on navigation
+              return;
+            }
+          }
+        }
+      }
+    }
+    if (url.includes('/receipt')) {
+      this.activePageTitle.set('Transaction Voucher');
+    } else if (url.includes('/customers/')) {
+      this.activePageTitle.set('Customer Profile');
+    } else if (url.includes('/review')) {
+      this.activePageTitle.set('Transaction Override Review');
+    } else {
+      this.activePageTitle.set('Portal');
+    }
   }
 
   toggleSidebar() {
@@ -896,36 +992,25 @@ export class PortalLayoutComponent {
     this.menuSearchTerm.set(event.target.value);
   }
 
-  getFilteredItemsByCategory(categoryId: string): MenuItem[] {
+  getFilteredItemsByCategory(category: NavCategory): MenuItem[] {
     const term = this.menuSearchTerm().toLowerCase().trim();
     const userRole = this.stateService.currentUser()?.role || 'Branch Manager';
 
-    // RBAC Filter: which items can this role view?
-    const allowedPaths: string[] = [];
-    if (userRole === 'Branch Manager') {
-      allowedPaths.push(
-        '/admin/dashboard', '/admin/rates', '/admin/transactions', '/admin/users', '/admin/audit-log',
-        '/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/teller/customers',
-        '/compliance/dashboard', '/compliance/transactions', '/compliance/kyc', '/compliance/rbz-reporting'
-      );
-    } else if (userRole === 'Teller') {
-      allowedPaths.push('/teller/dashboard', '/teller/exchange/new', '/teller/remittance/new', '/onboarding/new', '/teller/customers');
-    } else if (userRole === 'Compliance Officer') {
-      allowedPaths.push(
-        '/compliance/dashboard', '/compliance/transactions', '/compliance/kyc', '/compliance/rbz-reporting',
-        '/teller/customers', '/admin/dashboard'
-      );
-    }
+    // RBAC Filter: Only return items permitted for the user's role
+    const roleItems = category.items.filter(item => {
+      if (!item.roles || item.roles.length === 0) return true;
+      return item.roles.includes(userRole) || userRole === 'Branch Manager' || userRole === 'System Administrator';
+    });
 
-    const items = this.menuItems.filter(item => 
-      item.category === categoryId && allowedPaths.includes(item.path)
-    );
+    if (!term) return roleItems;
 
-    if (!term) return items;
-    return items.filter(item => 
-      item.title.toLowerCase().includes(term) || 
-      this.translationService.translate(item.translateKey).toLowerCase().includes(term)
-    );
+    return roleItems.filter(item => {
+      if (item.title.toLowerCase().includes(term)) return true;
+      if (item.children) {
+        return item.children.some(child => child.title.toLowerCase().includes(term));
+      }
+      return false;
+    });
   }
 
   isManagerOrCompliance(): boolean {

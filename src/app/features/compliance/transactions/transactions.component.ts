@@ -1,13 +1,13 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { StateService, Transaction } from '../../../core/services/state.service';
 
 @Component({
   selector: 'app-compliance-transactions',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss'
 })

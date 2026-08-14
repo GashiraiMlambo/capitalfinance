@@ -1,13 +1,13 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { StateService, Customer } from '../../../core/services/state.service';
 
 @Component({
   selector: 'app-customers-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.scss'
 })

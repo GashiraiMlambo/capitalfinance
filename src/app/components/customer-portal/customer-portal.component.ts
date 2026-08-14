@@ -2,15 +2,13 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FilterByTypePipe } from '../../pipes/filter-by-type.pipe';
-import { FilterByStatusPipe } from '../../pipes/filter-by-status.pipe';
 import { countries } from '../../services/countries';
 import { StateService, User, Customer, Transaction, ExchangeRate } from '../../core/services/state.service';
 
 @Component({
   selector: 'app-customer-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, FilterByTypePipe, FilterByStatusPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './customer-portal.component.html',
   styleUrls: ['./customer-portal.component.css']
 })
